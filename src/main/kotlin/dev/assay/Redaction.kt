@@ -12,6 +12,7 @@ object Redaction {
         Regex("glpat-[A-Za-z0-9_-]{20,}"),
         Regex("sk-(?:proj-)?[A-Za-z0-9_-]{20,}"),
         Regex("xox[baprs]-[A-Za-z0-9-]{10,}"),
+        Regex("ASSAY_TEST_SECRET_[A-Z0-9]{20}"),
         Regex("-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\\s\\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     )
 
