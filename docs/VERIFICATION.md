@@ -1,41 +1,61 @@
 # Verification matrix
 
-No capability is promoted by prose. A row is marked verified only when the named mechanical evidence exists. Environment certification remains separate from repository verification.
+Verification is split into three levels:
 
-| Capability | Mechanical evidence | Repository status | Deployment status |
-|---|---|---:|---:|
-| Core build and packaged CLI | GitHub `gradle check`, `installDist`, distribution artifact | verified | portable distribution produced |
-| Canonical SARIF, severity mapping, redaction and bus validation | deterministic acceptance fixtures and schema checks | verified | requires deployment-specific paths and permissions |
-| Gitleaks, Semgrep and OSV command/digest/version enforcement | JVM acceptance tests | verified | pinned executables still required on each runner |
-| Real Gitleaks, Semgrep and OSV CLI contract | dedicated GitHub Actions workflow executing packaged pinned scanners | verified | rerun on the Dell host during certification |
-| Candidate identity and lifecycle engine | lifecycle acceptance suite | verified | no automatic merge path exists |
-| Candidate JSON persistence | codec, tamper, symlink, lock and stale-revision acceptance tests | verified | private durable candidate directory required |
-| Git-bound candidate workflow | temporary-repository create/propose/prepare/commit/proof/approve/apply test | verified | repository credentials and review policy remain deployment concerns |
-| Local atomic audit bus | staged publication, manifest, gate and failure-injection tests | verified | private local audit directory required |
-| Remote `assay/audit` publication | real local bare-Git remote, disconnected first commit, parent-chain and stale-lease tests | verified | live hosted remote and credentials require field certification |
-| MobSF API lifecycle | local HTTP contract server verifies upload, scan, report, normalization and delete-on-failure | verified | pinned MobSF image and real APK require field certification |
-| MobSF container command | immutable image-digest and least-privilege command assertions | verified | actual Podman/Docker runtime and image require field certification |
-| Fonebrew proposal boundary | gateway test rejects unknown findings and creates only finding-bound proposals | verified | installed Fonebrew transport requires field certification |
-| Orrery status projection | health projection and fail-closed snapshot tests | verified | installed Orrery transport requires field certification |
-| Optional ASOM boundary | read-only advisory response type and validation | verified | model provider transport is optional and requires field certification |
-| Runner preflight | host, permission, capacity, binary-digest, version, Git and container-runtime tests | verified | Dell hardware must pass the command before certification |
-| Runner service hardening | systemd preflight unit, runner drop-in and private tmpfiles configuration | reviewed and committed | installation and cancellation cleanup require Dell-host testing |
-| Android console parser and UI | Android debug APK build and lint workflow | verified when the Android workflow is green on the PR head | device import/usability smoke test requires an Android device |
-| Android console artifact | workflow-uploaded debug APK and lint reports | verified when artifact upload succeeds on the PR head | release signing is intentionally outside this draft PR |
+- **implemented** — code and contracts exist in this repository;
+- **mechanically verified** — repository-controlled acceptance or CI evidence exists;
+- **environment-certified** — the capability has also been exercised in the actual deployment environment.
 
-## Required deployment certification
+No row may be promoted by prose. Promotion requires the named mechanical or deployment evidence.
 
-The repository-contained v1 is complete when all PR-head workflows are green. Production or homelab certification additionally requires evidence from the actual environments:
+| Capability | Current evidence | Status |
+|---|---|---|
+| Pure-JVM core and packaged CLI | GitHub `gradle check` and `installDist` | mechanically verified |
+| Canonical SARIF, severity, redaction, bus, proof and candidate model | deterministic acceptance suites | mechanically verified |
+| Gitleaks, Semgrep and OSV command, version and digest enforcement | acceptance suites plus live scanner-contract workflow | mechanically verified |
+| Gitleaks, Semgrep and OSV real CLI contract | pinned binaries exercised by `scanner-contracts.yml` | mechanically verified |
+| MobSF API lifecycle | fake HTTP server verifies upload, scan, report, error and delete cleanup | mechanically verified against the API contract |
+| Pinned MobSF container scanning a real APK | actual pinned container and APK required | implemented; environment certification pending |
+| Local atomic audit directory | acceptance tests | mechanically verified |
+| Remote `assay/audit` disconnected publication | real local bare Git remote verifies orphan history and stale lease rejection | mechanically verified locally |
+| Hosted `assay/audit` publication | production Git credentials and remote required | implemented; environment certification pending |
+| Candidate JSON persistence and locking | round-trip, tamper, stale revision, symlink and concurrent-process tests | mechanically verified |
+| Git fix branch and application contract | temporary real Git repositories | mechanically verified |
+| End-to-end candidate CLI lifecycle | real temporary Git worktree and packaged command tests | mechanically verified |
+| Fonebrew proposal gateway | integration acceptance tests | mechanically verified at file/CLI boundary |
+| Orrery status projection | integration acceptance tests | mechanically verified at file/CLI boundary |
+| Optional ASOM explanation boundary | read-only integration acceptance tests | mechanically verified at type boundary |
+| Dell/self-hosted runner preflight | fake-tool and environment acceptance tests | mechanically verified; Dell certification pending |
+| Android 1.1 first-run home | APK assembly and lint workflow | mechanically verified |
+| Android local APK quick check | compiler/lint verification of bounded private-copy inspection, API guards and cleanup path | mechanically verified in build; physical-device smoke test pending |
+| Android verified snapshot parser and review UI | strict parser implementation plus APK assembly/lint | mechanically verified in build; physical-device smoke test pending |
+| Android sample project | built-in clearly labelled sample data plus APK assembly/lint | mechanically verified |
+| Android release signing and distribution | release credentials and physical device required | pending |
 
-1. run `runner-preflight` successfully on the Dell host;
-2. execute all pinned local scanners against a fixture repository on that host;
-3. start the pinned MobSF image and scan a real APK;
-4. prove cancellation removes worktrees, credentials and containers;
-5. publish first and subsequent commits to the real `assay/audit` remote and reject a stale lease;
-6. import the generated console snapshot into the built Android app;
-7. exercise installed Fonebrew and Orrery transports, and ASOM only when configured;
-8. inspect all published artifacts for secrets and private source leakage.
+## Latest exact-head CI evidence
 
-Until those steps are recorded, the repository may be described as implementation-complete and CI-verified, but not Dell-, MobSF-, device- or constellation-certified.
+Head: `0afc4f981b0a8caf33be85127c7f92fecabde286`
 
-Nothing in this matrix authorizes automatic merging. The maximum automated status remains `ready-for-human-review`.
+- Core CI: passed — run `30829150819`
+- Real scanner contracts: passed — run `30829151081`
+- Android 1.1 APK assembly and lint: passed — run `30829150725`
+- Android artifact: `8862241451`
+- Android artifact ZIP SHA-256: `6c9084518113eda5a53d6fa1055d1c81d9ba5db28621f3f080de7a93149d82ce`
+- Extracted debug APK SHA-256: `e969ec420da44a1168b5e9d0b72de8bd9a00d7ec2e1e8d51b5979c9511983ab6`
+
+## Remaining deployment certification
+
+Before calling a deployment fully certified, record evidence for all applicable items:
+
+1. Dell runner installed under a dedicated non-root account.
+2. Runner preflight succeeds against installed tools and private work directories.
+3. Cancellation and restart leave no source, APK, credential or temporary evidence behind.
+4. Pinned MobSF container scans a representative APK and deletes the uploaded sample.
+5. Production credentials publish and re-read the hosted `assay/audit` branch with a correct lease.
+6. Assay 1.1 installs on a physical Android device.
+7. **Scan an APK** completes against at least one valid APK and one malformed file.
+8. **Open verified audit** accepts a real valid snapshot and rejects a tampered snapshot.
+9. TalkBack, text scaling, dark/light appearance and long-content scrolling receive a device smoke test.
+10. Release signing, retention and distribution procedures are recorded.
+11. Installed Fonebrew and Orrery transports preserve source identity and authority boundaries.
+12. Optional ASOM is exercised only where an actual provider is configured.
