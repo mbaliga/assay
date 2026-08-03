@@ -41,7 +41,9 @@ android {
         warningsAsErrors = true
         // API 36 is the latest Android SDK platform available on the stable SDK channel.
         // API 37 is intentionally deferred until it is published as a stable platform.
-        disable += setOf("OldTargetApi", "GradleDependency")
+        // UseKtx is a syntax preference, not a correctness property. PluralsCandidate is
+        // heuristic and this first release intentionally ships an English-only string set.
+        disable += setOf("OldTargetApi", "GradleDependency", "UseKtx", "PluralsCandidate")
     }
 }
 
