@@ -1,11 +1,13 @@
 package dev.assay
 
+import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
+import java.nio.file.attribute.PosixFilePermission
 import java.time.Instant
 
 object CandidateCodec {
@@ -164,64 +166,148 @@ object CandidateCodec {
     }
 }
 
-class CandidateStore(private val root: Path, private val maxBytes: Long = 1_048_576) {
+class CandidateStore(root: Path, private val maxBytes: Long = 1_048_576) {
+    private val normalizedRoot = root.toAbsolutePath().normalize()
+
     init {
         require(maxBytes in 1..16_777_216) { "invalid candidate size limit" }
+        ensureRoot()
     }
 
-    fun create(record: CandidateRecord): Path {
+    fun create(record: CandidateRecord): Path = withLock(record.identity.candidateId) {
         val target = path(record.identity.candidateId)
         require(!Files.exists(target, LinkOption.NOFOLLOW_LINKS)) { "candidate already exists" }
         writeAtomic(target, CandidateCodec.encode(record))
-        return target
+        target
     }
 
     fun read(candidateId: String): CandidateRecord {
+        ensureRoot()
         val target = path(candidateId)
         require(Files.exists(target, LinkOption.NOFOLLOW_LINKS)) { "candidate does not exist" }
         require(!Files.isSymbolicLink(target)) { "candidate file must not be a symlink" }
-        require(Files.isRegularFile(target, LinkOption.NOFOLLOW_LINKS)) { "candidate path is not a regular file" }
-        val size = Files.size(target)
-        require(size in 1..maxBytes) { "candidate file size rejected" }
-        return CandidateCodec.decode(Files.readString(target))
+        FileChannel.open(target, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS).use { channel ->
+            val size = channel.size()
+            require(size in 1..maxBytes) { "candidate file size rejected" }
+            require(size <= Int.MAX_VALUE) { "candidate file is too large" }
+            val buffer = ByteBuffer.allocate(size.toInt())
+            while (buffer.hasRemaining()) {
+                require(channel.read(buffer) >= 0) { "candidate file truncated during read" }
+            }
+            return CandidateCodec.decode(buffer.array().toString(Charsets.UTF_8))
+        }
     }
 
-    fun update(record: CandidateRecord, expectedRevision: Int): Path {
+    fun list(): List<CandidateRecord> {
+        ensureRoot()
+        val records = mutableListOf<CandidateRecord>()
+        Files.newDirectoryStream(normalizedRoot, "cand1-*.json").use { stream ->
+            stream.forEach { candidate ->
+                val name = candidate.fileName.toString()
+                val candidateId = name.removeSuffix(".json")
+                records += read(candidateId)
+            }
+        }
+        return records.sortedBy { it.identity.candidateId }
+    }
+
+    fun update(record: CandidateRecord, expectedRevision: Int): Path = withLock(record.identity.candidateId) {
         val current = read(record.identity.candidateId)
         require(current.revision == expectedRevision) { "stale candidate revision: expected $expectedRevision, actual ${current.revision}" }
         require(record.revision > expectedRevision) { "candidate update did not advance revision" }
+        require(record.identity == current.identity) { "candidate immutable identity changed" }
         val target = path(record.identity.candidateId)
         writeAtomic(target, CandidateCodec.encode(record))
-        return target
+        target
     }
 
     private fun path(candidateId: String): Path {
         require(candidateId.matches(Regex("cand1-[0-9a-f]{20}"))) { "invalid candidate id" }
-        val normalizedRoot = root.toAbsolutePath().normalize()
         val target = normalizedRoot.resolve("$candidateId.json").normalize()
         require(target.parent == normalizedRoot) { "candidate path escaped store" }
         return target
     }
 
+    private fun <T> withLock(candidateId: String, operation: () -> T): T {
+        ensureRoot()
+        require(candidateId.matches(Regex("cand1-[0-9a-f]{20}"))) { "invalid candidate id" }
+        val lockPath = normalizedRoot.resolve(".$candidateId.lock")
+        require(!Files.isSymbolicLink(lockPath)) { "candidate lock must not be a symlink" }
+        FileChannel.open(
+            lockPath,
+            StandardOpenOption.CREATE,
+            StandardOpenOption.WRITE,
+            LinkOption.NOFOLLOW_LINKS,
+        ).use { channel ->
+            privateFile(lockPath)
+            channel.lock().use { return operation() }
+        }
+    }
+
     private fun writeAtomic(target: Path, content: String) {
         val bytes = content.toByteArray(Charsets.UTF_8)
-        require(bytes.size.toLong() <= maxBytes) { "candidate exceeds size limit" }
-        Files.createDirectories(target.parent)
-        require(!Files.isSymbolicLink(target.parent)) { "candidate store directory must not be a symlink" }
-        val temporary = Files.createTempFile(target.parent, ".candidate-", ".tmp")
+        require(bytes.size.toLong() in 1..maxBytes) { "candidate exceeds size limit" }
+        ensureRoot()
+        val temporary = Files.createTempFile(normalizedRoot, ".candidate-", ".tmp")
+        privateFile(temporary)
         try {
             FileChannel.open(temporary, StandardOpenOption.WRITE).use { channel ->
-                channel.write(java.nio.ByteBuffer.wrap(bytes))
+                var offset = 0
+                while (offset < bytes.size) {
+                    offset += channel.write(ByteBuffer.wrap(bytes, offset, bytes.size - offset))
+                }
                 channel.force(true)
             }
-            try {
-                Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
-            } catch (_: java.nio.file.AtomicMoveNotSupportedException) {
-                Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING)
-            }
-            FileChannel.open(target.parent, StandardOpenOption.READ).use { it.force(true) }
+            Files.move(
+                temporary,
+                target,
+                StandardCopyOption.ATOMIC_MOVE,
+                StandardCopyOption.REPLACE_EXISTING,
+            )
+            privateFile(target)
+            FileChannel.open(normalizedRoot, StandardOpenOption.READ).use { it.force(true) }
         } finally {
             Files.deleteIfExists(temporary)
+        }
+    }
+
+    private fun ensureRoot() {
+        rejectSymlinkComponents(normalizedRoot)
+        Files.createDirectories(normalizedRoot)
+        rejectSymlinkComponents(normalizedRoot)
+        require(Files.isDirectory(normalizedRoot, LinkOption.NOFOLLOW_LINKS)) { "candidate store is not a directory" }
+        privateDirectory(normalizedRoot)
+    }
+
+    private fun rejectSymlinkComponents(path: Path) {
+        var current = path.root ?: Path.of("")
+        path.forEach { component ->
+            current = current.resolve(component)
+            if (Files.exists(current, LinkOption.NOFOLLOW_LINKS)) {
+                require(!Files.isSymbolicLink(current)) { "candidate store path contains a symlink: $current" }
+            }
+        }
+    }
+
+    private fun privateDirectory(path: Path) = setPosix(
+        path,
+        setOf(
+            PosixFilePermission.OWNER_READ,
+            PosixFilePermission.OWNER_WRITE,
+            PosixFilePermission.OWNER_EXECUTE,
+        ),
+    )
+
+    private fun privateFile(path: Path) = setPosix(
+        path,
+        setOf(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE),
+    )
+
+    private fun setPosix(path: Path, permissions: Set<PosixFilePermission>) {
+        try {
+            Files.setPosixFilePermissions(path, permissions)
+        } catch (_: UnsupportedOperationException) {
+            // Non-POSIX filesystems retain their native ACL model.
         }
     }
 }
