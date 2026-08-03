@@ -39,6 +39,9 @@ android {
         abortOnError = true
         checkReleaseBuilds = true
         warningsAsErrors = true
+        // API 36 is the latest Android SDK platform available on the stable SDK channel.
+        // API 37 is intentionally deferred until it is published as a stable platform.
+        disable += setOf("OldTargetApi", "GradleDependency")
     }
 }
 
