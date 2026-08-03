@@ -180,7 +180,7 @@ object LocalApkAuditor {
                     .getOrDefault(packageInfo.packageName),
                 packageName = packageInfo.packageName,
                 versionName = packageInfo.versionName ?: context.getString(R.string.not_available),
-                versionCode = if (Build.VERSION.SDK_INT >= 28) packageInfo.longVersionCode else packageInfo.versionCode.toLong(),
+                versionCode = packageVersionCode(packageInfo),
                 minSdk = applicationInfo.minSdkVersion,
                 targetSdk = applicationInfo.targetSdkVersion,
                 apkBytes = copy.bytes,
@@ -221,6 +221,7 @@ object LocalApkAuditor {
         return CopyResult(total, digest.digest().joinToString("") { byte -> "%02x".format(byte) })
     }
 
+    @Suppress("DEPRECATION")
     private fun readPackageInfo(packageManager: PackageManager, path: String): PackageInfo? {
         val flags = PackageManager.GET_PERMISSIONS or
             PackageManager.GET_ACTIVITIES or
@@ -232,25 +233,27 @@ object LocalApkAuditor {
         return if (Build.VERSION.SDK_INT >= 33) {
             packageManager.getPackageArchiveInfo(path, PackageManager.PackageInfoFlags.of(flags.toLong()))
         } else {
-            @Suppress("DEPRECATION")
             packageManager.getPackageArchiveInfo(path, flags)
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun signerCount(packageInfo: PackageInfo): Int = if (Build.VERSION.SDK_INT >= 28) {
         packageInfo.signingInfo?.apkContentsSigners?.size ?: 0
     } else {
-        @Suppress("DEPRECATION")
         packageInfo.signatures?.size ?: 0
     }
 
+    @Suppress("DEPRECATION")
+    private fun packageVersionCode(packageInfo: PackageInfo): Long = if (Build.VERSION.SDK_INT >= 28) {
+        packageInfo.longVersionCode
+    } else {
+        packageInfo.versionCode.toLong()
+    }
+
+    @Suppress("DEPRECATION")
     private fun isDangerousPermission(packageManager: PackageManager, permission: String): Boolean = runCatching {
-        val info = if (Build.VERSION.SDK_INT >= 33) {
-            packageManager.getPermissionInfo(permission, PackageManager.PermissionInfoFlags.of(0))
-        } else {
-            @Suppress("DEPRECATION")
-            packageManager.getPermissionInfo(permission, 0)
-        }
+        val info = packageManager.getPermissionInfo(permission, 0)
         info.protectionLevel and PermissionInfo.PROTECTION_MASK_BASE == PermissionInfo.PROTECTION_DANGEROUS
     }.getOrDefault(false)
 
