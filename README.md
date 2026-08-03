@@ -14,6 +14,10 @@ Assay 1.1 opens with three explicit paths:
 
 The app requests no Internet permission. A local APK report is visibly labelled **Local quick check** and is never represented as equivalent to runner-verified Gitleaks, Semgrep, OSV and MobSF evidence. See `docs/ANDROID-CONSOLE.md` for the exact trust boundary and APK handling rules.
 
+### Installing a CI debug build
+
+GitHub Actions debug APKs use a CI-generated debug signing key. If Android reports a signature conflict while upgrading from an earlier downloaded build, uninstall the earlier Assay debug app and install the new APK again. This limitation applies to CI debug distribution; production distribution requires a stable release-signing key.
+
 ## v1 capabilities
 
 ### Deterministic audit engine
