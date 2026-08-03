@@ -1,47 +1,69 @@
 # Assay
 
-Assay is a standalone deterministic security-audit and proof engine for the Fonebrew constellation. It converts scanner evidence into versioned, integrity-checked SARIF on a repository bus. AI is optional and downstream; it cannot originate findings or publish evidence.
+Assay is a standalone deterministic security-audit, proof and remediation-control system for Android repositories. It converts scanner evidence into integrity-checked SARIF, publishes a disconnected audit history, verifies proposed fixes, requires explicit human decisions and exposes read-only projections to the Fonebrew constellation.
 
-## Current v1 scope
+AI is optional and downstream. It cannot originate findings, record proof, approve candidates, apply fixes or publish audit evidence.
 
-The v1 core now includes:
+## v1 capabilities
 
-- stable SHA-256 finding identities and lowercase proving IDs;
-- pinned adapters for Gitleaks, Semgrep, OSV-Scanner, and MobSF JSON reports;
-- binary-digest and reported-version verification before a local scanner is run;
-- noninteractive command construction with Semgrep telemetry disabled and OSV offline by default;
-- deterministic multi-scanner normalization to SARIF 2.1.0;
-- one versioned SARIF-to-SEV policy with pinned severity floors;
-- full evidence redaction, staged-bus secret scanning, manifests, size limits, and atomic local publication;
-- typed fail-closed bus reader states, cross-file validation, tamper detection, stale-commit rejection, and repository ownership checks;
-- repeated fail-before/pass-after proof requirements and an explicit human approval lifecycle;
-- strict JSON Schemas, CLI commands, acceptance tests, and GitHub CI packaging.
+### Deterministic audit engine
 
-The Dell runner, remote orphan-branch push-with-lease, MobSF container execution, Android console, Fonebrew connector, and Orrery connector still require their actual environments. They are not falsely certified by this repository.
+- pinned Gitleaks, Semgrep and OSV-Scanner execution;
+- executable SHA-256 and reported-version verification;
+- MobSF API upload, scan, JSON-report retrieval, cleanup and report normalization;
+- immutable MobSF container-image pins and least-privilege container command generation;
+- noninteractive execution, Semgrep telemetry disabled and OSV offline by default;
+- deterministic multi-scanner SARIF 2.1.0 normalization and merge;
+- stable SHA-256 finding identities and versioned severity mapping;
+- redaction, staged-bus secret scanning, manifests, gates, size limits and atomic local publication;
+- fail-closed bus states, cross-file validation, tamper detection, source-drift rejection and ownership checks.
 
-## Verify
+### Audit publication
+
+- disconnected canonical branch `assay/audit`;
+- first audit commit has no source-history parent;
+- subsequent audit commits preserve only audit history;
+- explicit compare-and-swap `--force-with-lease` publication;
+- remote ref verification and stale-lease rejection;
+- no worktree checkout or source-branch mutation required for publication.
+
+### Remediation candidates
+
+- immutable candidate identity bound to source, finding, patch and proving test;
+- dedicated `assay/fix/<candidate-id>` branches;
+- strict JSON persistence, per-candidate locks and optimistic revisions;
+- append-only hash-chained lifecycle events;
+- exact Git patch, branch, ancestry and clean-worktree checks;
+- repeated fail-before/pass-after proof and scanner replay requirements;
+- human-only approval and rejection;
+- deterministic executor-only application records;
+- stale-source transitions instead of silent application;
+- no automatic merge path.
+
+### Product and constellation surfaces
+
+- read-only console snapshot export;
+- standalone Android review console under `android-console/`;
+- Fonebrew proposal gateway constrained to existing verified findings;
+- Orrery health/status projection;
+- optional read-only ASOM explanation boundary;
+- executable Dell/self-hosted runner preflight and systemd hardening package.
+
+## Verification
 
 ```bash
 ./scripts/test.sh
-# or, with Gradle installed:
-gradle check
+# or
+gradle check --no-daemon
 ```
 
-## CLI
+The JVM check runs the core, candidate, persistence, Git-worktree, remote-audit, MobSF, integration and runner-preflight acceptance suites. Separate GitHub workflows exercise real Gitleaks/Semgrep/OSV binaries and build/lint the Android console APK.
 
-Create and scan the deterministic fixture:
+See `docs/VERIFICATION.md` for the mechanical evidence and the remaining environment-certification boundary.
 
-```bash
-assay fixture --root /tmp/vulnerable
-assay scan-fixture \
-  --repo /tmp/vulnerable \
-  --bus /tmp/bus \
-  --source-repo example/repo \
-  --source-commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-assay verify-bus --bus /tmp/bus --expected-source-commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-```
+## Common CLI flows
 
-Run a pinned external scanner:
+### Run a pinned local scanner
 
 ```bash
 assay run-scanner \
@@ -53,19 +75,96 @@ assay run-scanner \
   --canonical-output /work/evidence/gitleaks.canonical.sarif
 ```
 
-Normalize or merge pre-existing reports:
+### Run MobSF
 
 ```bash
-assay normalize --scanner mobsf --input mobsf.json --root /work/source --output mobsf.sarif
-assay merge \
-  --root /work/source \
-  --input gitleaks=gitleaks.sarif \
-  --input semgrep=semgrep.sarif \
-  --input osv=osv.sarif \
-  --input mobsf=mobsf.json \
-  --output findings.sarif
+assay run-mobsf \
+  --base-uri http://127.0.0.1:8000/api/v1 \
+  --api-key-file /var/lib/assay/mobsf/api-key \
+  --application /work/app.apk \
+  --source-root /work/source \
+  --version <version> \
+  --image <repository>@sha256:<digest> \
+  --raw-output /work/evidence/mobsf.json \
+  --canonical-output /work/evidence/mobsf.sarif
 ```
 
-See `docs/CONTRACT.md`, `docs/TOOLCHAIN.md`, `docs/THREAT-MODEL.md`, and `docs/VERIFICATION.md` before integrating a runner or reader.
+### Publish the audit bus
 
-Status ceiling: `ready-for-human-review`; nothing auto-merges.
+```bash
+assay publish-bus-git \
+  --repo /work/source \
+  --bus /work/audit \
+  --source-commit <source-sha> \
+  --expected-remote absent \
+  --remote origin
+```
+
+Use the last observed `assay/audit` commit instead of `absent` for subsequent publications.
+
+### Candidate lifecycle
+
+```bash
+assay candidate-create \
+  --store /var/lib/assay/candidates \
+  --source-repo owner/repo \
+  --source-commit <source-sha> \
+  --finding-fingerprint <sha256> \
+  --proving-id <pt1-id> \
+  --patch-digest <sha256> \
+  --test-digest <sha256>
+
+assay candidate-propose \
+  --store /var/lib/assay/candidates \
+  --candidate <candidate-id> \
+  --revision 1 \
+  --actor system:assay
+```
+
+The remaining `candidate-prepare`, `candidate-proof`, `candidate-approve`, `candidate-reject`, `candidate-apply` and `candidate-stale` commands are documented in `docs/CANDIDATE-LIFECYCLE.md`.
+
+### Console and constellation projections
+
+```bash
+assay console-snapshot \
+  --bus /var/lib/assay/audit \
+  --candidates /var/lib/assay/candidates \
+  --expected-source-commit <source-sha> \
+  --output /var/lib/assay/status/console.json
+
+assay orrery-status \
+  --bus /var/lib/assay/audit \
+  --candidates /var/lib/assay/candidates \
+  --expected-source-commit <source-sha> \
+  --output /var/lib/assay/status/orrery.json
+```
+
+### Runner preflight
+
+```bash
+assay runner-preflight \
+  --work-root /var/lib/assay/work \
+  --tool-lock /opt/assay/tool-lock.json \
+  --gitleaks /opt/assay/tools/gitleaks \
+  --semgrep /opt/assay/tools/semgrep \
+  --osv /opt/assay/tools/osv-scanner \
+  --git /usr/bin/git \
+  --container-runtime /usr/bin/podman
+```
+
+## Documentation
+
+- `docs/CONTRACT.md` — normative audit-bus and trust contract
+- `docs/THREAT-MODEL.md` — threats and fail-closed controls
+- `docs/TOOLCHAIN.md` — scanner pins and execution assumptions
+- `docs/CANDIDATE-LIFECYCLE.md` — remediation state machine and CLI
+- `docs/INTEGRATIONS.md` — Fonebrew, Orrery and ASOM boundaries
+- `docs/RUNNER-OPERATIONS.md` — Dell/self-hosted runner deployment
+- `docs/ANDROID-CONSOLE.md` — APK, snapshot and review workflow
+- `docs/VERIFICATION.md` — verified versus environment-certified capabilities
+
+## Certification boundary
+
+The repository can mechanically verify the implementation against local Git remotes, fake MobSF endpoints, real scanner binaries and an Android build environment. It cannot truthfully certify hardware or connected services it cannot access. Final deployment certification therefore requires the actual Dell runner, pinned MobSF image and APK, live repository remote, and installed Fonebrew/Orrery/optional ASOM environments.
+
+Status ceiling: `ready-for-human-review`. Nothing auto-merges.
