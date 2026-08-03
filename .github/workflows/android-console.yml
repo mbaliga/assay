@@ -1,0 +1,28 @@
+name: Android console
+on:
+  push:
+    branches: [main, 'agent/**']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install pinned Android SDK
+        run: sdkmanager 'platforms;android-37' 'build-tools;36.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+      - name: Lint and build debug APK
+        run: gradle -p android-console :app:lintDebug :app:assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: assay-android-console-debug
+          path: android-console/app/build/outputs/apk/debug/*.apk
