@@ -1,0 +1,3 @@
+[submodule "android-console/hyle-design-system"]
+	path = android-console/hyle-design-system
+	url = https://github.com/mbaliga/hyle-design-system
