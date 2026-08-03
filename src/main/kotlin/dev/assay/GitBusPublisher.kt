@@ -3,7 +3,6 @@ package dev.assay
 import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Path
-import java.time.Instant
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -53,12 +52,12 @@ object RemoteBusCli {
 
 class GitBusPublisher(
     repository: Path,
-    private val branch: String = "assay/evidence",
+    private val branch: String = "assay/audit",
 ) {
     private val root = repository.toAbsolutePath().normalize()
 
     init {
-        require(branch == "assay/evidence") { "evidence branch name is fixed by contract" }
+        require(branch == "assay/audit") { "audit branch name is fixed by contract" }
         require(Files.exists(root, LinkOption.NOFOLLOW_LINKS)) { "Git repository does not exist" }
         require(!Files.isSymbolicLink(root)) { "Git repository must not be a symlink" }
         require(Files.isDirectory(root, LinkOption.NOFOLLOW_LINKS)) { "Git repository is not a directory" }
@@ -77,37 +76,37 @@ class GitBusPublisher(
         require(expectedSourceCommit.matches(Regex("[0-9a-f]{40}"))) { "invalid expected source commit" }
         val bus = busRoot.toAbsolutePath().normalize()
         validateBusTree(bus)
-        val state = BusReader(bus).read(expectedSourceCommit)
-        require(state is BusState.Ready && state.run != null) { "bus is not ready for remote publication" }
-        val run = state.run
+        val run = requireNotNull((BusReader(bus).read(expectedSourceCommit) as? BusState.Ready)?.run) {
+            "bus is not ready for remote publication"
+        }
 
         val remoteRef = "refs/heads/$branch"
         val observed = remoteHead(remote, remoteRef)
         require(observed == expectedRemoteCommit) {
-            "remote evidence branch moved: expected ${expectedRemoteCommit ?: "absent"}, observed ${observed ?: "absent"}"
+            "remote audit branch moved: expected ${expectedRemoteCommit ?: "absent"}, observed ${observed ?: "absent"}"
         }
         if (observed != null) {
-            git(listOf("fetch", "--no-tags", remote, "$remoteRef:$remoteRef"))
+            git(listOf("fetch", "--no-tags", remote, "+$remoteRef:$remoteRef"))
             require(git(listOf("cat-file", "-e", "$observed^{commit}"), allowed = setOf(0, 1)).exitCode == 0) {
-                "expected remote evidence commit is unavailable locally"
+                "expected remote audit commit is unavailable locally"
             }
         }
 
-        val indexPath = Files.createTempFile("assay-evidence-index-", ".gitindex")
+        val indexPath = Files.createTempFile("assay-audit-index-", ".gitindex")
         Files.deleteIfExists(indexPath)
         try {
             val indexEnvironment = mapOf("GIT_INDEX_FILE" to indexPath.toString())
             git(listOf("read-tree", "--empty"), environment = indexEnvironment)
             git(
-                listOf("--work-tree=${bus}", "add", "--all", "--", "."),
+                listOf("--work-tree=$bus", "add", "--all", "--", "."),
                 environment = indexEnvironment,
             )
             val tree = git(listOf("write-tree"), environment = indexEnvironment).text().trim()
-            require(tree.matches(Regex("[0-9a-f]{40}"))) { "invalid evidence tree id" }
+            require(tree.matches(Regex("[0-9a-f]{40}"))) { "invalid audit tree id" }
 
             val commitArguments = mutableListOf("commit-tree", tree)
             if (observed != null) commitArguments += listOf("-p", observed)
-            commitArguments += listOf("-m", "Assay evidence ${run.runId} ${run.sourceCommit}")
+            commitArguments += listOf("-m", "Assay audit ${run.runId} ${run.sourceCommit}")
             val timestamp = run.createdAt.toString()
             val commitEnvironment = indexEnvironment + mapOf(
                 "GIT_AUTHOR_NAME" to "Assay",
@@ -118,7 +117,7 @@ class GitBusPublisher(
                 "GIT_COMMITTER_DATE" to timestamp,
             )
             val commit = git(commitArguments, environment = commitEnvironment).text().trim()
-            require(commit.matches(Regex("[0-9a-f]{40}"))) { "invalid evidence commit id" }
+            require(commit.matches(Regex("[0-9a-f]{40}"))) { "invalid audit commit id" }
 
             val lease = if (expectedRemoteCommit == null) {
                 "--force-with-lease=$remoteRef:"
@@ -126,7 +125,7 @@ class GitBusPublisher(
                 "--force-with-lease=$remoteRef:$expectedRemoteCommit"
             }
             git(listOf("push", lease, remote, "$commit:$remoteRef"))
-            require(remoteHead(remote, remoteRef) == commit) { "remote evidence publication could not be verified" }
+            require(remoteHead(remote, remoteRef) == commit) { "remote audit publication could not be verified" }
             return commit
         } finally {
             Files.deleteIfExists(indexPath)
@@ -136,11 +135,11 @@ class GitBusPublisher(
     private fun remoteHead(remote: String, remoteRef: String): String? {
         val result = git(listOf("ls-remote", "--heads", remote, remoteRef))
         val lines = result.text().lineSequence().filter { it.isNotBlank() }.toList()
-        require(lines.size <= 1) { "remote returned duplicate evidence refs" }
+        require(lines.size <= 1) { "remote returned duplicate audit refs" }
         if (lines.isEmpty()) return null
         val parts = lines.single().split(Regex("\\s+"))
         require(parts.size == 2 && parts[1] == remoteRef && parts[0].matches(Regex("[0-9a-f]{40}"))) {
-            "invalid remote evidence ref response"
+            "invalid remote audit ref response"
         }
         return parts[0]
     }
@@ -153,19 +152,19 @@ class GitBusPublisher(
         var files = 0
         Files.walk(bus).use { stream ->
             stream.forEach { path ->
-                require(!Files.isSymbolicLink(path)) { "symlink in evidence bus: $path" }
-                require(path.fileName?.toString() != ".git") { "nested .git path in evidence bus" }
+                require(!Files.isSymbolicLink(path)) { "symlink in audit bus: $path" }
+                require(path.fileName?.toString() != ".git") { "nested .git path in audit bus" }
                 if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
                     val size = Files.size(path)
-                    require(size in 1..32L * 1024 * 1024) { "evidence artifact size rejected: $path" }
+                    require(size in 1..32L * 1024 * 1024) { "audit artifact size rejected: $path" }
                     total += size
                     files++
-                    require(total <= 256L * 1024 * 1024) { "evidence bus exceeds publication size limit" }
-                    require(files <= 10_000) { "evidence bus contains too many files" }
+                    require(total <= 256L * 1024 * 1024) { "audit bus exceeds publication size limit" }
+                    require(files <= 10_000) { "audit bus contains too many files" }
                 }
             }
         }
-        require(files > 0) { "evidence bus is empty" }
+        require(files > 0) { "audit bus is empty" }
     }
 
     private fun git(
@@ -182,13 +181,13 @@ class GitBusPublisher(
         try {
             if (!process.waitFor(60, TimeUnit.SECONDS)) {
                 process.destroyForcibly()
-                error("Git evidence command timed out")
+                error("Git audit command timed out")
             }
             val bytes = output.get(5, TimeUnit.SECONDS)
             val result = GitResult(process.exitValue(), bytes)
             require(result.exitCode in allowed) {
                 val safe = Redaction.sanitize(result.text()).take(4096)
-                "Git evidence command failed (${result.exitCode}): ${arguments.joinToString(" ")}\n$safe"
+                "Git audit command failed (${result.exitCode}): ${arguments.joinToString(" ")}\n$safe"
             }
             return result
         } finally {
