@@ -1,21 +1,45 @@
-# Android console
+# Android app
 
-The Android console is a standalone read-only review app under `android-console/`. It uses the package name `dev.assay` and imports the JSON produced by `assay console-snapshot` through Android's system document picker.
+The Android app under `android-console/` is the user-facing Assay review surface. It uses package name `dev.assay`, requests no Internet permission and now has three useful first-run paths rather than opening into an empty snapshot viewer.
 
-## Capabilities
+## Start paths
 
-- distinguishes not configured, unavailable, invalid and ready evidence;
-- shows repository, source commit, audit run and generated time;
-- displays deterministic findings by severity, scanner, rule and location;
-- displays candidate lifecycle, revision, fix branch and human-approval visibility;
-- shows finding and candidate detail dialogs;
-- copies explicit approval or rejection CLI commands for proof-passed candidates;
-- supports system light and dark appearance;
-- limits imported files, field sizes and displayed record counts.
+### Scan an APK
 
-The app requests no Internet permission. Imported evidence remains in memory and is not copied into app storage. It cannot create findings, run scanners, edit candidates, approve, reject, apply or merge changes directly.
+Select an APK through Android's system document picker. Assay copies it into a private temporary file, performs a bounded deterministic inspection, creates an in-memory report and deletes the temporary copy.
 
-## Produce a snapshot
+The local quick check currently reviews:
+
+- package identity, version, SDK range, file size and SHA-256;
+- signing-certificate presence;
+- debuggable and test-only flags;
+- backup and cleartext-traffic flags;
+- dangerous and broad/special permissions;
+- exported activities, services, receivers and providers without guarding permissions;
+- native shared-library presence.
+
+This is deliberately labelled **Local quick check**. It is useful immediately and does not upload the APK, but it is not equivalent to the full runner audit. It does not run Gitleaks, Semgrep, OSV-Scanner or MobSF, does not inspect source history, and does not create tamper-evident audit evidence or remediation candidates.
+
+### Open verified audit
+
+Import the JSON produced by `assay console-snapshot`. The app validates the complete projection before displaying repository identity, source commit, run state, deterministic findings and remediation candidates.
+
+### Explore a sample project
+
+Open built-in, clearly labelled sample data to understand finding details, candidate lifecycle and the approval/rejection handoff before configuring a trusted runner. Sample data is never presented as real evidence.
+
+## Trust labels
+
+The app keeps these states visually and semantically distinct:
+
+- **Local quick check** — generated on the phone from an APK selected by the user;
+- **Runner-verified evidence** — a projection that passed the strict Assay snapshot contract;
+- **Sample data** — a guided demonstration with no evidentiary meaning;
+- **Unavailable or invalid evidence** — never converted into zero findings.
+
+The Android app cannot originate runner findings, record proof, approve, reject, apply or merge a remediation. For proof-passed candidates it may copy an explicit CLI command, but execution remains on the trusted runner and is revalidated there.
+
+## Produce a verified snapshot
 
 ```bash
 assay console-snapshot \
@@ -25,11 +49,11 @@ assay console-snapshot \
   --output /var/lib/assay/status/console.json
 ```
 
-Transfer that file to the Android device using an authenticated channel, then select **Open verified snapshot**.
+Transfer that file through an authenticated channel and select **Open verified audit**.
 
 ## Build
 
-The console is an independent Gradle project so Android dependencies cannot affect the JVM scanner engine.
+The app is an independent Gradle project so Android dependencies cannot affect the JVM scanner engine.
 
 ```bash
 gradle -p android-console :app:lintDebug :app:assembleDebug --no-daemon
@@ -41,9 +65,9 @@ The debug APK is written under:
 android-console/app/build/outputs/apk/debug/
 ```
 
-GitHub Actions workflow `Android console` runs lint, assembles the debug APK and uploads it as the `assay-android-console-debug` artifact.
+GitHub Actions workflow `Android console` runs lint, assembles the debug APK and uploads the APK and lint reports as the `assay-android-console-debug` artifact.
 
-## Snapshot validation
+## Verified snapshot validation
 
 The app rejects snapshots that violate any of these conditions:
 
@@ -58,7 +82,16 @@ The app rejects snapshots that violate any of these conditions:
 - a non-ready snapshot contains findings or candidates;
 - a ready snapshot contains an error reason.
 
-The Android app validates the projection format, while the runner remains responsible for validating source artifacts, manifests, proof and candidate event chains before projection.
+The app validates the projection format. The trusted runner remains responsible for validating source artifacts, manifests, proof, candidate event chains and publication history before projection.
+
+## Local APK handling
+
+- The document picker grants access only to the APK selected by the user.
+- The APK is copied to the app's private cache with a 1 GB maximum.
+- Analysis runs off the main thread.
+- The temporary APK is deleted in a `finally` block whether analysis passes or fails.
+- Reports remain in memory and are not persisted automatically.
+- No Internet permission is requested, so local APK content cannot be uploaded by the app.
 
 ## Approval handoff
 
