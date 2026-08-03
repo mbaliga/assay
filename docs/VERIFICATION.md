@@ -34,14 +34,14 @@ No row may be promoted by prose. Promotion requires the named mechanical or depl
 
 ## Latest exact-head CI evidence
 
-Head: `0afc4f981b0a8caf33be85127c7f92fecabde286`
+Head: `16dab44597dc1255424b056e0844784f972cd5b5`
 
-- Core CI: passed — run `30829150819`
-- Real scanner contracts: passed — run `30829151081`
-- Android 1.1 APK assembly and lint: passed — run `30829150725`
-- Android artifact: `8862241451`
-- Android artifact ZIP SHA-256: `6c9084518113eda5a53d6fa1055d1c81d9ba5db28621f3f080de7a93149d82ce`
-- Extracted debug APK SHA-256: `e969ec420da44a1168b5e9d0b72de8bd9a00d7ec2e1e8d51b5979c9511983ab6`
+- Core CI: passed — run `30829490191`
+- Real scanner contracts: passed — run `30829484868`
+- Android 1.1 APK assembly and lint: passed — run `30829485024`
+- Android artifact: `8862382197`
+- Android artifact ZIP SHA-256: `999fa60c1cf12660ef2eea4540c90049ce29213425009a3395e2c41b0add93b9`
+- Extracted debug APK SHA-256: `187b66ca35696ebde979afe002d0eea1673ca7a54520cdb05506c1781fc44944`
 
 ## Remaining deployment certification
 
