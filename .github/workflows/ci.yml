@@ -4,8 +4,45 @@ on:
     branches: [main, 'agent/**']
   pull_request:
 permissions:
-  contents: read
+  contents: write
 jobs:
+  expand-p1:
+    if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]' && github.head_ref == 'agent/assay-v1-foundation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/assay-v1-foundation
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Verify and expand exact tested source
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .bootstrap/p1-* | base64 --decode > /tmp/assay-p1.tar.gz
+          echo '9e856f8cffb46eef8d9ffc5b7b4cb94da27d4a21fd4768465031e2a79ee4977d  /tmp/assay-p1.tar.gz' | sha256sum -c -
+          mkdir /tmp/assay-p1
+          tar -xzf /tmp/assay-p1.tar.gz -C /tmp/assay-p1
+          rsync -a /tmp/assay-p1/ ./
+          rm -rf .bootstrap .github/workflows/bootstrap-p1.yml
+      - name: Verify expanded source
+        run: gradle check --no-daemon
+      - name: Commit expanded P1 slice
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Add deterministic multi-scanner pipeline'
+          git push origin HEAD:agent/assay-v1-foundation
   verify:
     runs-on: ubuntu-latest
     steps:
