@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assay.dev/schemas/1.1.0/status.schema.json",
+  "title": "Assay Finding Status",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "findings"],
+  "properties": {
+    "schemaVersion": { "const": "1.1.0" },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["findingFingerprint", "scanner", "ruleId", "severity", "lifecycle", "provingId"],
+        "properties": {
+          "findingFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "scanner": { "enum": ["gitleaks", "semgrep", "osv", "mobsf"] },
+          "ruleId": { "type": "string", "minLength": 1 },
+          "severity": { "enum": ["SEV1", "SEV2", "SEV3", "SEV4"] },
+          "lifecycle": {
+            "enum": [
+              "detected", "proposed", "proof_passed", "proof_failed", "approved", "rejected",
+              "applied", "stale", "superseded", "withdrawn", "obsolete"
+            ]
+          },
+          "provingId": {
+            "oneOf": [
+              { "type": "null" },
+              { "type": "string", "pattern": "^pt1-(gitleaks|semgrep|osv|mobsf)-[a-z0-9-]{1,40}-[0-9a-f]{16}$" }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
