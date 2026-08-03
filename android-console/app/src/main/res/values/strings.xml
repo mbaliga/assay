@@ -1,7 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Assay</string>
-    <string name="app_subtitle">Deterministic security evidence and remediation review</string>
+    <string name="app_subtitle">Audit an APK or review verified security evidence</string>
+
+    <string name="home_headline">Start with something real</string>
+    <string name="home_intro">Choose an APK for an immediate on-device check, open evidence from your trusted Assay runner, or explore a sample to understand the review flow.</string>
+    <string name="start_here">START HERE</string>
+    <string name="on_device">On device</string>
+    <string name="trusted_runner">Trusted runner</string>
+    <string name="guided_preview">Guided preview</string>
+    <string name="scan_apk_title">Scan an APK</string>
+    <string name="scan_apk_body">Pick an APK from your phone. Assay checks package flags, permissions, exported components, signing metadata, native code and other high-signal risks without uploading the file.</string>
+    <string name="open_verified_title">Open verified audit</string>
+    <string name="open_verified_body">Import a snapshot produced by the Assay runner to review deterministic scanner findings, evidence state and remediation candidates.</string>
+    <string name="explore_sample_title">Explore a sample project</string>
+    <string name="explore_sample_body">See what a real findings and remediation review looks like before you configure a runner.</string>
+    <string name="open_action">Open →</string>
+    <string name="what_assay_checks">WHAT YOU GET</string>
+    <string name="quick_check_title">Local quick check</string>
+    <string name="quick_check_body">Useful immediately and fully offline. It is deterministic, but it is intentionally labelled as a quick check rather than full runner-verified evidence.</string>
+    <string name="verified_audit_title">Full verified audit</string>
+    <string name="verified_audit_body">Adds Gitleaks, Semgrep, OSV, MobSF, tamper-evident publication and proof-bound remediation on the trusted runner.</string>
+    <string name="back_to_assay">← Assay home</string>
+    <string name="action_failed">Could not complete that action</string>
+
     <string name="open_snapshot">Open verified snapshot</string>
     <string name="open_snapshot_description">Select an Assay console snapshot JSON file</string>
     <string name="snapshot_open_failed">The selected snapshot could not be opened.</string>
@@ -14,6 +36,52 @@
     <string name="empty_body">Export a console snapshot from the trusted Assay runner, then open it here. Unconfigured evidence is never shown as zero findings.</string>
     <string name="invalid_title">Snapshot rejected</string>
     <string name="evidence_unavailable">Evidence unavailable</string>
+    <string name="validating_snapshot">Validating evidence</string>
+    <string name="validating_snapshot_body">Assay is checking the snapshot schema, source identity, finding links and candidate references before displaying anything.</string>
+    <string name="working_locally">Working locally on this device</string>
+
+    <string name="inspecting_apk">Inspecting APK</string>
+    <string name="inspecting_apk_body">The selected APK is copied to a temporary private file, inspected locally and deleted immediately after the report is created.</string>
+    <string name="local_apk_open_failed">The selected APK could not be opened.</string>
+    <string name="local_apk_parse_failed">This file could not be parsed as an Android APK.</string>
+    <string name="local_apk_too_large">The selected APK exceeds the 1 GB local inspection limit.</string>
+    <string name="local_apk_empty">The selected APK is empty.</string>
+    <string name="local_selected_apk">Selected APK</string>
+    <string name="local_trust_label">Local quick check</string>
+    <string name="local_trust_body">This report was generated on this phone. It is useful for immediate review, but it is not the full runner-verified Assay evidence set.</string>
+    <string name="runner_trust_label">Runner-verified evidence</string>
+    <string name="runner_trust_body">This projection passed the Assay snapshot contract and represents evidence prepared by the trusted runner.</string>
+    <string name="sample_trust_label">Sample data</string>
+    <string name="sample_trust_body">This is a guided example only. Nothing on this screen represents a scan of your code or APK.</string>
+    <string name="assay_evidence">Assay evidence</string>
+
+    <string name="local_finding_debuggable_title">Debugging is enabled</string>
+    <string name="local_finding_debuggable_body">A debuggable production build can expose runtime inspection and debugging surfaces. Confirm this APK is not intended for release.</string>
+    <string name="local_finding_test_only_title">APK is marked test-only</string>
+    <string name="local_finding_test_only_body">The package declares itself as test-only and should not be treated as a production release artifact.</string>
+    <string name="local_finding_backup_title">Application backup is enabled</string>
+    <string name="local_finding_backup_body">Application data may be eligible for platform backup or transfer. Confirm that sensitive data is excluded or backup is disabled.</string>
+    <string name="local_finding_cleartext_title">Cleartext traffic is allowed</string>
+    <string name="local_finding_cleartext_body">The application permits unencrypted network traffic. Confirm that production traffic is restricted to protected transports.</string>
+    <string name="local_finding_exported_title">Exported components need review</string>
+    <string name="local_finding_exported_body">%1$d exported components do not declare a guarding permission. Some may be intentional, but each entry should be reviewed.</string>
+    <string name="local_finding_broad_permissions_title">Broad platform access requested</string>
+    <string name="local_finding_broad_permissions_body">The APK requests %1$d broad or special-access permissions that warrant explicit product and security review.</string>
+    <string name="local_finding_dangerous_permissions_title">Runtime-sensitive permissions requested</string>
+    <string name="local_finding_dangerous_permissions_body">The APK requests %1$d dangerous permissions. Confirm that each permission is necessary, disclosed and requested in context.</string>
+    <string name="local_finding_unsigned_title">No signing certificate detected</string>
+    <string name="local_finding_unsigned_body">Assay could not find an APK signer. The file may be unsigned, malformed or packaged in an unsupported way.</string>
+    <string name="local_no_signing_certificates">No APK content signer was returned by PackageManager.</string>
+    <string name="local_finding_native_title">Native code is present</string>
+    <string name="local_finding_native_body">The APK contains %1$d native libraries. Native code is not automatically unsafe, but it requires dedicated analysis beyond manifest inspection.</string>
+    <string name="local_native_library_count">Native shared libraries: %1$d</string>
+    <string name="local_no_findings_title">No high-signal local issues found</string>
+    <string name="local_no_findings_body">The quick check did not identify any of its supported package-level risks. This is not equivalent to a complete security audit.</string>
+    <string name="next_full_audit_title">Next: run the full Assay audit</string>
+    <string name="next_full_audit_body">The trusted runner adds source scanning, dependency intelligence, MobSF analysis, immutable evidence and controlled remediation proof.</string>
+    <string name="scan_another_apk">Scan another APK</string>
+    <string name="try_your_apk">Try your own APK</string>
+
     <string name="overview">Overview</string>
     <string name="findings">Findings</string>
     <string name="candidates">Candidates</string>
@@ -29,6 +97,21 @@
     <string name="candidate_count">Candidates</string>
     <string name="generated">Generated</string>
     <string name="not_available">Not available</string>
+    <string name="file_name">File</string>
+    <string name="version">Version</string>
+    <string name="version_value">%1$s (%2$d)</string>
+    <string name="sdk_range">Android SDK</string>
+    <string name="sdk_value">Minimum %1$d · Target %2$d</string>
+    <string name="apk_size">APK size</string>
+    <string name="signers">Signing certificates</string>
+    <string name="permissions">Requested permissions</string>
+    <string name="exported_components">Unguarded exported components</string>
+    <string name="native_libraries">Native libraries</string>
+    <string name="sha256">SHA-256</string>
+    <string name="total">Total</string>
+    <string name="actionable">Actionable</string>
+    <string name="high">High</string>
+
     <string name="location_format">%1$s:%2$d</string>
     <string name="human_approved">Human approved</string>
     <string name="revision_format">Revision %1$d</string>
@@ -40,8 +123,17 @@
     <string name="branch_value">Fix branch: %1$s</string>
     <string name="approved_value">Human approved: %1$s</string>
     <string name="finding_value">Finding: %1$s</string>
+    <string name="finding_detail_format">%1$s\n\nEvidence\n%2$s\n\nRule\n%3$s</string>
+    <string name="console_finding_detail_format">%1$s\n\nScanner: %2$s\nSeverity: %3$s\nLocation: %4$s\nRelated candidates: %5$d\n\nFingerprint\n%6$s</string>
+    <string name="candidate_detail_format">Lifecycle: %1$s\nRevision: %2$d\nFix branch: %3$s\nHuman approved: %4$s\n\nFinding\n%5$s</string>
     <string name="copy_approval_command">Copy approval command</string>
     <string name="copy_rejection_command">Copy rejection command</string>
     <string name="assay_decision">Assay decision command</string>
+    <string name="command_copied">Decision command copied</string>
     <string name="display_limit_format">Showing %1$d of %2$d %3$s.</string>
+
+    <string name="gigabytes_value">%1$.1f GB</string>
+    <string name="megabytes_value">%1$.1f MB</string>
+    <string name="kilobytes_value">%1$.1f KB</string>
+    <string name="bytes_value">%1$d bytes</string>
 </resources>
