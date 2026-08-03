@@ -1,33 +1,40 @@
 # Assay v2 roadmap
 
-v1 establishes the deterministic trust engine, evidence bus, candidate lifecycle, narrow integrations, runner hardening assets and a read-only Android console. v2 should turn those verified primitives into an operational product for repeated use across projects and teams without weakening the authority model.
+v1 establishes the deterministic trust engine, evidence bus, candidate lifecycle, narrow integrations and runner-hardening assets. Android 1.1 adds an immediately usable offline APK quick check, guided sample exploration and strict runner-evidence import.
+
+v2 should turn those primitives into an operational product for repeated use across projects and teams without weakening the authority model or confusing local package inspection with source-bound audit evidence.
 
 This roadmap separates deployment certification from new product capability. Uncertified v1 deployment work is not rebranded as v2.
 
 ## Before v2: deployment certification and v1.1 hardening
 
-These items are required to call the deployed system operationally verified:
+Required deployment certification:
 
 1. Install the Dell/self-hosted runner and capture successful preflight evidence.
 2. Exercise cancellation, cleanup, workspace isolation and restart recovery.
 3. Run the pinned MobSF container against a representative real APK.
 4. Publish and verify the real hosted `assay/audit` branch using production credentials.
-5. Import a real snapshot on an Android device and complete accessibility/usability smoke tests.
-6. Establish debug and release signing, artifact retention and distribution procedure.
-7. Connect and exercise the installed Fonebrew and Orrery transports.
-8. Exercise optional ASOM explanation only when an ASOM provider is configured.
-9. Perform a threat-model review against the actual network, identity and credential topology.
-10. Record evidence in `docs/VERIFICATION.md` or a deployment-specific certification record.
+5. Install Android 1.1 on a physical device.
+6. Run the local quick check against a valid APK and malformed file.
+7. Import a real valid snapshot and reject a tampered snapshot.
+8. Complete TalkBack, text-scaling, dark/light and long-content smoke tests.
+9. Establish stable release signing, artifact retention and distribution procedure.
+10. Connect and exercise installed Fonebrew and Orrery transports.
+11. Exercise optional ASOM only when a provider is configured.
+12. Review the threat model against the actual network, identity and credential topology.
 
-Recommended v1.1 hardening after first live use:
+Recommended v1.1 hardening after live use:
 
-- structured operational error codes;
-- cancellation-safe temporary-directory cleanup;
-- disk-pressure and evidence-retention policy;
-- backup and restore procedure for candidate records and audit history;
-- log redaction review using real failures;
-- release signing and reproducible CLI/APK build notes;
-- migration test for every schema version change.
+- validate package-level rules against representative debug, release and third-party APKs;
+- improve explanations and remediation guidance for local observations;
+- define export/share semantics for local reports without overstating assurance;
+- add structured operational error codes;
+- strengthen cancellation-safe temporary-directory cleanup;
+- define disk-pressure and evidence-retention policy;
+- document backup/restore for candidate records and audit history;
+- review log redaction using real failures;
+- document reproducible CLI/APK release builds;
+- migration-test every schema version change.
 
 ## v2 product thesis
 
@@ -35,24 +42,23 @@ Assay v2 should answer:
 
 > Across the Android projects I am responsible for, what evidence is valid, what changed, which findings require action, which remediations are awaiting proof or decision, and what can I safely do next?
 
-The v2 product is not an autonomous repair agent. It is a multi-project evidence, review and controlled-remediation system.
+The v2 product is not an autonomous repair agent. It is a multi-project evidence, review and controlled-remediation system. The local APK quick check remains a useful offline utility, not a substitute for the project audit model.
 
 ## v2 principles
 
-- Preserve deterministic scanners as the only finding writers.
-- Preserve immutable evidence and candidate identities.
-- Keep human decisions explicit and attributable.
-- Add convenience through projections, queues and integrations rather than hidden authority.
-- Prefer a read model over shared mutable integration state.
-- Version policy and retain the policy used for every historical run.
-- Treat accepted risk and false-positive triage as annotations, not edits to findings.
-- Do not introduce automatic merge as a default or implied end state.
+- Deterministic scanners remain the only runner-finding writers.
+- Local APK observations remain separate from source findings.
+- Evidence and candidate identities remain immutable.
+- Human decisions remain explicit and attributable.
+- Convenience is added through projections, queues and integrations rather than hidden authority.
+- Policy is versioned and retained with historical runs.
+- Accepted risk and false-positive triage are annotations, not edits to findings.
+- Automatic merge is not a default or implied end state.
+- Offline local inspection and manual import remain available when connected services are absent.
 
 ## Priority 0: operational product foundation
 
 ### Epic A: Project and run registry
-
-Build a persistent registry above the current single-run artifacts.
 
 Capabilities:
 
@@ -65,38 +71,36 @@ Capabilities:
 
 Acceptance criteria:
 
-- No project can appear healthy without a valid run within policy freshness.
+- No project appears healthy without a valid run inside freshness policy.
 - Every run links to immutable evidence and exact source commit.
-- Deleting a project registration does not rewrite disconnected audit history.
+- Deleting a project registration does not rewrite audit history.
 
 ### Epic B: Connected read model
 
-Replace manual snapshot transfer as the only convenient path while preserving offline import.
+Replace manual snapshot transfer as the only convenient runner-evidence path while preserving offline import.
 
 Capabilities:
 
 - authenticated read-only API or signed snapshot feed;
 - incremental retrieval of projects, runs, findings and candidates;
-- Android local cache with explicit freshness and source identity;
-- offline mode and manual import remain supported;
+- Android cache with explicit freshness and source identity;
+- offline/manual import remains supported;
 - no mobile mutation authority in this epic.
 
 Acceptance criteria:
 
-- Connected and imported views validate the same schema and object invariants.
-- Stale cache cannot be displayed as current without a visible freshness warning.
-- The Android app still requests no authority to run scanners or mutate candidates.
+- Connected and imported views validate equivalent schemas and invariants.
+- Stale cache cannot appear current without a visible warning.
+- Local APK reports are never uploaded or inserted into project audit history implicitly.
 
 ### Epic C: Production identity and authorization
 
-Map organizational identities to product roles without replacing lifecycle actor checks.
-
 Capabilities:
 
-- authenticated users and service identities;
+- authenticated human and service identities;
 - project-scoped maintainer, reviewer, operator and observer roles;
 - reviewer eligibility policy;
-- service credentials for runner, Fonebrew and Orrery transports;
+- service credentials for runner, Fonebrew and Orrery;
 - complete authorization audit log.
 
 Acceptance criteria:
@@ -116,18 +120,16 @@ Capabilities:
 - occurrence history across compatible runs;
 - new, resolved and unchanged comparison;
 - file/module ownership;
-- candidate coverage and current remediation state;
-- advisory ASOM explanation visibly separated from evidence.
+- candidate coverage and remediation state;
+- advisory ASOM explanation separated from evidence.
 
 Acceptance criteria:
 
-- Run comparison explains incompatibility when policy or identity rules changed.
+- Comparison explains incompatibility when policy or identity rules changed.
 - Filtering never changes counts without indicating active filters.
-- Raw evidence remains locatable from normalized findings.
+- Raw evidence remains locatable.
 
 ### Epic E: Triage annotations and accepted risk
-
-Add human workflow metadata without mutating finding evidence.
 
 Capabilities:
 
@@ -136,30 +138,30 @@ Capabilities:
 - accepted-risk waiver with reason, approver, scope and expiry;
 - duplicate and related-finding links;
 - automatic waiver expiry and re-review queue;
-- policy-defined restrictions by severity or rule.
+- policy restrictions by severity or rule.
 
 Acceptance criteria:
 
-- A waiver never removes the finding from historical evidence.
+- A waiver never removes a historical finding.
 - Expired waivers cannot suppress current health silently.
-- Every exception is attributable and time-bound by default.
+- Exceptions are attributable and time-bound by default.
 
 ### Epic F: Decision queue
 
 Capabilities:
 
 - proof-passed candidates awaiting review;
-- complete candidate/proof context in one review surface;
+- complete candidate/proof context;
 - approve/reject with rationale;
 - reviewer eligibility and optional two-person policy;
-- invalidation when candidate revision or source binding changes;
+- invalidation after revision or source changes;
 - notification and escalation without auto-decision.
 
 Acceptance criteria:
 
-- A decision request cannot execute against a stale revision.
-- Approval UI distinguishes proof passed, approved, applied, merged and released.
-- Mobile approval remains out of scope until a dedicated threat-model review approves it.
+- A decision cannot execute against a stale revision.
+- UI distinguishes proof passed, approved, applied, merged and released.
+- Mobile approval remains out of scope until a dedicated threat-model review.
 
 ## Priority 2: policy and evidence intelligence
 
@@ -168,17 +170,17 @@ Acceptance criteria:
 Capabilities:
 
 - project and organization policy layers;
-- scanner enablement and required-tool rules;
-- severity mapping and gate thresholds;
+- required scanner rules;
+- severity mapping and gates;
 - evidence freshness policy;
 - waiver restrictions;
-- policy dry-run against historical evidence;
-- signed/versioned policy release.
+- historical dry-run;
+- signed/versioned release.
 
 Acceptance criteria:
 
-- Historical run conclusions retain the policy version used at execution.
-- A policy change creates a new evaluation result rather than rewriting evidence.
+- Historical conclusions retain execution policy version.
+- Policy changes create new evaluations rather than rewriting evidence.
 - Missing required scanners block readiness.
 
 ### Epic H: Baselines and differential audits
@@ -187,31 +189,31 @@ Capabilities:
 
 - compatible baseline selection;
 - added, resolved and persistent findings;
-- release-branch or protected-branch baseline rules;
-- differential gates for newly introduced findings;
-- full-run verification remains periodically required.
+- release/protected branch baseline rules;
+- differential gates for new findings;
+- periodic full-run requirement.
 
 Acceptance criteria:
 
 - Differential mode cannot hide unavailable scanners.
 - Baseline identity and compatibility are visible.
-- A clean differential result is not presented as a clean full audit.
+- Clean differential is not presented as clean full audit.
 
 ### Epic I: Evidence attestation
 
 Capabilities:
 
-- sign run manifests and projection documents;
+- sign run manifests and projections;
 - record runner/environment identity;
 - verify signatures before connected clients trust data;
-- key rotation and revocation procedure;
-- export a portable evidence bundle.
+- key rotation and revocation;
+- portable evidence bundle.
 
 Acceptance criteria:
 
-- Signature verification failure produces invalid evidence.
-- Signing keys never appear in audit artifacts or mobile storage.
-- Rotation preserves verification of historical records.
+- Signature failure produces invalid evidence.
+- Signing keys never appear in artifacts or mobile storage.
+- Rotation preserves historical verification.
 
 ## Priority 3: safe remediation at team scale
 
@@ -219,103 +221,54 @@ Acceptance criteria:
 
 Capabilities:
 
-- isolated proof jobs per candidate;
+- isolated proof job per candidate;
 - bounded CPU, memory, network and time;
 - explicit dependency/cache policy;
-- proof queue, cancellation and retry;
-- tamper-evident proof artifact retention;
+- queue, cancellation and retry;
+- tamper-evident proof retention;
 - flakiness diagnostics.
 
 Acceptance criteria:
 
 - Proof workers cannot approve, apply or merge.
-- A retry cannot overwrite a previous proof record silently.
-- Network access is denied by default and explicitly declared when required.
+- Retry cannot silently overwrite a proof record.
+- Network is denied by default and declared when required.
 
 ### Epic K: Repository-host integration
 
 Capabilities:
 
-- create or update draft PRs after candidate proof and approval;
+- create/update draft PRs after proof and approval;
 - attach immutable evidence locators and candidate identity;
-- publish status checks for evidence, proof, approval and source freshness;
-- observe merge result and trigger a new audit;
-- support manual operation when the integration is absent.
+- status checks for evidence, proof, approval and freshness;
+- observe merge and trigger a new audit;
+- preserve manual operation.
 
 Acceptance criteria:
 
 - Assay never presses merge by default.
 - Repository protections remain authoritative.
-- Merge observation creates new evidence; it does not rewrite candidate history.
+- Merge observation creates new evidence, not rewritten history.
 
 ### Epic L: Competing proposal comparison
 
 Capabilities:
 
 - multiple candidates for one finding;
-- compare patch scope, test coverage, proof outcome and residual scanner evidence;
+- compare patch scope, test coverage, proof and residual evidence;
 - supersede or withdraw without deleting history;
-- preserve independent candidate identities.
+- preserve independent identities.
 
 Acceptance criteria:
 
-- Selecting one proposal does not mutate or erase alternatives.
+- Selecting one proposal does not erase alternatives.
 - Reviewers can see why a candidate was superseded.
 
-## Priority 4: constellation and portfolio experience
+## Priority 4: Android and constellation experience
 
-### Epic M: Orrery portfolio posture
-
-Capabilities:
-
-- project health and evidence freshness;
-- unresolved-risk ageing;
-- blocked-run root causes;
-- awaiting-proof and awaiting-review counts;
-- ownership and escalation routing;
-- read-only drill-down to Assay.
-
-Acceptance criteria:
-
-- Unknown and blocked never aggregate into healthy.
-- Portfolio metrics link back to verifiable source objects.
-- Orrery receives no candidate mutation capability.
-
-### Epic N: Fonebrew Studio workflow
+### Epic M: Android connected review
 
 Capabilities:
-
-- context-rich handoff from finding to proposal;
-- secure transfer of patch/test artifacts and digests;
-- proposal progress visible in Fonebrew;
-- manual equivalent for users without Studio;
-- clear display of where Fonebrew authority ends.
-
-Acceptance criteria:
-
-- Fonebrew can reference only existing verified findings.
-- Fonebrew cannot record proof or human decisions.
-- Studio and manual paths produce equivalent candidate contracts.
-
-### Epic O: ASOM advisory explanations
-
-Capabilities:
-
-- user-selected model/provider;
-- explanation grounded in normalized evidence and optionally approved source context;
-- visible model, prompt policy and generation time;
-- no automatic lifecycle transition;
-- private/local model path where configured.
-
-Acceptance criteria:
-
-- Explanations are marked advisory and can be hidden without losing evidence.
-- Model failure does not affect evidence readiness.
-- No explanation text is copied into immutable scanner evidence.
-
-## v2 Android experience
-
-Recommended scope:
 
 - connected read-only project list;
 - project health and freshness;
@@ -323,11 +276,77 @@ Recommended scope:
 - search and filters;
 - review queue with authenticated handoff;
 - activity timeline;
-- secure local cache and manual import fallback;
-- accessibility and tablet/large-screen layouts;
+- secure cache and manual import fallback;
+- accessibility and tablet layouts;
 - release-signed distribution.
 
-Do not add direct mobile approval in the first v2 release. Treat it as a separate security epic requiring device trust, strong authentication, replay resistance, revocation, offline semantics and updated threat analysis.
+The home screen retains **Scan an APK** as an offline utility. Local reports have their own history/export model only if user research validates it, and never become runner findings automatically.
+
+### Epic N: Local APK inspection maturity
+
+Capabilities to validate before implementation:
+
+- export/share with explicit local-assurance metadata;
+- certificate lineage and signing-scheme detail;
+- compare APK package metadata between builds;
+- configurable local-rule explanations;
+- safer classification of exported components and permissions;
+- optional local report retention with user-controlled deletion.
+
+Acceptance criteria:
+
+- No local result is labelled verified audit evidence.
+- Reports state the APK hash, check version and limitations.
+- APK bytes remain local unless the user explicitly performs a separately described action.
+
+### Epic O: Orrery portfolio posture
+
+Capabilities:
+
+- health and evidence freshness;
+- unresolved-risk ageing;
+- blocked-run root causes;
+- awaiting-proof/review counts;
+- ownership and escalation;
+- read-only drill-down.
+
+Acceptance criteria:
+
+- Unknown and blocked never aggregate into healthy.
+- Metrics link to verifiable source objects.
+- Orrery receives no mutation capability.
+
+### Epic P: Fonebrew Studio workflow
+
+Capabilities:
+
+- context-rich finding-to-proposal handoff;
+- secure patch/test transfer and digests;
+- proposal progress visible in Fonebrew;
+- manual equivalent without Studio;
+- clear authority boundary.
+
+Acceptance criteria:
+
+- Only existing verified findings may be referenced.
+- Fonebrew cannot record proof or decisions.
+- Studio/manual paths produce equivalent contracts.
+
+### Epic Q: ASOM advisory explanations
+
+Capabilities:
+
+- user-selected provider;
+- explanation grounded in normalized evidence;
+- visible model, prompt policy and generation time;
+- no automatic transition;
+- private/local model path where configured.
+
+Acceptance criteria:
+
+- Explanations are advisory and removable without losing evidence.
+- Model failure does not affect readiness.
+- Explanation text is not copied into scanner evidence.
 
 ## Suggested release slices
 
@@ -335,7 +354,7 @@ Do not add direct mobile approval in the first v2 release. Treat it as a separat
 
 - Project/run registry
 - Connected read model
-- Production identity and role mapping
+- Production identity and roles
 - Findings workspace
 - Android connected read-only mode
 - Orrery multi-project status
@@ -356,10 +375,11 @@ Do not add direct mobile approval in the first v2 release. Treat it as a separat
 - Disposable proof workers
 - Competing proposal comparison
 
-### v2.3: Constellation refinement
+### v2.3: Android and constellation refinement
 
+- Mature local APK report experience if validated
 - Fonebrew Studio handoff
-- ASOM advisory provider controls
+- ASOM advisory controls
 - Portfolio trends and escalation
 - Cross-project policy views
 
@@ -367,61 +387,61 @@ Do not add direct mobile approval in the first v2 release. Treat it as a separat
 
 Consider only after v2 usage validates demand:
 
-- scanner/plugin SDK with signed plugins and capability declarations;
-- organization-level policy simulation;
-- richer secure supply-chain attestations;
+- signed scanner/plugin SDK;
+- organization policy simulation;
+- richer supply-chain attestations;
 - cross-repository dependency blast-radius analysis;
-- remediation pattern library built from approved history;
+- remediation pattern library from approved history;
 - privacy-preserving aggregate analytics;
 - multiple repository hosts and CI systems;
 - controlled remote execution fleets;
 - evidence federation between trusted Assay installations.
 
-None of these should weaken deterministic finding provenance or human decision authority.
-
 ## Explicit non-goals
 
 - Autonomous approval or merge.
-- Treating AI confidence as scanner evidence.
+- Treating AI confidence as evidence.
+- Treating local APK inspection as source audit evidence.
 - Replacing repository review and branch protection.
-- A general-purpose project-management suite.
+- General-purpose project management.
 - Editing historical findings to match current triage opinion.
-- Showing a project as healthy because data is missing.
-- Adding enterprise complexity before multi-user needs are validated.
+- Showing health because data is missing.
+- Enterprise complexity before multi-user needs are validated.
 
 ## Success measures
 
 ### Trust and correctness
 
-- Percentage of runs with complete required scanner evidence.
-- Number of stale or invalid actions blocked before decision/application.
-- Signature and manifest verification success rate.
+- Runs with complete required scanner evidence.
+- Stale or invalid actions blocked before decision/application.
 - Candidate records with complete source/finding/patch/test/proof binding.
 - Zero machine-originated human decisions.
+- Users who correctly distinguish local quick check, sample and runner evidence.
 
 ### Workflow quality
 
-- Median time from valid finding to first candidate.
-- Median proof queue and execution time.
-- Median time awaiting reviewer decision.
+- Time from valid finding to first candidate.
+- Proof queue and execution time.
+- Time awaiting reviewer decision.
 - Reviewer rework caused by missing context.
-- Percentage of source-drift invalidations explained and successfully reproposed.
+- Source-drift invalidations explained and successfully reproposed.
 
 ### Operational quality
 
-- Runner preflight pass rate and top failure causes.
+- Runner preflight pass rate and failure causes.
 - Cancellation cleanup success.
 - MobSF cleanup success.
 - Evidence publication conflict rate.
 - Projects with valid evidence inside freshness policy.
 
-### Product usefulness
+### Android usefulness
 
-- Maintainers who can correctly distinguish ready-clean from unavailable in usability testing.
-- Reviewers who can reconstruct a decision from stored evidence.
-- Portfolio observers who can correctly route blocked versus degraded projects.
-- Percentage of Fonebrew proposals that enter proof, rather than raw proposal volume.
+- First-launch users who successfully complete a meaningful path.
+- Local APK inspection completion and parse-failure rates.
+- False-positive/clarity results from moderated testing.
+- Users who know when to escalate from local quick check to runner audit.
+- Physical-device accessibility conformance.
 
 ## Recommended next step
 
-Do not start every v2 epic in parallel. Complete deployment certification, then run a short discovery and operational-observation cycle. The first implementation slice should be the project/run registry plus connected read-only projections because it improves repeated use without expanding mutation authority.
+Do not start every v2 epic in parallel. First complete deployment certification and observe real Android 1.1 and runner use. The first v2 implementation slice should be the project/run registry plus connected read-only projections because it improves repeated use without expanding mutation authority.
