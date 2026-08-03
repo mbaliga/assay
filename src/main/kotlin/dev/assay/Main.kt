@@ -6,6 +6,10 @@ import java.time.Instant
 import kotlin.io.path.createDirectories
 
 fun main(args: Array<String>) {
+    if (CandidateCli.handles(args.firstOrNull())) {
+        CandidateCli.run(args)
+        return
+    }
     when (args.firstOrNull()) {
         "scan", "scan-fixture" -> scanFixture(args)
         "normalize" -> normalize(args)
@@ -159,6 +163,16 @@ private fun usage() {
     println("  run-scanner --scanner NAME --tool PATH --tool-lock FILE --target PATH --raw-output FILE --canonical-output FILE [--config FILE] [--online]")
     println("  verify-tool-lock --file FILE")
     println("  fixture --root PATH")
+    println("  candidate-create --store PATH --source-repo SLUG --source-commit SHA --finding-fingerprint SHA256 --proving-id ID --patch-digest SHA256 --test-digest SHA256 [--at INSTANT]")
+    println("  candidate-list --store PATH")
+    println("  candidate-show --store PATH --candidate ID")
+    println("  candidate-propose --store PATH --candidate ID --revision N --actor ACTOR [--at INSTANT]")
+    println("  candidate-prepare --store PATH --candidate ID --repo PATH --patch FILE")
+    println("  candidate-proof --store PATH --candidate ID --revision N --repo PATH --proof FILE [--at INSTANT]")
+    println("  candidate-approve --store PATH --candidate ID --revision N --actor human:NAME [--at INSTANT]")
+    println("  candidate-reject --store PATH --candidate ID --revision N --actor human:NAME [--at INSTANT]")
+    println("  candidate-apply --store PATH --candidate ID --revision N --repo PATH [--at INSTANT]")
+    println("  candidate-stale --store PATH --candidate ID --revision N --current-source-commit SHA [--at INSTANT]")
 }
 
 private fun required(args: Array<String>, name: String): String = optional(args, name)
