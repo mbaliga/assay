@@ -28,9 +28,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.26.x'
 
       - name: Build Assay CLI
         run: gradle installDist --no-daemon
@@ -51,7 +48,11 @@ jobs:
           /tmp/assay-semgrep/bin/pip install --disable-pip-version-check 'semgrep==1.164.0'
           ln -s /tmp/assay-semgrep/bin/semgrep /tmp/assay-tools/semgrep
 
-          GOBIN=/tmp/assay-tools go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.3.8
+          curl -fsSL \
+            https://github.com/google/osv-scanner/releases/download/v2.3.8/osv-scanner_linux_amd64 \
+            -o /tmp/assay-tools/osv-scanner
+          echo 'bc98e15319ed0d515e3f9235287ba53cdc5535d576d24fd573978ecfe9ab92dc  /tmp/assay-tools/osv-scanner' | sha256sum -c -
+          chmod 0755 /tmp/assay-tools/osv-scanner
 
       - name: Create deterministic scanner fixtures
         shell: bash
