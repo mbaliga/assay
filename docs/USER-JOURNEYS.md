@@ -1,118 +1,169 @@
 # User journeys
 
-This document describes the end-to-end journeys supported by v1 and the target improvements for v2. It is product documentation, not an alternative lifecycle contract. When this document and the normative contract differ, the contract wins.
+This document describes the end-to-end journeys supported by v1/v1.1 and the target improvements for v2. It is product documentation, not an alternative lifecycle contract. When this document and the normative contract differ, the contract wins.
 
 ## Journey map summary
 
 | Journey | Primary persona | Entry condition | Desired outcome |
 |---|---|---|---|
+| Understand Assay on first launch | Android maintainer or evaluator | App installed; no runner configured | User understands the three paths and their trust levels |
+| Quick-check an APK | Android maintainer or release tester | APK available on device | Immediate offline package observations with clear limitations |
+| Explore the guided sample | Any first-time user | No APK or snapshot required | User understands findings, candidates and proof/decision separation |
+| Review runner-verified evidence | Maintainer or reviewer | Valid snapshot available | User understands provenance, risk and next action |
 | Configure trusted execution | Runner operator | New or changed environment | Environment passes preflight and is eligible to produce evidence |
 | Audit a source revision | Android maintainer | Exact source commit selected | Valid multi-scanner evidence is published or a precise blocking state is returned |
-| Review evidence | Maintainer or reviewer | Ready snapshot or verified bus | User understands risk, provenance and next action |
 | Propose remediation | Maintainer or assisted remediator | Existing verified finding | Candidate is created without altering the finding |
 | Prove remediation | Proof runner with operator support | Candidate branch and exact patch/test exist | Proof is recorded against the candidate or fails closed |
 | Decide | Security reviewer | Candidate is proof-passed | Attributable approve or reject decision is recorded |
-| Apply and hand off | Maintainer and executor | Candidate is approved and source is still valid | Application is recorded and normal repository review continues |
-| Handle source drift | Maintainer and source watch | Source context changes | Candidate becomes stale rather than silently remaining actionable |
+| Apply and hand off | Maintainer and executor | Candidate is approved and source remains valid | Application is recorded and normal repository review continues |
+| Handle source drift | Maintainer and source watch | Source context changes | Candidate becomes stale rather than silently actionable |
 | Observe portfolio health | Portfolio observer | Orrery projection available | User identifies healthy, degraded, blocked and unknown projects |
 
-## Journey 1: Configure trusted execution
+## Journey 1: Understand Assay on first launch
 
 ### Persona
 
-Runner operator and platform steward.
+Android maintainer, release tester, security reviewer or evaluator.
 
 ### Trigger
 
-A new Dell/self-hosted runner is installed, a scanner is upgraded, the MobSF image changes, or the runtime configuration is modified.
+The user installs Assay 1.1 and opens it without prior setup.
 
 ### Main path
 
-1. Operator installs the pinned Assay CLI, scanners, Git and container runtime.
-2. Operator places secrets and credentials outside the audit artifact path.
-3. Operator configures private work, candidate and evidence directories.
-4. Operator runs `assay runner-preflight` or the systemd preflight unit.
-5. Assay verifies non-root execution, cgroup v2, directory permissions, available capacity, exact executable digests, scanner versions, Git and the container runtime.
-6. Operator records deployment-specific evidence from the actual runner.
-7. The environment becomes eligible to execute audits.
+1. Assay opens to a home screen, not an empty evidence state.
+2. The user sees the product purpose in plain language.
+3. The user sees three actions:
+   - **Scan an APK** — immediate on-device package inspection;
+   - **Open verified audit** — import trusted-runner evidence;
+   - **Explore a sample project** — guided demonstration.
+4. Supporting copy explains that the local quick check and runner-verified audit have different assurance levels.
+5. The user chooses a path without needing to understand runner directories or JSON generation first.
 
 ### Failure paths
 
-- Tool digest or version mismatch: block and identify the exact tool.
-- Workspace permissions are too broad: block and provide the offending path/mode.
-- Container runtime unavailable: MobSF path remains unavailable, not clean.
-- Insufficient storage: block before evidence generation.
-- Preflight passes in CI but not on the Dell machine: deployment remains uncertified.
+- A previous action failed: the home screen shows the bounded error and keeps all three paths available.
+- The user expected a connected dashboard: copy explains that v1.1 is offline-first and the connected read model is a v2 capability.
+- The user assumes local inspection is the full audit: trust labels and explanatory copy correct the assumption before results.
 
 ### Exit criteria
 
-- All required preflight checks pass on the actual environment.
-- Credentials are not present in generated artifacts.
-- Cancellation and cleanup behavior has been exercised.
+The user can answer:
+
+- What can I do immediately?
+- Which path requires a trusted runner?
+- Which information is sample-only?
 
 ### v2 improvements
 
-- Persistent environment registry with certification timestamp and evidence digest.
-- Drift detection between successful preflight and audit execution.
-- Operator-facing remediation instructions and ownership routing.
-- Expiring certification rather than a permanent boolean.
+- Connected read-only project list after authentication.
+- First-run preference between local inspection and connected project mode.
+- Contextual setup guidance based on role.
+- Optional onboarding that can be skipped and reopened.
 
-## Journey 2: Audit an exact source revision
+## Journey 2: Quick-check an APK on the device
 
 ### Persona
 
-Android maintainer, with execution performed by the trusted runner.
+Android maintainer or release tester.
 
 ### Trigger
 
-A maintainer requests an audit for a commit, release candidate or explicitly selected source revision.
+The user has an APK on the device and wants an immediate package-level review.
 
 ### Main path
 
-1. Maintainer identifies repository and exact source commit.
-2. Runner validates source ownership and worktree state.
-3. Assay verifies scanner executables against the tool lock.
-4. Gitleaks, Semgrep and OSV-Scanner execute with bounded, noninteractive settings.
-5. MobSF executes when configured; upload, scan, report retrieval and cleanup are all checked.
-6. Assay redacts, normalizes and merges findings into deterministic SARIF.
-7. Cross-file contracts, manifests, source binding, sizes, paths and digests are validated.
-8. A local evidence bus is published atomically.
-9. The evidence is published to disconnected `assay/audit` history using compare-and-swap lease semantics.
-10. A console and Orrery projection can be generated.
+1. User selects **Scan an APK**.
+2. Android's system document picker opens with APK-compatible types.
+3. User grants access only to the selected file.
+4. Assay copies the APK into a bounded private temporary file.
+5. Analysis runs off the main thread.
+6. Assay reads package, component, permission, signing and archive metadata.
+7. The temporary APK is deleted in a `finally` path whether inspection passes or fails.
+8. Assay shows a **Local quick check** trust banner.
+9. User reviews:
+   - app label and package name;
+   - version and SDK range;
+   - file size and SHA-256;
+   - signer, permission, exported-component and native-library counts;
+   - package-level observations ordered by severity.
+10. User opens an observation to read explanation, evidence and local rule ID.
+11. User can scan another APK or move to **Open verified audit**.
 
-### Expected user-visible outcomes
+### Current checks
 
-- Ready with zero findings.
-- Ready with one or more findings.
-- Not configured.
-- Unavailable.
-- Invalid.
-- Stale.
+- debuggable build;
+- test-only build;
+- backup enabled;
+- cleartext traffic allowed;
+- exported components without guarding permissions;
+- broad/special permissions;
+- dangerous permissions;
+- signing-certificate absence;
+- native shared-library presence;
+- package and SDK metadata.
 
-Only the first two represent valid completed evidence.
+### Failure and recovery paths
 
-### Failure paths
-
-- Scanner is absent or exits unsuccessfully: audit is unavailable or invalid, never zero findings.
-- Evidence contains path traversal, symlink or oversized content: publication is rejected.
-- Source changed during execution: source binding fails.
-- Remote audit branch moved: publication fails with a stale lease.
-- MobSF cleanup fails: failure remains visible and must not be silently downgraded.
+- User cancels picker: return to home with no error state.
+- APK cannot be opened: show a precise bounded message and return to home.
+- File is empty, malformed or not an APK: reject; never render a clean result.
+- File exceeds 1 GB: stop before unbounded copying.
+- Package metadata cannot be parsed: report parse failure; delete temporary file.
+- Android version uses an older package API: use the guarded compatible path.
+- Inspection is interrupted: temporary file cleanup still runs.
 
 ### Exit criteria
 
-- A verified bus exists for the exact source commit, or a precise blocked state is recorded.
-- The audit publication can be independently verified.
+- The user receives useful package-level observations without uploading the APK.
+- The report is never labelled runner-verified.
+- No candidate or proof workflow is created from local observations.
 
 ### v2 improvements
 
-- Project and run registry.
-- Scheduled and event-triggered audits.
-- Incremental run support without weakening full-run provenance.
-- Notifications for newly introduced high-severity findings and blocked runs.
-- Run comparison against a compatible baseline.
+- Export or share a signed local report with explicit local-assurance metadata.
+- Rule explanations and links to Android guidance.
+- Compare two APK builds without treating comparison as source evidence.
+- Certificate lineage and stronger signing-scheme inspection.
+- Optional local SBOM/package inspection where platform APIs allow it safely.
+- User-tested prioritization to reduce misleading package-level warnings.
 
-## Journey 3: Review audit evidence
+## Journey 3: Explore the guided sample
+
+### Persona
+
+Any first-time user.
+
+### Trigger
+
+The user wants to understand Assay without selecting a file or configuring infrastructure.
+
+### Main path
+
+1. User selects **Explore a sample project**.
+2. Assay displays a **Sample data** trust banner.
+3. User sees representative repository/run information, findings and candidates.
+4. User opens a sample finding to understand rule, severity, location, fingerprint and related candidate count.
+5. User opens a proof-passed candidate to understand lifecycle, branch, revision and human-decision handoff.
+6. The experience distinguishes proof passed from approved, applied, merged and released.
+7. User selects **Try your APK** to move into the local quick-check journey.
+
+### Failure paths
+
+- Sample data is mistaken for a real audit: trust banner and sample identifiers remain visible.
+- User copies a command from sample data: placeholders and sample context prevent representation as an executed decision.
+
+### Exit criteria
+
+The user understands the core object relationships and knows the sample has no evidentiary meaning.
+
+### v2 improvements
+
+- Short role-specific walkthroughs.
+- Resettable guided tasks.
+- Accessibility-tested explanatory annotations.
+
+## Journey 4: Review runner-verified audit evidence
 
 ### Persona
 
@@ -120,43 +171,143 @@ Android maintainer or security reviewer.
 
 ### Trigger
 
-A console snapshot, CLI output or project/run view is available.
+A `console-snapshot` JSON projection is available from the trusted runner.
 
-### v1 main path
+### Main path
 
-1. User opens the Android console.
-2. User selects a verified snapshot using the system document picker.
-3. The app validates schema, size, identifiers, relationships and availability rules.
-4. The app shows evidence status before any findings.
-5. For ready evidence, the user reviews repository, source commit, run ID, time and counts.
-6. User opens finding details to inspect scanner, rule, severity, location, message, fingerprint and candidate coverage.
-7. User opens candidate details to inspect lifecycle, revision, branch and approval visibility.
+1. User selects **Open verified audit**.
+2. Android's document picker opens.
+3. Assay reads at most 8 MB and parses the complete snapshot.
+4. The app validates schema version, required and unknown fields, identifiers, relationships, availability state and record bounds.
+5. Assay displays a **Runner-verified evidence** trust banner.
+6. Evidence availability is shown before findings.
+7. For ready evidence, user reviews repository, source commit, run ID, generation time and counts.
+8. User opens finding details to inspect scanner, rule, severity, location, message, fingerprint and candidate coverage.
+9. User opens candidate details to inspect lifecycle, revision, fix branch and approval visibility.
+10. For proof-passed candidates, the app may copy an explicit approve/reject command template.
+11. Decision execution remains on the trusted runner and is revalidated there.
 
-### Failure paths
+### Failure and recovery paths
 
-- Snapshot is too large, malformed or contains unknown fields: reject and show invalid state.
-- Snapshot is unavailable or not configured: show reason and no findings.
-- Snapshot is ready but references are inconsistent: reject rather than partially render.
+- Snapshot is too large: reject before parsing.
+- JSON is malformed or contains unknown fields: reject the whole document.
+- Identifiers or cross-references are invalid: reject rather than partially render.
+- Evidence is unavailable or not configured: show reason and no findings.
+- Evidence is stale or invalid: show blocking state; do not render it as ready.
+- User opens an ordinary JSON file: show validation failure and return to home.
 
 ### Exit criteria
 
 The user can answer:
 
-- Is this evidence valid for the source I care about?
+- Is this runner evidence valid for the source I care about?
 - Which findings are unresolved?
-- Which findings have remediation candidates?
+- Which findings have candidates?
 - Which candidates require proof, review or follow-up?
 
 ### v2 improvements
 
-- Persistent project/run navigation.
+- Persistent connected project/run navigation.
 - Search, filter, sort and saved views.
-- Full finding and candidate detail screens instead of dialogs.
+- Full detail screens instead of dialogs.
 - Run-to-run change views.
 - Deep links from Orrery and notifications.
-- Accessible evidence summaries with raw locator links.
+- Signed projection verification and freshness-aware local cache.
 
-## Journey 4: Propose a remediation candidate
+## Journey 5: Configure trusted execution
+
+### Persona
+
+Runner operator and platform steward.
+
+### Trigger
+
+A Dell/self-hosted runner is installed, a scanner is upgraded, the MobSF image changes, or runtime configuration is modified.
+
+### Main path
+
+1. Operator installs the pinned Assay CLI, scanners, Git and container runtime.
+2. Credentials are placed outside audit artifact paths.
+3. Operator configures private work, candidate and evidence directories.
+4. Operator runs `assay runner-preflight` or the systemd preflight unit.
+5. Assay verifies non-root execution, cgroup v2, directory permissions, capacity, executable digests, scanner versions, Git and container runtime.
+6. Operator records deployment-specific evidence from the actual machine.
+7. The environment becomes eligible to execute audits.
+
+### Failure paths
+
+- Tool digest or version mismatch: block and identify exact tool.
+- Workspace permissions too broad: block and identify path/mode.
+- Container runtime unavailable: MobSF remains unavailable, not clean.
+- Insufficient storage: block before evidence generation.
+- CI preflight passes but Dell preflight does not: deployment remains uncertified.
+
+### Exit criteria
+
+- Required checks pass on the real environment.
+- Credentials are not present in artifacts.
+- Cancellation and cleanup behavior has been exercised.
+
+### v2 improvements
+
+- Persistent environment registry with evidence digest and expiry.
+- Drift detection between preflight and audit execution.
+- Operator-facing remediation instructions and ownership routing.
+
+## Journey 6: Audit an exact source revision
+
+### Persona
+
+Android maintainer, with execution performed by the trusted runner.
+
+### Trigger
+
+A maintainer requests an audit for a commit, release candidate or explicit source revision.
+
+### Main path
+
+1. Maintainer identifies repository and exact source commit.
+2. Runner validates source ownership and worktree state.
+3. Assay verifies scanner executables against the tool lock.
+4. Gitleaks, Semgrep and OSV-Scanner execute with bounded, noninteractive settings.
+5. MobSF executes when configured; upload, scan, report retrieval and cleanup are checked.
+6. Assay redacts, normalizes and merges deterministic SARIF.
+7. Cross-file contracts, manifests, source binding, sizes, paths and digests are validated.
+8. A local evidence bus is published atomically.
+9. Evidence is published to disconnected `assay/audit` history with compare-and-swap lease semantics.
+10. Console and Orrery projections can be generated.
+
+### User-visible outcomes
+
+- Ready with zero findings.
+- Ready with findings.
+- Not configured.
+- Unavailable.
+- Invalid.
+- Stale.
+
+Only the first two are valid completed evidence.
+
+### Failure paths
+
+- Scanner absent or unsuccessful: unavailable or invalid, never zero findings.
+- Path traversal, symlink or oversized evidence: reject publication.
+- Source changed during execution: source binding fails.
+- Remote audit branch moved: stale lease failure.
+- MobSF cleanup fails: failure remains visible.
+
+### Exit criteria
+
+A verified bus exists for the exact commit, or a precise blocked state is recorded.
+
+### v2 improvements
+
+- Project/run registry.
+- Scheduled and event-triggered audits.
+- Notifications for new high-severity findings and blocked runs.
+- Compatible run comparison and baselines.
+
+## Journey 7: Propose a remediation candidate
 
 ### Persona
 
@@ -164,253 +315,168 @@ Android maintainer or assisted remediator using Fonebrew.
 
 ### Trigger
 
-A verified finding has been selected for remediation.
+A runner-verified finding is selected for remediation.
 
-### Manual main path
+### Manual path
 
 1. Maintainer creates a patch and proving test.
-2. Digests are calculated for the patch and test.
+2. Digests are calculated.
 3. Assay creates a candidate bound to repository, source commit, finding fingerprint, patch digest and proving-test digest.
-4. Assay assigns the immutable candidate ID and dedicated `assay/fix/<candidate-id>` branch.
+4. Assay assigns immutable candidate ID and `assay/fix/<candidate-id>` branch.
 5. Candidate transitions from detected to proposed.
 
-### Fonebrew-assisted main path
+### Fonebrew-assisted path
 
 1. User asks Fonebrew to explain or remediate an existing verified finding.
 2. Fonebrew produces patch and test artifacts.
-3. The gateway verifies the finding exists and the source commit remains current.
+3. Gateway verifies the finding and source commit.
 4. Candidate is created and proposed as `system:fonebrew`.
-5. Fonebrew cannot perform later proof, decision or application transitions.
+5. Fonebrew cannot perform proof, decision or application transitions.
 
 ### Failure paths
 
+- Local quick-check observation supplied as a finding: reject; it has no runner fingerprint contract.
 - Unknown finding fingerprint: reject.
-- Source commit is stale: reject or mark stale.
-- Patch or test digest changes after identity creation: create a new candidate; do not mutate identity.
-- AI produces a plausible issue not present in evidence: no candidate may be created through the Fonebrew gateway.
+- Source commit stale: reject or mark stale.
+- Patch/test digest changes: create a new candidate identity.
+- AI invents an issue absent from evidence: gateway rejects it.
 
 ### Exit criteria
 
-- Candidate identity is immutable and inspectable.
-- The original finding remains unchanged.
-- Patch and proving test are available for branch preparation.
+Candidate identity is immutable and the original finding remains unchanged.
 
-### v2 improvements
-
-- Guided candidate creation with artifact preview.
-- Multiple proposals for the same finding with clear comparison.
-- Candidate supersession and withdrawal UX.
-- Repository-host PR draft creation after proof and approval, while preserving normal review governance.
-
-## Journey 5: Prepare and prove a candidate
+## Journey 8: Prepare and prove a candidate
 
 ### Persona
 
 Maintainer, proof runner and runner operator.
 
-### Trigger
-
-A proposed candidate has an exact patch and proving test.
-
 ### Main path
 
 1. Assay prepares or verifies the dedicated candidate branch.
-2. Patch is applied and committed on `assay/fix/<candidate-id>`.
-3. Proof runner verifies branch name, clean worktree, source ancestry and exact patch.
+2. Patch is applied and committed.
+3. Proof runner verifies branch, clean worktree, source ancestry and exact patch.
 4. Proving assertion fails repeatedly before the fix.
-5. Proving assertion passes repeatedly after the fix.
+5. It passes repeatedly after the fix.
 6. Relevant scanner evidence exists before and is cleared after.
-7. Before/after evidence is non-identical and bound to the candidate.
+7. Before/after evidence is non-identical and candidate-bound.
 8. Assay records proof as `system:proof-runner`.
 9. Candidate transitions to proof-passed.
 
 ### Failure paths
 
-- Test does not fail before fix: proof fails.
-- Test is flaky: proof fails until repetition requirement passes.
-- Scanner finding persists: proof fails.
-- Branch or patch does not match candidate identity: reject proof.
-- Worktree contains unrelated changes: reject proof.
-- Source ancestry no longer holds: mark stale.
+- Test does not fail before fix.
+- Test is flaky.
+- Scanner finding persists.
+- Branch or patch mismatches identity.
+- Worktree contains unrelated changes.
+- Source ancestry no longer holds.
 
-### Exit criteria
+All fail closed; source drift marks the candidate stale.
 
-- Proof is mechanically bound to the exact candidate and fix commit.
-- Candidate is eligible for human review, not automatically approved.
-
-### v2 improvements
-
-- Isolated disposable proof workers.
-- Proof artifact viewer and timeline.
-- Flakiness diagnostics.
-- Configurable proving policies per rule or project.
-- Queue and capacity management for proof execution.
-
-## Journey 6: Approve or reject
+## Journey 9: Approve or reject
 
 ### Persona
 
 Security reviewer and approver.
 
-### Trigger
-
-A candidate is proof-passed.
-
-### v1 main path
+### Main path
 
 1. Reviewer inspects source, finding, candidate identity, patch/test digests and proof.
-2. Reviewer confirms current revision and source validity.
-3. Reviewer executes explicit approve or reject command using `human:<identity>`.
-4. Assay verifies the candidate state, expected revision and actor class.
-5. Decision is appended to the hash-chained event record.
-6. Candidate transitions to approved or rejected.
+2. Reviewer confirms revision and source validity.
+3. Reviewer executes approve or reject using `human:<identity>`.
+4. Assay verifies state, revision and actor class.
+5. Decision is appended to the hash-chained record.
+6. Candidate becomes approved or rejected.
 
-The Android console may copy a command template. Copying it is not a decision; execution on the trusted surface is required.
+Copying a command in Android is not a decision.
 
 ### Failure paths
 
-- Non-human actor attempts decision: reject.
-- Candidate revision changed: reject stale decision.
-- Source drift occurred: candidate becomes stale.
-- Proof is absent or invalid: approval is unavailable.
+- Non-human actor attempts decision.
+- Candidate revision changed.
+- Source drift occurred.
+- Proof absent or invalid.
 
-### Exit criteria
-
-- Decision is attributable and bound to the exact proof and revision.
-- Rejected candidates cannot silently continue toward application.
-
-### v2 improvements
-
-- Dedicated authenticated decision queue.
-- Strong identity integration and reviewer authorization policy.
-- Decision rationale and structured residual-risk acknowledgement.
-- Two-person or policy-based approval for selected severity classes.
-- Replay-resistant mobile approval only after threat-model revision.
-
-## Journey 7: Apply and continue repository review
+## Journey 10: Apply and continue repository review
 
 ### Persona
 
-Maintainer with the deterministic executor operating the record transition.
-
-### Trigger
-
-Candidate is approved, source binding remains valid and the fix commit is present on the expected branch.
+Maintainer with deterministic executor.
 
 ### Main path
 
-1. Executor revalidates approval, source commit, branch, fix commit, patch and ancestry.
+1. Executor revalidates approval, source, branch, fix commit, patch and ancestry.
 2. Assay records application as `system:executor`.
-3. Candidate transitions to applied.
-4. Maintainer opens or continues the repository's normal pull request and review process.
-5. Repository governance decides whether and when to merge and release.
+3. Candidate becomes applied.
+4. Maintainer continues the repository's normal PR and review process.
+5. Repository governance decides merge and release.
 
-### Critical distinction
+`APPLIED` does not mean merged, deployed, released or risk-free.
 
-`APPLIED` means the approved fix commit satisfies the Assay candidate contract. It does not mean merged, deployed, released or risk-free.
-
-### Failure paths
-
-- Source commit or branch has drifted: mark stale.
-- Fix commit is not descended from audited source: block.
-- Approval references a previous revision: block.
-- Worktree or patch does not match: block.
-
-### Exit criteria
-
-- Application record is complete and inspectable.
-- No Assay path bypasses the repository's normal merge controls.
-
-### v2 improvements
-
-- Create or update a draft PR with evidence links.
-- Repository-host status checks for candidate proof and approval.
-- Post-merge observation that creates a new audit run rather than rewriting application state.
-
-## Journey 8: Handle source drift
+## Journey 11: Handle source drift
 
 ### Persona
 
 Maintainer and source-watch actor.
 
-### Trigger
-
-The source revision, candidate base or required context changes before decision or application.
-
 ### Main path
 
 1. Assay detects that current source no longer matches candidate binding.
-2. `system:source-watch` records the drift.
-3. Candidate transitions to stale.
-4. UI removes or disables approval/application actions.
-5. Maintainer chooses whether to reproduce the proposal against a new source revision.
-6. A new candidate is created when identity inputs change.
+2. `system:source-watch` records drift.
+3. Candidate becomes stale.
+4. Approval/application actions are removed or disabled.
+5. Maintainer may reproduce the proposal against a new revision.
+6. Changed identity inputs create a new candidate.
 
-### Exit criteria
+No old decision is reused silently.
 
-No old decision is silently reused for new source context.
-
-### v2 improvements
-
-- Explain which files or commits invalidated the candidate.
-- Offer a guided rebase/re-prove flow that creates a new candidate identity.
-- Link superseded and replacement candidates.
-
-## Journey 9: Observe portfolio health
+## Journey 12: Observe portfolio health
 
 ### Persona
 
 Portfolio observer using Orrery.
 
-### Trigger
-
-Orrery receives an Assay health projection.
-
 ### Main path
 
-1. Orrery validates and reads the projection.
+1. Orrery validates the Assay projection.
 2. Project is shown as:
    - `healthy`: valid evidence and no unresolved findings;
    - `degraded`: valid evidence with unresolved findings;
    - `blocked`: invalid or stale evidence;
    - `unknown`: not configured or unavailable.
-3. Observer prioritizes projects requiring maintainer or operator attention.
-4. Observer follows a read-only link or handoff to Assay for detail.
-
-### Exit criteria
+3. Observer prioritizes maintainer or operator attention.
+4. Observer follows a read-only handoff to Assay.
 
 The observer can distinguish security work from operational evidence failure.
 
-### v2 improvements
-
-- Portfolio trends and ageing.
-- Explicit ownership and escalation routing.
-- Evidence freshness policy.
-- Drill-down that preserves Assay's read-only boundary.
-
 ## Cross-journey UX requirements
 
-- Always show repository and source commit on detail and decision surfaces.
-- Never show zero findings for unavailable or invalid evidence.
-- Use state-specific actions; hide or disable actions that cannot legally execute.
-- Explain why an action is unavailable.
-- Preserve actor identity and timestamp in timelines.
-- Label AI explanations as advisory and non-evidentiary.
-- Keep merge and deployment outside Assay's application language.
-- Provide copyable stable identifiers for support and audit.
-- Ensure every failure has an owner: maintainer, reviewer, operator or integration.
+- Trust tier is visible on every Android result surface.
+- Local quick-check observations never enter runner finding or candidate language.
+- Repository and source commit are shown on runner evidence, candidate and decision surfaces.
+- Zero findings is never shown for unavailable or invalid evidence.
+- Actions are state-specific and explain why they are unavailable.
+- Actor identity and timestamp are preserved in timelines.
+- AI explanations are advisory and non-evidentiary.
+- Merge and deployment remain outside Assay's application language.
+- Stable identifiers are copyable for support and audit.
+- Every failure has an owner: user, maintainer, reviewer, operator or integration.
 
 ## Journey instrumentation for v2
 
 Measure without treating speed as the only success criterion:
 
-- time from valid finding to first candidate;
-- time from candidate proposal to proof result;
-- time waiting for human decision;
+- first-launch path selected;
+- local APK inspection completion and failure reasons;
+- percentage of users who correctly distinguish local and runner assurance in usability testing;
+- movement from sample exploration to a real APK scan;
+- time from valid runner finding to first candidate;
+- time from proposal to proof result;
+- time awaiting human decision;
 - percentage of candidates invalidated by source drift;
 - proof failure reasons and recurrence;
 - blocked audits by root cause;
-- percentage of projects with fresh valid evidence;
-- false-positive/accepted-risk volume once triage exists;
+- projects with fresh valid evidence;
 - reviewer rework caused by missing context;
-- ratio of AI proposals accepted for proof, not merely generated.
+- ratio of AI proposals entering proof, not merely generated.
