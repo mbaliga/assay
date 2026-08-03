@@ -85,7 +85,7 @@ private fun printCommand(args: Array<String>) {
         target = Path.of(required(args, "--target")),
         output = Path.of(required(args, "--output")),
         config = optional(args, "--config")?.let(Path::of),
-        offline = optional(args, "--online") == null,
+        offline = !hasFlag(args, "--online"),
     )
     val command = when (scanner) {
         Scanner.GITLEAKS -> GitleaksAdapter.command(context)
@@ -121,7 +121,7 @@ private fun runScanner(args: Array<String>) {
             target = target,
             output = rawOutput,
             config = config,
-            offline = optional(args, "--online") == null,
+            offline = !hasFlag(args, "--online"),
         )
     ) {
         is ScannerOutcome.Success -> {
@@ -170,6 +170,8 @@ private fun optional(args: Array<String>, name: String): String? {
     require(index + 1 < args.size && !args[index + 1].startsWith("--")) { "missing value for $name" }
     return args[index + 1]
 }
+
+private fun hasFlag(args: Array<String>, name: String): Boolean = args.any { it == name }
 
 private fun values(args: Array<String>, name: String): List<String> = args.indices
     .filter { args[it] == name }
