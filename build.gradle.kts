@@ -17,4 +17,12 @@ tasks.register<JavaExec>("acceptanceTest") {
     mainClass.set("dev.assay.AcceptanceTestKt")
 }
 
-tasks.named("check") { dependsOn("acceptanceTest") }
+tasks.register<JavaExec>("candidateAcceptanceTest") {
+    group = "verification"
+    classpath = sourceSets["test"].runtimeClasspath
+    mainClass.set("dev.assay.CandidateAcceptanceTestKt")
+}
+
+tasks.named("check") {
+    dependsOn("acceptanceTest", "candidateAcceptanceTest")
+}
