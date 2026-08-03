@@ -36,7 +36,7 @@ fun main() {
         check(semgrep.environment["SEMGREP_SEND_METRICS"] == "off")
         val osv = OsvAdapter.command(ScannerCommandContext(root.resolve("osv"), root, output, offline = true))
         check("--offline" in osv.arguments)
-        check(OsvAdapter.versionCommand(root.resolve("osv"), root).arguments == listOf("version"))
+        check(OsvAdapter.versionCommand(root.resolve("osv"), root).arguments == listOf("--version"))
     }
 
     test("SARIF normalization and severity floors") {
@@ -124,7 +124,7 @@ fun main() {
     test("tool lock and schemas") {
         val lock = """{"schemaVersion":"1.0.0","tools":{"gitleaks":{"version":"${ToolCatalog.GITLEAKS_VERSION}","sha256":"${"1".repeat(64)}"}}}"""
         check(ToolLock.parse(lock, setOf(Scanner.GITLEAKS)).require(Scanner.GITLEAKS).version == ToolCatalog.GITLEAKS_VERSION)
-        listOf("index.schema.json", "run.schema.json", "status.schema.json", "proof.schema.json", "tool-lock.schema.json")
+        listOf("index.schema.json", "run.schema.json", "status.schema.json", "proof.schema.json", "candidate.schema.json", "tool-lock.schema.json")
             .forEach { Json.parse(Files.readString(Path.of("schemas", it))).requireObject() }
     }
 
