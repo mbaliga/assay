@@ -116,7 +116,7 @@ object OsvAdapter : ExternalScannerAdapter {
 
     override fun versionCommand(executable: Path, workingDirectory: Path): ScannerCommand = ScannerCommand(
         executable = executable,
-        arguments = listOf("version"),
+        arguments = listOf("--version"),
         workingDirectory = workingDirectory,
         allowedExitCodes = setOf(0),
         timeout = Duration.ofSeconds(30),
