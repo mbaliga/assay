@@ -127,6 +127,7 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
         proofDigest: String,
         proofPassed: Boolean,
     ): CandidateRecord {
+        require(actor == "system:proof-runner") { "proof may only be recorded by the deterministic proof runner" }
         require(proofDigest.matches(SHA256)) { "invalid proof digest" }
         val next = if (proofPassed) Lifecycle.PROOF_PASSED else Lifecycle.PROOF_FAILED
         transition(expectedRevision, next, actor, at, proofDigest)
@@ -149,6 +150,14 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
         return record
     }
 
+    fun reject(expectedRevision: Int, actor: String, at: Instant): CandidateRecord {
+        checkRevision(expectedRevision)
+        require(actor.matches(HUMAN_ACTOR)) { "rejection requires a human actor" }
+        require(record.lifecycle == Lifecycle.PROOF_PASSED) { "candidate is not proof-passed" }
+        val proofDigest = requireNotNull(record.proofDigest) { "candidate lacks proof" }
+        return transition(expectedRevision, Lifecycle.REJECTED, actor, at, proofDigest)
+    }
+
     fun apply(
         expectedRevision: Int,
         actor: String,
@@ -158,6 +167,7 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
         fixBranch: String,
     ): CandidateRecord {
         checkRevision(expectedRevision)
+        require(actor == "system:executor") { "application requires the deterministic executor" }
         require(record.lifecycle == Lifecycle.APPROVED) { "candidate is not approved" }
         require(sourceCommit == record.identity.sourceCommit) { "application source commit drifted" }
         require(fixCommit.matches(SHA1) && fixCommit != sourceCommit) { "invalid fix commit" }
@@ -178,6 +188,7 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
     }
 
     fun markStale(expectedRevision: Int, actor: String, at: Instant, currentSourceCommit: String): CandidateRecord {
+        require(actor == "system:source-watch") { "staleness may only be recorded by the source watcher" }
         require(currentSourceCommit.matches(SHA1)) { "invalid current source commit" }
         require(currentSourceCommit != record.identity.sourceCommit) { "source has not drifted" }
         return transition(
@@ -198,6 +209,7 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
     ): CandidateRecord {
         checkRevision(expectedRevision)
         require(actor.matches(ACTOR)) { "invalid candidate actor" }
+        require(evidenceDigest == null || evidenceDigest.matches(SHA256)) { "invalid event evidence digest" }
         val machine = LifecycleMachine(record.lifecycle)
         machine.move(next)
         val sequence = record.revision + 1
@@ -226,7 +238,7 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
         private val GENESIS = "0".repeat(64)
 
         fun create(identity: CandidateIdentity, actor: String, at: Instant): CandidateLedger {
-            require(actor.matches(ACTOR)) { "invalid candidate actor" }
+            require(actor == "system:assay") { "candidate creation requires system:assay" }
             val digest = eventDigest(1, Lifecycle.DETECTED, at, actor, null, GENESIS)
             return CandidateLedger(
                 CandidateRecord(
@@ -238,12 +250,18 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
             ).also { validate(it.record) }
         }
 
+        fun restore(record: CandidateRecord): CandidateLedger = CandidateLedger(record).also { validate(record) }
+
         fun validate(record: CandidateRecord) {
             require(record.revision == record.events.size) { "candidate revision/event count mismatch" }
             require(record.events.isNotEmpty()) { "candidate has no events" }
+            require(record.events.first().state == Lifecycle.DETECTED) { "candidate does not begin in detected state" }
+            require(record.events.first().actor == "system:assay") { "candidate genesis actor mismatch" }
             var previous = GENESIS
             record.events.forEachIndexed { index, event ->
                 require(event.sequence == index + 1) { "candidate event sequence gap" }
+                require(event.actor.matches(ACTOR)) { "invalid candidate event actor" }
+                require(event.evidenceDigest == null || event.evidenceDigest.matches(SHA256)) { "invalid candidate event evidence" }
                 require(event.previousEventDigest == previous) { "candidate event chain mismatch" }
                 require(event.eventDigest == eventDigest(
                     event.sequence,
@@ -253,12 +271,24 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
                     event.evidenceDigest,
                     previous,
                 )) { "candidate event digest mismatch" }
+                if (index > 0) {
+                    LifecycleMachine(record.events[index - 1].state).move(event.state)
+                }
                 previous = event.eventDigest
             }
             require(record.lifecycle == record.events.last().state) { "candidate lifecycle/event mismatch" }
+            if (record.lifecycle in setOf(Lifecycle.PROOF_PASSED, Lifecycle.PROOF_FAILED, Lifecycle.APPROVED, Lifecycle.REJECTED, Lifecycle.APPLIED)) {
+                require(record.proofDigest?.matches(SHA256) == true) { "proof lifecycle lacks valid proof digest" }
+            }
             record.approval?.let { approval ->
                 require(approval.actor.matches(HUMAN_ACTOR)) { "non-human approval" }
                 require(record.proofDigest == approval.proofDigest) { "approval proof mismatch" }
+                require(approval.candidateRevision in 1..record.revision) { "invalid approval revision" }
+                val approvalEvent = record.events.getOrNull(approval.candidateRevision - 1)
+                    ?: error("approval event is missing")
+                require(approvalEvent.state == Lifecycle.APPROVED) { "approval revision does not identify approval event" }
+                require(approvalEvent.actor == approval.actor) { "approval event actor mismatch" }
+                require(approvalEvent.evidenceDigest == approval.proofDigest) { "approval event proof mismatch" }
                 require(approval.approvalDigest == approvalDigest(
                     record.identity.candidateId,
                     approval.actor,
@@ -267,11 +297,21 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
                     approval.candidateRevision,
                 )) { "approval digest mismatch" }
             }
+            if (record.lifecycle == Lifecycle.APPROVED || record.lifecycle == Lifecycle.APPLIED) {
+                require(record.approval != null) { "approved lifecycle lacks approval" }
+            }
             record.application?.let { application ->
                 val approval = requireNotNull(record.approval) { "application lacks approval" }
+                require(application.actor == "system:executor") { "application actor mismatch" }
                 require(application.sourceCommit == record.identity.sourceCommit) { "application source mismatch" }
+                require(application.fixCommit.matches(SHA1) && application.fixCommit != application.sourceCommit) { "invalid application fix commit" }
                 require(application.fixBranch == record.identity.fixBranch) { "application branch mismatch" }
                 require(application.approvalDigest == approval.approvalDigest) { "application approval mismatch" }
+            }
+            if (record.lifecycle == Lifecycle.APPLIED) {
+                require(record.application != null) { "applied lifecycle lacks application record" }
+            } else {
+                require(record.application == null) { "non-applied lifecycle contains application record" }
             }
         }
 
