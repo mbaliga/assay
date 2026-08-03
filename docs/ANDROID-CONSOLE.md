@@ -56,6 +56,7 @@ Transfer that file through an authenticated channel and select **Open verified a
 The app is an independent Gradle project so Android dependencies cannot affect the JVM scanner engine.
 
 ```bash
+git submodule update --init android-console/hyle-design-system
 gradle -p android-console :app:lintDebug :app:assembleDebug --no-daemon
 ```
 
@@ -66,6 +67,34 @@ android-console/app/build/outputs/apk/debug/
 ```
 
 GitHub Actions workflow `Android console` runs lint, assembles the debug APK and uploads the APK and lint reports as the `assay-android-console-debug` artifact.
+
+### Hyle Design System
+
+android-console gets its palette (and, over time, its dimension and motion tokens) from
+[Hyle Design System](https://github.com/mbaliga/hyle-design-system)'s `dev.aarso:hyle` Kotlin
+library — `HyleTokens.Color` in `AssayHomeActivity.kt` and `MainActivity.kt`, not hand-typed hex.
+
+This uses the constellation's one sanctioned sharing mechanism: a git submodule
+(`android-console/hyle-design-system`) plus Gradle `includeBuild`, wired in
+`android-console/settings.gradle.kts`. Hyle's source is never vendored/copied and never
+published to a package registry.
+
+Two constraints follow directly from that:
+
+- **AGP must match exactly.** `android-console/build.gradle.kts` pins the Android Gradle
+  Plugin to the same version `hyle-design-system/gradle/libs.versions.toml` pins (currently
+  `8.9.1`) — Gradle composite builds refuse to run with mixed AGP versions across the build
+  graph. Re-check that file before bumping either side.
+- **minSdk is 31, not 26.** `dev.aarso:hyle` declares `minSdk = 31`; Gradle's manifest merger
+  rejects an app whose `minSdk` is lower than a dependency's. This is a real drop in supported
+  Android versions (was 8.0+, now 12+), not a cosmetic side effect of the dependency.
+
+Hyle's own token set is dark/AMOLED-only (no light-theme tokens), so android-console's light
+theme is still its own bespoke palette; only the dark palette is Hyle-sourced.
+
+`git clone` does not fetch submodule contents automatically — run `git submodule update --init`
+(or clone with `--recurse-submodules`) before building locally. CI fetches submodules as part of
+`actions/checkout`.
 
 ## Verified snapshot validation
 
