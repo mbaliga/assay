@@ -223,13 +223,17 @@ object LocalApkAuditor {
 
     @Suppress("DEPRECATION")
     private fun readPackageInfo(packageManager: PackageManager, path: String): PackageInfo? {
+        val signingFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            PackageManager.GET_SIGNING_CERTIFICATES
+        } else {
+            PackageManager.GET_SIGNATURES
+        }
         val flags = PackageManager.GET_PERMISSIONS or
             PackageManager.GET_ACTIVITIES or
             PackageManager.GET_SERVICES or
             PackageManager.GET_RECEIVERS or
             PackageManager.GET_PROVIDERS or
-            PackageManager.GET_SIGNATURES or
-            PackageManager.GET_SIGNING_CERTIFICATES
+            signingFlag
         return if (Build.VERSION.SDK_INT >= 33) {
             packageManager.getPackageArchiveInfo(path, PackageManager.PackageInfoFlags.of(flags.toLong()))
         } else {
