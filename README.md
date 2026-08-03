@@ -49,6 +49,19 @@ AI is optional and downstream. It cannot originate findings, record proof, appro
 - optional read-only ASOM explanation boundary;
 - executable Dell/self-hosted runner preflight and systemd hardening package.
 
+## Product definition and v2 direction
+
+The repository includes a product and experience layer in addition to the implementation contracts:
+
+- a product promise, object model, language and scope;
+- provisional personas grounded in the current workflows;
+- human role and machine-actor authority boundaries;
+- current v1 and target v2 information architecture;
+- end-to-end main, failure and recovery journeys;
+- a phased v2 roadmap beginning with deployment certification and multi-project visibility.
+
+These documents are product hypotheses until validated through user research. They do not override the normative security and lifecycle contracts.
+
 ## Verification
 
 ```bash
@@ -153,6 +166,16 @@ assay runner-preflight \
 ```
 
 ## Documentation
+
+### Product and experience
+
+- `docs/PRODUCT-EXPERIENCE.md` — product promise, object model, principles, scope and language
+- `docs/PERSONAS-AND-ROLES.md` — provisional personas, permissions and machine actors
+- `docs/INFORMATION-ARCHITECTURE.md` — current v1 and target v2 IA
+- `docs/USER-JOURNEYS.md` — main, failure and recovery journeys
+- `docs/V2-ROADMAP.md` — deployment certification, v2 phases and v3 horizon
+
+### Trust, implementation and operations
 
 - `docs/CONTRACT.md` — normative audit-bus and trust contract
 - `docs/THREAT-MODEL.md` — threats and fail-closed controls
