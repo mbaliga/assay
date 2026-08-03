@@ -130,10 +130,9 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
         require(actor == "system:proof-runner") { "proof may only be recorded by the deterministic proof runner" }
         require(proofDigest.matches(SHA256)) { "invalid proof digest" }
         val next = if (proofPassed) Lifecycle.PROOF_PASSED else Lifecycle.PROOF_FAILED
-        transition(expectedRevision, next, actor, at, proofDigest)
-        record = record.copy(proofDigest = proofDigest)
-        validate(record)
-        return record
+        return transition(expectedRevision, next, actor, at, proofDigest) { candidate ->
+            candidate.copy(proofDigest = proofDigest)
+        }
     }
 
     fun approve(expectedRevision: Int, actor: String, at: Instant): CandidateRecord {
@@ -141,13 +140,13 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
         require(actor.matches(HUMAN_ACTOR)) { "approval requires a human actor" }
         require(record.lifecycle == Lifecycle.PROOF_PASSED) { "candidate is not proof-passed" }
         val proofDigest = requireNotNull(record.proofDigest) { "candidate lacks proof" }
-        val approvalDigest = approvalDigest(record.identity.candidateId, actor, at, proofDigest, expectedRevision + 1)
-        transition(expectedRevision, Lifecycle.APPROVED, actor, at, proofDigest)
-        record = record.copy(
-            approval = CandidateApproval(actor, at, proofDigest, record.revision, approvalDigest),
-        )
-        validate(record)
-        return record
+        val nextRevision = expectedRevision + 1
+        val approvalDigest = approvalDigest(record.identity.candidateId, actor, at, proofDigest, nextRevision)
+        return transition(expectedRevision, Lifecycle.APPROVED, actor, at, proofDigest) { candidate ->
+            candidate.copy(
+                approval = CandidateApproval(actor, at, proofDigest, candidate.revision, approvalDigest),
+            )
+        }
     }
 
     fun reject(expectedRevision: Int, actor: String, at: Instant): CandidateRecord {
@@ -173,18 +172,17 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
         require(fixCommit.matches(SHA1) && fixCommit != sourceCommit) { "invalid fix commit" }
         require(fixBranch == record.identity.fixBranch) { "application is not on dedicated fix branch" }
         val approval = requireNotNull(record.approval)
-        transition(
+        return transition(
             expectedRevision,
             Lifecycle.APPLIED,
             actor,
             at,
             Fingerprints.sha256(fixCommit.toByteArray()),
-        )
-        record = record.copy(
-            application = CandidateApplication(actor, at, sourceCommit, fixCommit, fixBranch, approval.approvalDigest),
-        )
-        validate(record)
-        return record
+        ) { candidate ->
+            candidate.copy(
+                application = CandidateApplication(actor, at, sourceCommit, fixCommit, fixBranch, approval.approvalDigest),
+            )
+        }
     }
 
     fun markStale(expectedRevision: Int, actor: String, at: Instant, currentSourceCommit: String): CandidateRecord {
@@ -206,20 +204,21 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
         actor: String,
         at: Instant,
         evidenceDigest: String?,
+        finalize: (CandidateRecord) -> CandidateRecord = { it },
     ): CandidateRecord {
         checkRevision(expectedRevision)
         require(actor.matches(ACTOR)) { "invalid candidate actor" }
         require(evidenceDigest == null || evidenceDigest.matches(SHA256)) { "invalid event evidence digest" }
-        val machine = LifecycleMachine(record.lifecycle)
-        machine.move(next)
+        LifecycleMachine(record.lifecycle).move(next)
         val sequence = record.revision + 1
         val previous = record.events.last().eventDigest
         val digest = eventDigest(sequence, next, at, actor, evidenceDigest, previous)
-        record = record.copy(
+        val transitioned = record.copy(
             revision = sequence,
             lifecycle = next,
             events = record.events + CandidateEvent(sequence, next, at, actor, evidenceDigest, previous, digest),
         )
+        record = finalize(transitioned)
         validate(record)
         return record
     }
@@ -271,9 +270,7 @@ class CandidateLedger private constructor(private var record: CandidateRecord) {
                     event.evidenceDigest,
                     previous,
                 )) { "candidate event digest mismatch" }
-                if (index > 0) {
-                    LifecycleMachine(record.events[index - 1].state).move(event.state)
-                }
+                if (index > 0) LifecycleMachine(record.events[index - 1].state).move(event.state)
                 previous = event.eventDigest
             }
             require(record.lifecycle == record.events.last().state) { "candidate lifecycle/event mismatch" }
