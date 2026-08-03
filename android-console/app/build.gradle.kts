@@ -49,3 +49,7 @@ kotlin {
         allWarningsAsErrors.set(true)
     }
 }
+
+dependencies {
+    implementation("androidx.activity:activity-ktx:1.13.0")
+}
