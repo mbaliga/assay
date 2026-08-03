@@ -60,7 +60,16 @@ jobs:
           mkdir -p /tmp/assay-fixtures/{gitleaks,semgrep,osv} /tmp/assay-evidence /tmp/assay-locks
 
           cat > /tmp/assay-fixtures/gitleaks/secret.env <<'FIXTURE'
-          github_token=ghp_1234567890abcdefghijklmnopqrstuvwxyz
+          credential=ASSAY_TEST_SECRET_1234567890ABCDEFGHIJ
+          FIXTURE
+          cat > /tmp/assay-fixtures/gitleaks/gitleaks.toml <<'FIXTURE'
+          title = "Assay deterministic fixture"
+
+          [[rules]]
+          id = "assay-fixture-secret"
+          description = "Assay deterministic fixture secret"
+          regex = '''ASSAY_TEST_SECRET_[A-Z0-9]{20}'''
+          keywords = ["ASSAY_TEST_SECRET_"]
           FIXTURE
 
           cat > /tmp/assay-fixtures/semgrep/unsafe.py <<'FIXTURE'
@@ -110,6 +119,7 @@ jobs:
             --tool /tmp/assay-tools/gitleaks \
             --tool-lock /tmp/assay-locks/gitleaks.json \
             --target /tmp/assay-fixtures/gitleaks \
+            --config /tmp/assay-fixtures/gitleaks/gitleaks.toml \
             --raw-output /tmp/assay-evidence/gitleaks.raw.sarif \
             --canonical-output /tmp/assay-evidence/gitleaks.sarif
 
