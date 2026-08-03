@@ -47,6 +47,12 @@ tasks.register<JavaExec>("mobSfExecutionAcceptanceTest") {
     mainClass.set("dev.assay.MobSfExecutionAcceptanceTestKt")
 }
 
+tasks.register<JavaExec>("integrationProjectionAcceptanceTest") {
+    group = "verification"
+    classpath = sourceSets["test"].runtimeClasspath
+    mainClass.set("dev.assay.IntegrationProjectionAcceptanceTestKt")
+}
+
 tasks.named("check") {
     dependsOn(
         "acceptanceTest",
@@ -55,5 +61,6 @@ tasks.named("check") {
         "candidateCliAcceptanceTest",
         "gitBusPublisherAcceptanceTest",
         "mobSfExecutionAcceptanceTest",
+        "integrationProjectionAcceptanceTest",
     )
 }
