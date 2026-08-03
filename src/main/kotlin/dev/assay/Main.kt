@@ -22,6 +22,10 @@ fun main(args: Array<String>) {
         IntegrationCli.run(args)
         return
     }
+    if (RunnerPreflightCli.handles(args.firstOrNull())) {
+        RunnerPreflightCli.run(args)
+        return
+    }
     when (args.firstOrNull()) {
         "scan", "scan-fixture" -> scanFixture(args)
         "normalize" -> normalize(args)
@@ -179,6 +183,7 @@ private fun usage() {
     println("  console-snapshot [--bus PATH] [--candidates PATH] [--expected-source-commit SHA] [--output FILE]")
     println("  orrery-status [--bus PATH] [--candidates PATH] [--expected-source-commit SHA] [--output FILE]")
     println("  fonebrew-propose --bus PATH --candidates PATH --source-commit SHA --finding-fingerprint SHA256 --patch-digest SHA256 --test-digest SHA256")
+    println("  runner-preflight --work-root PATH --tool-lock FILE --gitleaks FILE --semgrep FILE --osv FILE --git FILE --container-runtime FILE [--minimum-usable-bytes N] [--output FILE]")
     println("  verify-tool-lock --file FILE")
     println("  fixture --root PATH")
     println("  candidate-create --store PATH --source-repo SLUG --source-commit SHA --finding-fingerprint SHA256 --proving-id ID --patch-digest SHA256 --test-digest SHA256 [--at INSTANT]")
