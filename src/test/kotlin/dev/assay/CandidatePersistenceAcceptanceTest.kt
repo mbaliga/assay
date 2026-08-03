@@ -12,7 +12,7 @@ fun main() {
         sourceRepo = "mbaliga/example",
         sourceCommit = source,
         findingFingerprint = finding,
-        provingId = "prove-${finding.take(16)}",
+        provingId = "pt1-gitleaks-assay-rule-${finding.take(16)}",
         patchDigest = patch,
         testDigest = test,
     )
@@ -23,6 +23,7 @@ fun main() {
     val path = store.create(created)
     check(Files.exists(path))
     check(store.read(identity.candidateId) == created)
+    check(store.list() == listOf(created))
     println("PASS candidate codec roundtrip and atomic create")
 
     val proposed = CandidateLedger.create(identity, "system:assay", Instant.parse("2026-08-03T00:00:00Z"))
