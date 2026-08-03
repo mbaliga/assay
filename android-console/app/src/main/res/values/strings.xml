@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Assay</string>
+    <string name="app_subtitle">Deterministic security evidence and remediation review</string>
+    <string name="open_snapshot">Open verified snapshot</string>
+    <string name="open_snapshot_description">Select an Assay console snapshot JSON file</string>
+    <string name="snapshot_open_failed">The selected snapshot could not be opened.</string>
+    <string name="snapshot_invalid">The snapshot is invalid.</string>
+    <string name="snapshot_too_large">The snapshot exceeds the 8 MB console limit.</string>
+    <string name="status_not_loaded">Status: no snapshot loaded</string>
+    <string name="status_invalid">Status: invalid snapshot</string>
+    <string name="status_format">Status: %1$s</string>
+    <string name="empty_title">No evidence loaded</string>
+    <string name="empty_body">Export a console snapshot from the trusted Assay runner, then open it here. Unconfigured evidence is never shown as zero findings.</string>
+    <string name="invalid_title">Snapshot rejected</string>
+    <string name="evidence_unavailable">Evidence unavailable</string>
+    <string name="overview">Overview</string>
+    <string name="findings">Findings</string>
+    <string name="candidates">Candidates</string>
+    <string name="no_findings">No findings</string>
+    <string name="no_findings_body">This verified run contains no deterministic findings.</string>
+    <string name="no_candidates">No remediation candidates</string>
+    <string name="no_candidates_body">No patch has been proposed for this run.</string>
+    <string name="repository">Repository</string>
+    <string name="commit">Source commit</string>
+    <string name="run">Audit run</string>
+    <string name="finding_count">Findings</string>
+    <string name="unresolved_count">Unresolved</string>
+    <string name="candidate_count">Candidates</string>
+    <string name="generated">Generated</string>
+    <string name="not_available">Not available</string>
+    <string name="location_format">%1$s:%2$d</string>
+    <string name="human_approved">Human approved</string>
+    <string name="revision_format">Revision %1$d</string>
+    <string name="scanner_value">Scanner: %1$s</string>
+    <string name="severity_value">Severity: %1$s</string>
+    <string name="fingerprint_value">Fingerprint: %1$s</string>
+    <string name="related_candidates_value">Related candidates: %1$d</string>
+    <string name="lifecycle_value">Lifecycle: %1$s</string>
+    <string name="branch_value">Fix branch: %1$s</string>
+    <string name="approved_value">Human approved: %1$s</string>
+    <string name="finding_value">Finding: %1$s</string>
+    <string name="copy_approval_command">Copy approval command</string>
+    <string name="copy_rejection_command">Copy rejection command</string>
+    <string name="assay_decision">Assay decision command</string>
+    <string name="display_limit_format">Showing %1$d of %2$d %3$s.</string>
+</resources>
