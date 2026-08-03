@@ -4,6 +4,16 @@ Assay is a standalone deterministic security-audit, proof and remediation-contro
 
 AI is optional and downstream. It cannot originate findings, record proof, approve candidates, apply fixes or publish audit evidence.
 
+## Android app: useful immediately
+
+Assay 1.1 opens with three explicit paths:
+
+1. **Scan an APK** — select an APK on the phone for a deterministic, offline package-level quick check. The app examines package flags, permissions, exported components, signing metadata and native-library presence without uploading the file.
+2. **Open verified audit** — import the strict JSON projection produced by the trusted Assay runner to review scanner evidence and remediation candidates.
+3. **Explore a sample project** — inspect clearly labelled sample findings and a proof-passed remediation candidate before configuring infrastructure.
+
+The app requests no Internet permission. A local APK report is visibly labelled **Local quick check** and is never represented as equivalent to runner-verified Gitleaks, Semgrep, OSV and MobSF evidence. See `docs/ANDROID-CONSOLE.md` for the exact trust boundary and APK handling rules.
+
 ## v1 capabilities
 
 ### Deterministic audit engine
@@ -42,8 +52,9 @@ AI is optional and downstream. It cannot originate findings, record proof, appro
 
 ### Product and constellation surfaces
 
-- read-only console snapshot export;
-- standalone Android review console under `android-console/`;
+- offline Android APK quick check;
+- strict read-only console snapshot export and import;
+- standalone Android review app under `android-console/`;
 - Fonebrew proposal gateway constrained to existing verified findings;
 - Orrery health/status projection;
 - optional read-only ASOM explanation boundary;
@@ -70,7 +81,7 @@ These documents are product hypotheses until validated through user research. Th
 gradle check --no-daemon
 ```
 
-The JVM check runs the core, candidate, persistence, Git-worktree, remote-audit, MobSF, integration and runner-preflight acceptance suites. Separate GitHub workflows exercise real Gitleaks/Semgrep/OSV binaries and build/lint the Android console APK.
+The JVM check runs the core, candidate, persistence, Git-worktree, remote-audit, MobSF, integration and runner-preflight acceptance suites. Separate GitHub workflows exercise real Gitleaks/Semgrep/OSV binaries and build/lint the Android APK.
 
 See `docs/VERIFICATION.md` for the mechanical evidence and the remaining environment-certification boundary.
 
@@ -183,7 +194,7 @@ assay runner-preflight \
 - `docs/CANDIDATE-LIFECYCLE.md` — remediation state machine and CLI
 - `docs/INTEGRATIONS.md` — Fonebrew, Orrery and ASOM boundaries
 - `docs/RUNNER-OPERATIONS.md` — Dell/self-hosted runner deployment
-- `docs/ANDROID-CONSOLE.md` — APK, snapshot and review workflow
+- `docs/ANDROID-CONSOLE.md` — Android start paths, local APK checks, verified evidence and trust labels
 - `docs/VERIFICATION.md` — verified versus environment-certified capabilities
 
 ## Certification boundary
