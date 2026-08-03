@@ -10,6 +10,10 @@ fun main(args: Array<String>) {
         CandidateCli.run(args)
         return
     }
+    if (RemoteBusCli.handles(args.firstOrNull())) {
+        RemoteBusCli.run(args)
+        return
+    }
     when (args.firstOrNull()) {
         "scan", "scan-fixture" -> scanFixture(args)
         "normalize" -> normalize(args)
@@ -159,6 +163,7 @@ private fun usage() {
     println("  normalize --scanner NAME --input FILE --root PATH --output FILE")
     println("  merge --root PATH --input scanner=FILE [--input scanner=FILE...] --output FILE")
     println("  verify-bus --bus PATH [--expected-source-commit SHA]")
+    println("  publish-bus-git --repo PATH --bus PATH --source-commit SHA --expected-remote SHA|absent [--remote NAME]")
     println("  print-command --scanner NAME --tool PATH --target PATH --output FILE [--config FILE] [--online]")
     println("  run-scanner --scanner NAME --tool PATH --tool-lock FILE --target PATH --raw-output FILE --canonical-output FILE [--config FILE] [--online]")
     println("  verify-tool-lock --file FILE")
