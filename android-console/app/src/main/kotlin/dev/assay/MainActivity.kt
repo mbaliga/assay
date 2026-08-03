@@ -19,6 +19,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import dev.aarso.hyle.tokens.HyleTokens
 import java.io.ByteArrayOutputStream
 
 class MainActivity : ComponentActivity() {
@@ -394,23 +395,29 @@ class MainActivity : ComponentActivity() {
         val dangerSurface: Int,
     ) {
         companion object {
+            // MainActivity is not referenced from AndroidManifest.xml (AssayHomeActivity is the
+            // launcher) — this looks like dead code superseded by AssayHomeActivity, left in
+            // place. Not deleted here (out of scope for a visual/dependency-only change); its
+            // palette is still migrated for consistency since it is still compiled into the app
+            // module. See the identical, more detailed comment on AssayHomeActivity's
+            // HomePalette.from for why the light branch is untouched (Hyle has no light theme).
             fun from(context: Context): Palette {
                 val dark = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
                     Configuration.UI_MODE_NIGHT_YES
                 return if (dark) {
                     Palette(
-                        background = Color.rgb(14, 16, 20),
-                        surface = Color.rgb(26, 29, 35),
-                        primaryText = Color.rgb(242, 244, 248),
-                        secondaryText = Color.rgb(181, 188, 200),
-                        tertiaryText = Color.rgb(134, 143, 158),
-                        accent = Color.rgb(124, 156, 255),
-                        success = Color.rgb(92, 211, 146),
-                        successSurface = Color.rgb(19, 54, 39),
-                        warning = Color.rgb(246, 190, 82),
-                        warningSurface = Color.rgb(58, 43, 17),
-                        danger = Color.rgb(255, 111, 118),
-                        dangerSurface = Color.rgb(61, 25, 29),
+                        background = HyleTokens.Color.colorBackgroundField.toColorInt(),
+                        surface = HyleTokens.Color.colorBackgroundSurface.toColorInt(),
+                        primaryText = HyleTokens.Color.colorTextPrimary.toColorInt(),
+                        secondaryText = HyleTokens.Color.colorTextSecondary.toColorInt(),
+                        tertiaryText = HyleTokens.Color.colorTextFaint.toColorInt(),
+                        accent = HyleTokens.Color.colorActionPrimary.toColorInt(),
+                        success = HyleTokens.Color.colorFeedbackSuccess.toColorInt(),
+                        successSurface = surfaceTint(HyleTokens.Color.colorFeedbackSuccess.toColorInt()),
+                        warning = HyleTokens.Color.colorFeedbackWarning.toColorInt(),
+                        warningSurface = surfaceTint(HyleTokens.Color.colorFeedbackWarning.toColorInt()),
+                        danger = HyleTokens.Color.colorFeedbackDanger.toColorInt(),
+                        dangerSurface = surfaceTint(HyleTokens.Color.colorFeedbackDanger.toColorInt()),
                     )
                 } else {
                     Palette(
@@ -436,3 +443,14 @@ class MainActivity : ComponentActivity() {
         const val DISPLAY_LIMIT = 500
     }
 }
+
+/** An ARGB Hyle token (`0xAARRGGBB` as a `Long`, see [dev.aarso.hyle.Argb]) as an Android color Int. */
+private fun Long.toColorInt(): Int = toInt()
+
+/**
+ * A translucent wash of [color], the same derivation AssayHomeActivity.kt uses — see that
+ * file's `surfaceTint` for the full rationale. Duplicated rather than shared because this
+ * whole file is already a duplicate of AssayHomeActivity and out of scope to de-duplicate here.
+ */
+private fun surfaceTint(color: Int): Int =
+    Color.argb(28, Color.red(color), Color.green(color), Color.blue(color))

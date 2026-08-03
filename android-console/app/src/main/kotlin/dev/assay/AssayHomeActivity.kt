@@ -20,6 +20,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import dev.aarso.hyle.tokens.HyleTokens
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executors
 
@@ -51,7 +52,7 @@ class AssayHomeActivity : ComponentActivity() {
     private fun buildShell(): View {
         content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(20), dp(22), dp(20), dp(40))
+            setPadding(dp(HyleTokens.Dimension.spacing5), dp(22), dp(HyleTokens.Dimension.spacing5), dp(HyleTokens.Dimension.spacing10))
             setBackgroundColor(palette.background)
         }
         return ScrollView(this).apply {
@@ -73,7 +74,7 @@ class AssayHomeActivity : ComponentActivity() {
                 textSize = 28f
                 setTypeface(typeface, Typeface.BOLD)
                 setTextColor(palette.primaryText)
-                setPadding(0, dp(30), 0, dp(8))
+                setPadding(0, dp(30), 0, dp(HyleTokens.Dimension.spacing2))
             },
         )
         content.addView(
@@ -463,7 +464,7 @@ class AssayHomeActivity : ComponentActivity() {
         textSize = 15f
         setTypeface(typeface, Typeface.BOLD)
         setTextColor(palette.accent)
-        setPadding(0, dp(4), 0, dp(16))
+        setPadding(0, dp(HyleTokens.Dimension.spacing1), 0, dp(HyleTokens.Dimension.spacing4))
         isClickable = true
         isFocusable = true
         setOnClickListener { showHome() }
@@ -509,7 +510,7 @@ class AssayHomeActivity : ComponentActivity() {
 
     private fun card(): LinearLayout = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
-        setPadding(dp(17), dp(16), dp(17), dp(16))
+        setPadding(dp(17), dp(HyleTokens.Dimension.spacing4), dp(17), dp(HyleTokens.Dimension.spacing4))
         background = rounded(palette.surface, dp(18).toFloat(), palette.border)
     }
 
@@ -541,7 +542,7 @@ class AssayHomeActivity : ComponentActivity() {
     private fun messageCard(title: String, description: String, surface: Int, titleColor: Int): View =
         LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(17), dp(16), dp(17), dp(16))
+            setPadding(dp(17), dp(HyleTokens.Dimension.spacing4), dp(17), dp(HyleTokens.Dimension.spacing4))
             background = rounded(surface, dp(18).toFloat(), palette.border)
             addView(cardTitle(title).apply { setTextColor(titleColor) })
             addView(bodyText(description), matchWrap(top = 7))
@@ -551,7 +552,8 @@ class AssayHomeActivity : ComponentActivity() {
         LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(15), dp(14), dp(15), dp(14))
-            background = rounded(surface, dp(16).toFloat(), color)
+            // dp(16) previously — exact match to HyleTokens.Dimension.radiusXl.
+            background = rounded(surface, dp(HyleTokens.Dimension.radiusXl).toFloat(), color)
             addView(cardTitle(title).apply {
                 textSize = 15f
                 setTextColor(color)
@@ -566,7 +568,7 @@ class AssayHomeActivity : ComponentActivity() {
                 LinearLayout(this@AssayHomeActivity).apply {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.CENTER_HORIZONTAL
-                    setPadding(dp(8), dp(13), dp(8), dp(13))
+                    setPadding(dp(HyleTokens.Dimension.spacing2), dp(13), dp(HyleTokens.Dimension.spacing2), dp(13))
                     background = rounded(palette.surface, dp(15).toFloat(), palette.border)
                     addView(TextView(this@AssayHomeActivity).apply {
                         text = item.second
@@ -583,7 +585,7 @@ class AssayHomeActivity : ComponentActivity() {
                     })
                 },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
-                    if (index > 0) marginStart = dp(8)
+                    if (index > 0) marginStart = dp(HyleTokens.Dimension.spacing2)
                 },
             )
         }
@@ -592,7 +594,7 @@ class AssayHomeActivity : ComponentActivity() {
     private fun labelValue(label: String, value: String, monospace: Boolean = false): View =
         LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(0, dp(5), 0, dp(8))
+            setPadding(0, dp(5), 0, dp(HyleTokens.Dimension.spacing2))
             addView(TextView(this@AssayHomeActivity).apply {
                 text = label
                 textSize = 12f
@@ -614,7 +616,10 @@ class AssayHomeActivity : ComponentActivity() {
         setTypeface(typeface, Typeface.BOLD)
         setTextColor(color)
         setPadding(dp(9), dp(5), dp(9), dp(5))
-        background = rounded(withAlpha(color, 34), dp(20).toFloat(), color)
+        // A pill this short is already fully rounded at dp(20); radiusFull is the more honest
+        // token for "capsule" and renders identically here since GradientDrawable clamps corner
+        // radius to half the shape's shorter side.
+        background = rounded(withAlpha(color, 34), dp(HyleTokens.Dimension.radiusFull).toFloat(), color)
         layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
@@ -625,7 +630,7 @@ class AssayHomeActivity : ComponentActivity() {
         setTextColor(palette.onAccent)
         gravity = Gravity.CENTER
         minHeight = dp(54)
-        setPadding(dp(16), dp(12), dp(16), dp(12))
+        setPadding(dp(HyleTokens.Dimension.spacing4), dp(HyleTokens.Dimension.spacing3), dp(HyleTokens.Dimension.spacing4), dp(HyleTokens.Dimension.spacing3))
         background = rounded(palette.accent, dp(15).toFloat())
         isClickable = true
         isFocusable = true
@@ -639,7 +644,7 @@ class AssayHomeActivity : ComponentActivity() {
         setTextColor(palette.primaryText)
         gravity = Gravity.CENTER
         minHeight = dp(54)
-        setPadding(dp(16), dp(12), dp(16), dp(12))
+        setPadding(dp(HyleTokens.Dimension.spacing4), dp(HyleTokens.Dimension.spacing3), dp(HyleTokens.Dimension.spacing4), dp(HyleTokens.Dimension.spacing3))
         background = rounded(palette.surface, dp(15).toFloat(), palette.border)
         isClickable = true
         isFocusable = true
@@ -650,7 +655,7 @@ class AssayHomeActivity : ComponentActivity() {
         shape = GradientDrawable.RECTANGLE
         setColor(color)
         cornerRadius = radius
-        if (stroke != null) setStroke(dp(1), stroke)
+        if (stroke != null) setStroke(dp(HyleTokens.Dimension.sizeBorderThin), stroke)
     }
 
     private fun withAlpha(color: Int, alpha: Int): Int = Color.argb(
@@ -705,6 +710,18 @@ class AssayHomeActivity : ComponentActivity() {
     private enum class SnapshotTrust { VERIFIED, SAMPLE }
 }
 
+/** An ARGB Hyle token (`0xAARRGGBB` as a `Long`, see [dev.aarso.hyle.Argb]) as an Android color Int. */
+private fun Long.toColorInt(): Int = toInt()
+
+/**
+ * A translucent wash of [color] suitable as a card/banner fill over Hyle's near-black
+ * backgrounds — the same technique [AssayHomeActivity.withAlpha] already uses for chip fills,
+ * just a lower, surface-scale alpha. Hyle's token set has no separate "X surface" background
+ * per feedback colour (only the solid hue), so this derives one rather than inventing new hex.
+ */
+private fun surfaceTint(color: Int): Int =
+    Color.argb(28, Color.red(color), Color.green(color), Color.blue(color))
+
 private data class HomePalette(
     val background: Int,
     val surface: Int,
@@ -723,26 +740,33 @@ private data class HomePalette(
     val dangerSurface: Int,
 ) {
     companion object {
+        // Hyle (dev.aarso:hyle) is a single dark/AMOLED-black design system: its token set
+        // (hyle-design-system/tokens/color.json) defines no light-theme colours. The dark
+        // palette below is now sourced entirely from HyleTokens.Color. The light palette is
+        // intentionally left as this app's own pre-existing values — there is no Hyle token to
+        // substitute there, and inventing new light-mode hex isn't "replace hardcoded colours
+        // with the shared token source". Flagged in the PR description as an open question
+        // (keep a bespoke light theme forever, or follow Hyle to dark-only?).
         fun from(context: Context): HomePalette {
             val dark = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
                 Configuration.UI_MODE_NIGHT_YES
             return if (dark) {
                 HomePalette(
-                    background = Color.parseColor("#0D0F14"),
-                    surface = Color.parseColor("#181B23"),
-                    border = Color.parseColor("#2B303B"),
-                    primaryText = Color.parseColor("#F4F6FA"),
-                    secondaryText = Color.parseColor("#B8BFCC"),
-                    tertiaryText = Color.parseColor("#858E9F"),
-                    accent = Color.parseColor("#8CA8FF"),
-                    onAccent = Color.parseColor("#0B1020"),
-                    accentSurface = Color.parseColor("#18233D"),
-                    success = Color.parseColor("#67D6A3"),
-                    successSurface = Color.parseColor("#13281F"),
-                    warning = Color.parseColor("#F1BD67"),
-                    warningSurface = Color.parseColor("#2B2417"),
-                    danger = Color.parseColor("#FF8C91"),
-                    dangerSurface = Color.parseColor("#321B20"),
+                    background = HyleTokens.Color.colorBackgroundField.toColorInt(),
+                    surface = HyleTokens.Color.colorBackgroundSurface.toColorInt(),
+                    border = HyleTokens.Color.colorBorderHairline.toColorInt(),
+                    primaryText = HyleTokens.Color.colorTextPrimary.toColorInt(),
+                    secondaryText = HyleTokens.Color.colorTextSecondary.toColorInt(),
+                    tertiaryText = HyleTokens.Color.colorTextFaint.toColorInt(),
+                    accent = HyleTokens.Color.colorActionPrimary.toColorInt(),
+                    onAccent = HyleTokens.Color.colorActionOnPrimary.toColorInt(),
+                    accentSurface = surfaceTint(HyleTokens.Color.colorActionPrimary.toColorInt()),
+                    success = HyleTokens.Color.colorFeedbackSuccess.toColorInt(),
+                    successSurface = surfaceTint(HyleTokens.Color.colorFeedbackSuccess.toColorInt()),
+                    warning = HyleTokens.Color.colorFeedbackWarning.toColorInt(),
+                    warningSurface = surfaceTint(HyleTokens.Color.colorFeedbackWarning.toColorInt()),
+                    danger = HyleTokens.Color.colorFeedbackDanger.toColorInt(),
+                    dangerSurface = surfaceTint(HyleTokens.Color.colorFeedbackDanger.toColorInt()),
                 )
             } else {
                 HomePalette(
