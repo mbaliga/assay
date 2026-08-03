@@ -5,9 +5,9 @@ import java.nio.file.Path
 import java.time.Instant
 
 fun main() {
-    val workspace = Files.createTempDirectory("assay-evidence-git-")
+    val workspace = Files.createTempDirectory("assay-audit-git-")
     val repository = workspace.resolve("source")
-    val remote = workspace.resolve("evidence.git")
+    val remote = workspace.resolve("audit.git")
     val bus = workspace.resolve("bus")
 
     gitPublisher(workspace, setOf(0), "init", "-b", "main", repository.toString())
@@ -19,7 +19,7 @@ fun main() {
     val sourceCommit = gitPublisher(repository, setOf(0), "rev-parse", "HEAD").output.trim()
 
     gitPublisher(workspace, setOf(0), "init", "--bare", remote.toString())
-    gitPublisher(repository, setOf(0), "remote", "add", "evidence", remote.toString())
+    gitPublisher(repository, setOf(0), "remote", "add", "audit", remote.toString())
 
     val finding = Finding(
         scanner = Scanner.GITLEAKS,
@@ -36,12 +36,12 @@ fun main() {
     )
 
     val publisher = GitBusPublisher(repository)
-    val first = publisher.publish(bus, "evidence", null, sourceCommit)
+    val first = publisher.publish(bus, "audit", null, sourceCommit)
     check(first.matches(Regex("[0-9a-f]{40}")))
-    check(remoteHead(repository, "evidence") == first)
+    check(remoteHead(repository, "audit") == first)
     check(gitPublisher(repository, setOf(0, 1), "merge-base", "--is-ancestor", sourceCommit, first).exitCode == 1)
     check(gitPublisher(repository, setOf(0), "show", "$first:index.json").output.contains("mbaliga/example"))
-    println("PASS first evidence publication is disconnected from source history")
+    println("PASS first audit publication is disconnected from source history")
 
     BusWriter(bus).publish(
         sourceRepo = "mbaliga/example",
@@ -49,16 +49,16 @@ fun main() {
         findings = emptyList(),
         now = Instant.parse("2026-08-03T12:01:00Z"),
     )
-    val second = publisher.publish(bus, "evidence", first, sourceCommit)
+    val second = publisher.publish(bus, "audit", first, sourceCommit)
     check(second != first)
-    check(remoteHead(repository, "evidence") == second)
+    check(remoteHead(repository, "audit") == second)
     check(gitPublisher(repository, setOf(0), "rev-parse", "$second^").output.trim() == first)
-    println("PASS subsequent evidence publication preserves isolated branch history")
+    println("PASS subsequent audit publication preserves isolated branch history")
 
-    val staleLease = runCatching { publisher.publish(bus, "evidence", first, sourceCommit) }
+    val staleLease = runCatching { publisher.publish(bus, "audit", first, sourceCommit) }
     check(staleLease.isFailure)
-    check(remoteHead(repository, "evidence") == second)
-    println("PASS stale evidence publication lease is rejected")
+    check(remoteHead(repository, "audit") == second)
+    println("PASS stale audit publication lease is rejected")
 }
 
 private fun remoteHead(repository: Path, remote: String): String? {
@@ -68,7 +68,7 @@ private fun remoteHead(repository: Path, remote: String): String? {
         "ls-remote",
         "--heads",
         remote,
-        "refs/heads/assay/evidence",
+        "refs/heads/assay/audit",
     ).output.trim()
     return output.takeIf { it.isNotEmpty() }?.substringBefore('\t')
 }
