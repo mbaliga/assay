@@ -2,69 +2,150 @@
 
 This document defines the product-level intent behind Assay. It complements the normative trust contract, threat model and implementation documentation; it does not override them.
 
-The personas and needs in this document are provisional product hypotheses derived from the implemented v1 workflows. They should be validated with real maintainers, reviewers and operators before they are treated as user-research findings.
+The personas and needs in this document are provisional product hypotheses derived from the implemented workflows. They should be validated with real maintainers, reviewers and operators before they are treated as user-research findings.
 
 ## Product promise
 
-Assay helps an Android project answer five questions without asking the user to trust an AI model or an opaque dashboard:
+Assay gives an Android project two clearly separated levels of assurance:
 
-1. What did deterministic tools find in this exact source revision?
-2. Can the evidence be verified and distinguished from missing, stale or invalid evidence?
-3. What fix is being proposed for a specific finding?
-4. Was that exact fix mechanically proved and explicitly accepted by a human?
-5. What happened afterwards, and can the record be audited independently of source history?
+1. **Local APK quick check** — immediate, offline package inspection on an Android device.
+2. **Runner-verified audit** — source-bound, multi-scanner evidence with tamper-evident publication and proof-bound remediation.
 
-The product is successful when a maintainer can move from a verified finding to a reviewable, proof-bound fix without losing source, evidence, actor or approval provenance.
+The distinction is part of the product, not a technical footnote. A local quick check must never be presented as equivalent to Gitleaks, Semgrep, OSV-Scanner and MobSF evidence from the trusted runner.
+
+Assay helps users answer:
+
+1. What can be learned immediately from this APK without uploading it?
+2. What did deterministic tools find in this exact source revision?
+3. Can the evidence be distinguished from missing, stale or invalid evidence?
+4. What fix is being proposed for a specific verified finding?
+5. Was that exact fix mechanically proved and explicitly accepted by a human?
+6. What happened afterwards, and can the record be audited independently of source history?
+
+The product is successful when a new user gets useful, correctly labelled information on first launch, while a maintainer can move from a verified finding to a reviewable, proof-bound fix without losing source, evidence, actor or approval provenance.
+
+## Assurance tiers
+
+### Local quick check
+
+Input: an APK selected through Android's document picker.
+
+Current checks:
+
+- package identity, version and SDK range;
+- APK size and SHA-256;
+- signing-certificate presence;
+- debuggable and test-only flags;
+- backup and cleartext-traffic flags;
+- dangerous and broad/special permissions;
+- exported components without guarding permissions;
+- native shared-library presence.
+
+Properties:
+
+- runs offline in the Android app;
+- uses a bounded private temporary copy;
+- does not persist the APK automatically;
+- does not create runner findings, audit-bus records or candidates;
+- is useful for release inspection and orientation, not source-level certification.
+
+### Runner-verified audit
+
+Input: an exact repository and source commit in the trusted execution environment.
+
+Properties:
+
+- executes pinned deterministic scanners;
+- validates tool versions and digests;
+- binds evidence to repository and source commit;
+- publishes tamper-evident audit history;
+- may create remediation candidates only against verified findings;
+- separates proof, human decision, application and repository merge.
+
+### Sample project
+
+Input: built-in demonstration data.
+
+Properties:
+
+- explains the finding and candidate experience without setup;
+- is always labelled sample data;
+- carries no evidentiary meaning;
+- gives users a safe way to understand Assay before scanning their own APK or configuring a runner.
 
 ## Product principles
 
 ### Deterministic evidence before explanation
 
-Scanner output, source binding, proof and lifecycle state are the product's source of truth. Human-readable explanations and AI assistance are secondary projections.
+Scanner output, source binding, proof and lifecycle state are the source of truth for runner-verified audits. Human-readable explanations and AI assistance are secondary projections.
+
+### Trust level is always visible
+
+Every report must be labelled as local quick check, runner-verified evidence, sample data, unavailable or invalid. Visual polish must not obscure the assurance level.
 
 ### Missing is not clean
 
-`not configured`, `unavailable`, `invalid`, `stale` and `ready with zero findings` are distinct product states. The interface must never collapse them into one neutral or successful state.
+`not configured`, `unavailable`, `invalid`, `stale` and `ready with zero findings` are distinct states. The interface must never collapse them into one neutral or successful state.
 
 ### Human authority remains explicit
 
-AI, Fonebrew and other integrations may explain or propose. They cannot originate findings, record proof, approve, reject, apply or merge fixes. Approval and rejection remain attributable human acts.
+AI, Fonebrew and other integrations may explain or propose. They cannot originate runner findings, record proof, approve, reject, apply or merge fixes. Approval and rejection remain attributable human acts.
 
 ### Every action has an inspectable object
 
-Findings, runs, candidates, proofs, approvals and applications are separate objects. The product should show their relationships instead of presenting remediation as an untraceable one-click action.
+APK reports, findings, runs, candidates, proofs, approvals and applications are separate objects. The product should show their relationships instead of presenting remediation as an untraceable one-click action.
 
 ### Safe defaults over convenience
 
-Source drift, invalid evidence, stale revisions, unknown scanners and failed cleanup block progress. v2 convenience features must preserve this fail-closed behavior.
+Source drift, invalid evidence, stale revisions, unknown scanners and failed cleanup block progress. Product convenience must preserve fail-closed behavior.
 
 ### Independent utility
 
-Assay remains useful without Fonebrew, Orrery or ASOM. Constellation integrations improve handoff and visibility but do not become hidden runtime dependencies.
+Assay remains useful without Fonebrew, Orrery or ASOM. The Android local quick check and manual runner workflow are first-class paths, not degraded fallbacks.
 
 ## Core product objects
 
-- **Project**: an Android source repository under audit. v1 operates on one repository invocation at a time; a persistent project registry is a v2 opportunity.
+- **APK quick-check report**: in-memory package-level observations generated locally from a selected APK. It is not an audit run or source finding set.
+- **Project**: an Android source repository under audit. v1 operates on one repository invocation at a time; a persistent registry is a v2 opportunity.
 - **Source revision**: the exact commit against which evidence and candidates are bound.
 - **Audit run**: one deterministic execution of the configured scanners and policy.
 - **Finding**: a normalized scanner observation with a stable fingerprint. It is immutable evidence, not a task record.
 - **Evidence bus**: the validated local publication and disconnected `assay/audit` history for audit artifacts.
-- **Candidate**: a proposed remediation bound to a finding, patch and proving test.
+- **Candidate**: a proposed remediation bound to a verified finding, patch and proving test.
 - **Proof**: fail-before/pass-after and scanner-replay evidence for the exact candidate.
 - **Decision**: an explicit human approval or rejection of a proof-passed candidate.
 - **Application record**: deterministic confirmation that the approved fix commit satisfies the candidate contract. It is not a merge.
-- **Projection**: a read-only representation for the Android console, Orrery or an advisory integration.
+- **Projection**: a read-only representation for Android verified-audit review, Orrery or an advisory integration.
 - **Policy**: severity mapping, gates, tool pins and future configurable rules that determine readiness and blocking behavior.
 
 ## v1 product surfaces
 
+### Android app
+
+The Android app is the first user-facing Assay surface. It opens to three explicit paths:
+
+1. **Scan an APK**
+   - select a local APK;
+   - run the offline quick check;
+   - review package overview and findings;
+   - inspect evidence and rule identifiers;
+   - scan another APK or move to a verified audit.
+2. **Open verified audit**
+   - import a strict `console-snapshot` JSON file;
+   - validate schema, source identity and relationships;
+   - review evidence status before findings;
+   - inspect findings and candidates;
+   - copy an approval or rejection command template when eligible.
+3. **Explore a sample project**
+   - review clearly labelled sample findings and candidate lifecycle;
+   - understand the proof/decision distinction;
+   - continue to a real APK scan.
+
+The app requests no Internet permission. It may inspect a selected APK locally, but it cannot execute runner scanners, create runner evidence, record proof, approve, reject, apply or merge a remediation.
+
 ### Assay CLI
 
 The CLI is the authoritative control surface for scanner execution, evidence publication, candidate transitions, runner preflight and projections. It is optimized for trusted operators and automation rather than casual browsing.
-
-### Android review console
-
-The Android console is a read-only evidence viewer. It imports a bounded, validated snapshot and presents availability, run identity, findings and candidate state. It copies explicit approval/rejection command templates but does not execute them.
 
 ### Fonebrew proposal boundary
 
@@ -80,31 +161,36 @@ ASOM may explain deterministic evidence. Model output is not evidence and cannot
 
 ## Product scope
 
-### Included in v1
+### Included in v1 / v1.1
 
+- immediate offline APK package inspection;
+- guided sample exploration;
 - deterministic security auditing for Android repositories;
 - verifiable, source-bound evidence;
 - disconnected audit history;
 - proof-bound remediation candidates;
 - explicit human decisions;
-- read-only console and constellation projections;
+- read-only verified-audit and constellation projections;
 - hardened self-hosted-runner deployment assets.
 
 ### Explicitly outside v1
 
+- claiming that the local quick check is a full source audit;
 - multi-project portfolio management inside Assay;
 - user accounts, organizations or team administration;
 - web-hosted mutable dashboards;
 - automatic approval, merge or deployment;
 - general-purpose issue tracking;
 - scanner marketplace or third-party plugin SDK;
-- release distribution and device management;
+- production release distribution and device management;
 - claiming deployment certification without live-environment evidence.
 
 ## Experience outcomes
 
 A good Assay experience should make the following true:
 
+- A first-time user can understand and try the product without generating a runner snapshot first.
+- A user can distinguish a local APK quick check from runner-verified evidence without reading documentation.
 - A maintainer can tell whether an audit is valid within seconds.
 - A reviewer can trace a candidate back to the exact finding, source commit, patch, test and proof.
 - An operator can diagnose unavailable or invalid states without inspecting raw implementation internals first.
@@ -116,6 +202,9 @@ A good Assay experience should make the following true:
 
 Use these labels consistently:
 
+- **Local quick check** for the on-device APK inspection.
+- **Runner-verified evidence** for a validated trusted-runner projection.
+- **Sample data** for the built-in guided demonstration.
 - **Audit run**, not scan session when the complete multi-tool run is meant.
 - **Finding**, not issue when referring to immutable scanner evidence.
 - **Candidate**, not fix until proof and approval context is visible.
@@ -129,9 +218,12 @@ Use these labels consistently:
 
 Before broadening v2, validate these assumptions with users:
 
-- Whether the primary daily user is the Android maintainer, a security reviewer or a platform operator.
+- Whether the local APK quick check solves a real recurring task or mainly supports onboarding.
+- Which package-level checks users trust and which require deeper explanation or fewer false positives.
+- Whether users need export/share for local reports and what assurance wording is understood correctly.
+- Whether the primary repeated user is the Android maintainer, security reviewer or platform operator.
 - Whether approval should remain CLI-only or move to a separately authenticated review service.
-- Whether the mobile console is used during development, incident review, executive oversight or all three.
+- Whether the mobile app is used during development, release review, incident review, executive oversight or several of these.
 - What evidence reviewers require before accepting a candidate beyond the current mechanical proof.
 - How teams want to handle accepted risk, false positives, waivers and expiry.
 - Whether projects need continuous monitoring or explicitly initiated audits.
