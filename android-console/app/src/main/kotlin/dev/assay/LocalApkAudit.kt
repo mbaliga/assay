@@ -221,19 +221,23 @@ object LocalApkAuditor {
         return CopyResult(total, digest.digest().joinToString("") { byte -> "%02x".format(byte) })
     }
 
+    // minSdk is 31 (see app/build.gradle.kts — raised to satisfy dev.aarso:hyle's own minSdk),
+    // so the `>= Build.VERSION_CODES.P` (28) and `>= 28` branches below used to be a real
+    // pre-API-28 fallback and are now unreachable on every supported OS version. Lint's
+    // ObsoleteSdkInt would flag them as dead code, and this module builds with
+    // warningsAsErrors = true, so the fallbacks are removed rather than suppressed — this is a
+    // no-behavior-change simplification, not a logic change: every currently-supported device
+    // already always took the "new" branch.
     @Suppress("DEPRECATION")
     private fun readPackageInfo(packageManager: PackageManager, path: String): PackageInfo? {
-        val signingFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            PackageManager.GET_SIGNING_CERTIFICATES
-        } else {
-            PackageManager.GET_SIGNATURES
-        }
         val flags = PackageManager.GET_PERMISSIONS or
             PackageManager.GET_ACTIVITIES or
             PackageManager.GET_SERVICES or
             PackageManager.GET_RECEIVERS or
             PackageManager.GET_PROVIDERS or
-            signingFlag
+            PackageManager.GET_SIGNING_CERTIFICATES
+        // The >= 33 split is still live: minSdk 31 covers Android 12/12L, which predate the
+        // PackageInfoFlags overload introduced in API 33.
         return if (Build.VERSION.SDK_INT >= 33) {
             packageManager.getPackageArchiveInfo(path, PackageManager.PackageInfoFlags.of(flags.toLong()))
         } else {
@@ -241,19 +245,10 @@ object LocalApkAuditor {
         }
     }
 
-    @Suppress("DEPRECATION")
-    private fun signerCount(packageInfo: PackageInfo): Int = if (Build.VERSION.SDK_INT >= 28) {
+    private fun signerCount(packageInfo: PackageInfo): Int =
         packageInfo.signingInfo?.apkContentsSigners?.size ?: 0
-    } else {
-        packageInfo.signatures?.size ?: 0
-    }
 
-    @Suppress("DEPRECATION")
-    private fun packageVersionCode(packageInfo: PackageInfo): Long = if (Build.VERSION.SDK_INT >= 28) {
-        packageInfo.longVersionCode
-    } else {
-        packageInfo.versionCode.toLong()
-    }
+    private fun packageVersionCode(packageInfo: PackageInfo): Long = packageInfo.longVersionCode
 
     @Suppress("DEPRECATION")
     private fun isDangerousPermission(packageManager: PackageManager, permission: String): Boolean = runCatching {

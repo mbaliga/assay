@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--
+      System-bar and accent colours are resolved from dev.aarso:hyle's own resources
+      (hyle-design-system/hyle/src/main/res/values/hyle_tokens_colors.xml), merged into this
+      app's resource table via the includeBuild dependency, instead of re-typed hex. They match
+      the dark HomePalette in AssayHomeActivity.kt (colorBackgroundField / colorActionPrimary).
+
+      This theme still only covers dark values: Hyle defines no light-theme tokens, and this
+      style is applied regardless of day/night, same as before this change (statusBarColor here
+      was already a fixed near-black, not day/night-aware) — not a new behavior.
+    -->
     <style name="Theme.Assay" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowActionModeOverlay">true</item>
-        <item name="android:navigationBarColor">#0E1014</item>
-        <item name="android:statusBarColor">#0E1014</item>
+        <item name="android:navigationBarColor">@color/color_background_field</item>
+        <item name="android:statusBarColor">@color/color_background_field</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:colorAccent">#7C9CFF</item>
+        <item name="android:colorAccent">@color/color_action_primary</item>
     </style>
 </resources>
