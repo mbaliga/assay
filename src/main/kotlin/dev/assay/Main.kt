@@ -14,6 +14,10 @@ fun main(args: Array<String>) {
         RemoteBusCli.run(args)
         return
     }
+    if (AssayOutputCli.handles(args.firstOrNull())) {
+        AssayOutputCli.run(args)
+        return
+    }
     if (MobSfExecutionCli.handles(args.firstOrNull())) {
         MobSfExecutionCli.run(args)
         return
@@ -176,6 +180,7 @@ private fun usage() {
     println("  merge --root PATH --input scanner=FILE [--input scanner=FILE...] --output FILE")
     println("  verify-bus --bus PATH [--expected-source-commit SHA]")
     println("  publish-bus-git --repo PATH --bus PATH --source-commit SHA --expected-remote SHA|absent [--remote NAME]")
+    println("  publish-output-git --repo PATH --branch NAME --run-id ID --git-remote URL --source-commit SHA --tool-name NAME --tool-version VERSION --started-at INSTANT --finished-at INSTANT --findings-sarif FILE --expected-remote SHA|absent [--remote NAME] [--fonebrew-project-hint HINT] [--completeness COMPLETE|PARTIAL|FAILED] [--explanation TEXT] [--proving-test testId|targetFindingRef|testKind|sourcePath|status|lastRunAtUtcOrNull]...")
     println("  print-command --scanner NAME --tool PATH --target PATH --output FILE [--config FILE] [--online]")
     println("  run-scanner --scanner NAME --tool PATH --tool-lock FILE --target PATH --raw-output FILE --canonical-output FILE [--config FILE] [--online]")
     println("  run-mobsf --base-uri URI --api-key-file FILE --application FILE --source-root PATH --version VERSION --image IMAGE@sha256:DIGEST --raw-output FILE --canonical-output FILE")

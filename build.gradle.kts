@@ -59,6 +59,18 @@ tasks.register<JavaExec>("runnerPreflightAcceptanceTest") {
     mainClass.set("dev.assay.RunnerPreflightAcceptanceTestKt")
 }
 
+tasks.register<JavaExec>("assayContractV1AcceptanceTest") {
+    group = "verification"
+    classpath = sourceSets["test"].runtimeClasspath
+    mainClass.set("dev.assay.AssayContractV1AcceptanceTestKt")
+}
+
+tasks.register<JavaExec>("assayOutputPublisherAcceptanceTest") {
+    group = "verification"
+    classpath = sourceSets["test"].runtimeClasspath
+    mainClass.set("dev.assay.AssayOutputPublisherAcceptanceTestKt")
+}
+
 tasks.named("check") {
     dependsOn(
         "acceptanceTest",
@@ -69,5 +81,7 @@ tasks.named("check") {
         "mobSfExecutionAcceptanceTest",
         "integrationProjectionAcceptanceTest",
         "runnerPreflightAcceptanceTest",
+        "assayContractV1AcceptanceTest",
+        "assayOutputPublisherAcceptanceTest",
     )
 }
