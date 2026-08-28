@@ -163,6 +163,87 @@ fun main() {
         required.forEach { key -> check(key in encodedKeys) { "emitted index is missing required key '$key'" } }
     }
 
+    test(
+        "AssayOutputWriterV1's findings.sarif satisfies ASSAY_REPO_CONTRACT_V1.md §4: every " +
+            "results[].properties carries scannerName+ruleId, and provingTestRef wires positionally",
+    ) {
+        val workspace = Files.createTempDirectory("assay-contract-v1-sarif-")
+        val gitleaksFinding = Finding(
+            scanner = Scanner.GITLEAKS,
+            ruleId = "generic-api-key",
+            message = "Hardcoded credential-shaped string detected.",
+            location = Location("app/src/main/java/dev/aarso/data/Config.kt", 42),
+            context = "token=[REDACTED]",
+            level = SarifLevel.ERROR,
+        )
+        val semgrepFinding = Finding(
+            scanner = Scanner.SEMGREP,
+            ruleId = "android.exported-component",
+            message = "Exported component is not permission protected",
+            location = Location("app/src/main/AndroidManifest.xml", 14),
+            context = "exported activity without permission",
+            level = SarifLevel.ERROR,
+        )
+        // Sarif.merge sorts results by scanner wire name ("gitleaks" < "semgrep"), so the Gitleaks
+        // finding is always results[0] -- that's what makes this targetFindingRef trustworthy.
+        val provingTest = ProvingTestEntryV1(
+            testId = "01J9F0000000000000000PT2",
+            targetFindingRef = "findings.sarif#/runs/0/results/0",
+            testKind = ProvingTestKindV1.EXPLOIT_POC,
+            sourcePath = "tests/proving/test_generic_api_key.py",
+            status = ProvingTestStatusV1.NOT_RUN,
+        )
+
+        val index = AssayOutputWriterV1(workspace).write(
+            runId = "01J9E0000000000000000RNS",
+            projectRef = AssayProjectRefV1("https://github.com/owner/target-repo.git"),
+            sourceCommit = "c".repeat(40),
+            assayCommitPlaceholder = AssayOutputWriterV1.ASSAY_COMMIT_PLACEHOLDER,
+            tool = AssayToolRefV1("assay-cli", "1.1.0"),
+            startedAt = Instant.parse("2026-08-28T02:00:00Z"),
+            finishedAt = Instant.parse("2026-08-28T02:14:00Z"),
+            // Passed out of merged order deliberately -- Sarif.encode re-merges/sorts, so this also
+            // exercises that the positional targetFindingRef survives that re-sort.
+            findings = listOf(semgrepFinding, gitleaksFinding),
+            completeness = AssayCompletenessV1.COMPLETE,
+            provingTests = listOf(provingTest),
+        )
+
+        val sarifText = Files.readString(workspace.resolve(".assay/runs/${index.runId}/findings.sarif"))
+        val results = Json.parse(sarifText).requireObject()
+            .required("runs").requireArray().values.first().requireObject()
+            .required("results").requireArray().values
+        check(results.size == 2)
+
+        results.forEachIndexed { i, value ->
+            val result = value.requireObject()
+            val props = result.required("properties").requireObject()
+            check(props.string("scannerName").isNotBlank()) {
+                "results[$i].properties.scannerName must be present per §4"
+            }
+            check(props.string("ruleId").isNotBlank()) { "results[$i].properties.ruleId must be present per §4" }
+            check(props.string("ruleId") == result.string("ruleId")) {
+                "results[$i].properties.ruleId must duplicate the result's own top-level ruleId, per §4"
+            }
+        }
+
+        val gitleaksResult = results.first { it.requireObject().string("ruleId") == "generic-api-key" }
+            .requireObject().required("properties").requireObject()
+        check(gitleaksResult.string("scannerName") == "Gitleaks")
+        check(gitleaksResult.string("provingTestRef") == provingTest.testId) {
+            "the result named by a proving-tests.v1.json entry's targetFindingRef must carry " +
+                "provingTestRef == that entry's testId"
+        }
+
+        val semgrepResult = results.first { it.requireObject().string("ruleId") == "android.exported-component" }
+            .requireObject().required("properties").requireObject()
+        check(semgrepResult.string("scannerName") == "Semgrep")
+        check("provingTestRef" !in semgrepResult.values) {
+            "a result with no matching proving-tests.v1.json entry must omit provingTestRef entirely " +
+                "(absent, not null) per §4"
+        }
+    }
+
     test("AssayIndexV1 rejects PARTIAL/FAILED completeness without a non-blank explanation") {
         fun index(completeness: AssayCompletenessV1, explanation: String?) = AssayIndexV1(
             runId = "run-1",

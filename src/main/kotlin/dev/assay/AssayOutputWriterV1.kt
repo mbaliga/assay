@@ -44,7 +44,7 @@ class AssayOutputWriterV1(private val root: Path) {
         Files.createDirectories(runDir.resolve("evidence"))
         Files.createDirectories(safeResolve(".assay/tests/proving"))
 
-        val findingsSarif = writeArtifact(runDir.resolve("findings.sarif"), Sarif.encode(findings))
+        val findingsSarif = writeArtifact(runDir.resolve("findings.sarif"), Sarif.encode(findings, provingTests))
         val findingFiles = listOf(
             FindingFileRefV1(
                 path = "findings.sarif",

@@ -4,8 +4,27 @@ import java.net.URI
 import java.nio.file.Path
 
 object Sarif {
-    fun encode(findings: List<Finding>): String {
+    /**
+     * Encodes [findings] as `findings.sarif`. `provingTests` is optional and additive: when given,
+     * a `ProvingTestEntryV1` whose `targetFindingRef` is the positional pointer
+     * `findings.sarif#/runs/0/results/<i>` (the scheme `proving-tests.v1.schema.json` documents as
+     * Assay's own choice, Core treats it as opaque) is wired into that result's
+     * `properties.provingTestRef` (docs/ratified/ASSAY_REPO_CONTRACT_V1.md §4). Internal-bus callers
+     * that have no proving-test entries yet simply omit the argument -- every result then gets
+     * `scannerName`/`ruleId` (always emitted, §4's non-nullable pair) with no `provingTestRef` key,
+     * which §4 says is contract-legal (absent, not null, is fine when no proving test exists yet).
+     */
+    fun encode(findings: List<Finding>, provingTests: List<ProvingTestEntryV1> = emptyList()): String {
         val sorted = merge(findings)
+        val provingTestRefByIndex: Map<Int, String> = provingTests
+            .mapNotNull { test ->
+                TARGET_FINDING_REF_PATTERN.matchEntire(test.targetFindingRef)
+                    ?.groupValues?.get(1)?.toIntOrNull()
+                    ?.let { index -> index to test.testId }
+            }
+            // First proving test wins if more than one somehow targets the same result.
+            .distinctBy { (index, _) -> index }
+            .toMap()
         val rules = sorted.groupBy { it.ruleId }.toSortedMap().map { (ruleId, group) ->
             val exemplar = group.minBy { it.severity.ordinal }
             Json.obj(
@@ -19,7 +38,7 @@ object Sarif {
                 ),
             )
         }
-        val results = sorted.map { finding ->
+        val results = sorted.mapIndexed { index, finding ->
             Json.obj(
                 "ruleId" to Json.str(finding.ruleId),
                 "level" to Json.str(finding.level.wireName),
@@ -41,10 +60,24 @@ object Sarif {
                 "partialFingerprints" to Json.obj("assayFingerprint/v1" to Json.str(finding.fingerprint)),
                 "properties" to propertiesJson(
                     finding.properties + mapOf(
+                        // Kept for internal decodeCanonical() round-tripping (resolves the Scanner
+                        // enum on read) -- additive alongside the ratified §4 pair below, not a
+                        // replacement for it.
                         "originatingScanner" to finding.scanner.wireName,
+                        // docs/ratified/ASSAY_REPO_CONTRACT_V1.md §4 -- required, non-null pair every
+                        // results[] entry's properties bag MUST carry. scannerName uses the display
+                        // form §4's table itself enumerates (MobSF/OSV-Scanner/Semgrep/Gitleaks), not
+                        // the internal lowercase wire name. ruleId is SARIF's own top-level ruleId
+                        // duplicated into properties so a properties-only consumer never has to
+                        // resolve the rules[] catalog.
+                        "scannerName" to scannerDisplayName(finding.scanner),
+                        "ruleId" to finding.ruleId,
                         "assaySeverity" to finding.severity.name,
                         "assay.severityMappingVersion" to SeverityPolicy.VERSION,
-                    ) + (finding.securitySeverity?.let { mapOf("security-severity" to it.toString()) } ?: emptyMap()),
+                    ) + (finding.securitySeverity?.let { mapOf("security-severity" to it.toString()) } ?: emptyMap())
+                        // §4's third property. Absent (not null) when no proving test targets this
+                        // result yet -- absence is contract-legal, so no key is added in that case.
+                        + (provingTestRefByIndex[index]?.let { mapOf("provingTestRef" to it) } ?: emptyMap()),
                 ),
             )
         }
@@ -177,4 +210,21 @@ object Sarif {
     private fun propertiesJson(properties: Map<String, String>): JsonValue.Obj = JsonValue.Obj(
         LinkedHashMap(properties.toSortedMap().mapValues { (_, value) -> Json.str(value) }),
     )
+
+    /** §4's `properties.scannerName` display form -- distinct from [Scanner.wireName]. */
+    private fun scannerDisplayName(scanner: Scanner): String = when (scanner) {
+        Scanner.GITLEAKS -> "Gitleaks"
+        Scanner.SEMGREP -> "Semgrep"
+        Scanner.OSV -> "OSV-Scanner"
+        Scanner.MOBSF -> "MobSF"
+    }
+
+    /**
+     * `proving-tests.v1.schema.json`'s own documented example scheme for `targetFindingRef`
+     * ("Assay's own choice of reference scheme; Core treats it as opaque") -- a positional pointer
+     * into the single-run `findings.sarif#/runs/0/results[]` this repo always emits. Not a scheme
+     * invented for this fix: it is already the format `AssayContractV1AcceptanceTest` and the
+     * ratified fixtures use for every `targetFindingRef` example.
+     */
+    private val TARGET_FINDING_REF_PATTERN = Regex("""^findings\.sarif#/runs/0/results/(\d+)$""")
 }
