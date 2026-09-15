@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Assay Tool Lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "tools"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "tools": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gitleaks", "semgrep", "osv", "mobsf"],
+      "properties": {
+        "gitleaks": { "$ref": "#/$defs/tool" },
+        "semgrep": { "$ref": "#/$defs/tool" },
+        "osv": { "$ref": "#/$defs/tool" },
+        "mobsf": { "$ref": "#/$defs/tool" }
+      }
+    }
+  },
+  "$defs": {
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "sha256"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    }
+  }
+}

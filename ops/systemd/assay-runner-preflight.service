@@ -1,0 +1,37 @@
+[Unit]
+Description=Assay runner security preflight
+Documentation=file:/opt/assay/docs/RUNNER-OPERATIONS.md
+After=network-online.target
+Before=assay-actions-runner.service
+ConditionPathExists=/opt/assay/bin/assay
+ConditionPathExists=/opt/assay/tool-lock.json
+
+[Service]
+Type=oneshot
+User=assay
+Group=assay
+UMask=0077
+Environment=HOME=/var/lib/assay/home
+Environment=ASSAY_WORK_ROOT=/var/lib/assay/work
+Environment=ASSAY_PREFLIGHT_REPORT=/var/lib/assay/status/runner-preflight.json
+ExecStart=/opt/assay/bin/runner-preflight.sh
+RemainAfterExit=yes
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/assay
+CapabilityBoundingSet=
+AmbientCapabilities=
+LockPersonality=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectClock=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

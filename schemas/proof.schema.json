@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assay.dev/schemas/1.1.0/proof.schema.json",
+  "title": "Assay Proving Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "provingId", "findingFingerprint", "sourceCommit", "beforeTreeRef", "afterTreeRef",
+    "patchDigest", "testDigest", "scannerConfigDigest", "toolchainDigest", "testName",
+    "beforeAttempts", "afterAttempts", "scannerReplay", "gate"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.1.0" },
+    "provingId": { "type": "string", "pattern": "^pt1-(gitleaks|semgrep|osv|mobsf)-[a-z0-9-]{1,40}-[0-9a-f]{16}$" },
+    "findingFingerprint": { "$ref": "#/$defs/sha256" },
+    "sourceCommit": { "$ref": "#/$defs/sha1" },
+    "beforeTreeRef": { "$ref": "#/$defs/sha1" },
+    "afterTreeRef": { "$ref": "#/$defs/sha1" },
+    "patchDigest": { "$ref": "#/$defs/sha256" },
+    "testDigest": { "$ref": "#/$defs/sha256" },
+    "scannerConfigDigest": { "$ref": "#/$defs/sha256" },
+    "toolchainDigest": { "$ref": "#/$defs/sha256" },
+    "testName": { "type": "string", "minLength": 1 },
+    "beforeAttempts": { "$ref": "#/$defs/attempts" },
+    "afterAttempts": { "$ref": "#/$defs/attempts" },
+    "scannerReplay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["beforeDigest", "afterDigest", "foundBefore", "clearedAfter"],
+      "properties": {
+        "beforeDigest": { "$ref": "#/$defs/sha256" },
+        "afterDigest": { "$ref": "#/$defs/sha256" },
+        "foundBefore": { "type": "boolean" },
+        "clearedAfter": { "type": "boolean" }
+      }
+    },
+    "gate": { "enum": ["passed", "failed"] }
+  },
+  "$defs": {
+    "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "attempts": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["exitCode", "resultDigest", "namedTestRan", "assertionFailure"],
+        "properties": {
+          "exitCode": { "type": "integer" },
+          "resultDigest": { "$ref": "#/$defs/sha256" },
+          "namedTestRan": { "type": "boolean" },
+          "assertionFailure": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

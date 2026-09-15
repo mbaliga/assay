@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assay.dev/schemas/1.1.0/run.schema.json",
+  "title": "Assay Run Metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "runId", "sourceRepo", "sourceCommit", "createdAt", "status",
+    "findingsRef", "statusRef", "manifestRef", "severityMappingVersion", "scanners"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.1.0" },
+    "runId": { "type": "string", "pattern": "^[0-9]{8}T[0-9]{6}Z-[0-9a-f]{7}$" },
+    "sourceRepo": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "sourceCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "status": { "const": "complete" },
+    "findingsRef": { "type": "string" },
+    "statusRef": { "type": "string" },
+    "manifestRef": { "type": "string" },
+    "severityMappingVersion": { "const": "sev-map-v1" },
+    "scanners": {
+      "type": "array",
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "version", "executableDigest", "configDigest", "exitCode", "format", "artifactRef"],
+        "properties": {
+          "name": { "enum": ["gitleaks", "semgrep", "osv", "mobsf"] },
+          "version": { "type": "string", "minLength": 1 },
+          "executableDigest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "configDigest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "exitCode": { "enum": [0, 1] },
+          "format": { "enum": ["sarif", "json"] },
+          "artifactRef": { "type": "string" }
+        }
+      }
+    }
+  }
+}
