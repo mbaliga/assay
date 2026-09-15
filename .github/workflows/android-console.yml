@@ -14,7 +14,12 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
+        with:
+          # v3 AND v4 default to installing the legacy 'tools' package, which
+          # Google's repo no longer serves (sdkmanager exit 1 at SDK setup,
+          # 2026-09-15 - see core CLAUDE.md's CI caveat, third infra class).
+          packages: platform-tools
       - name: Install pinned Android SDK
         run: yes | sdkmanager --licenses >/dev/null && sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
       - uses: gradle/actions/setup-gradle@v4
