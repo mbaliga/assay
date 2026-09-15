@@ -24,17 +24,9 @@
     <string name="back_to_assay">← Assay home</string>
     <string name="action_failed">Could not complete that action</string>
 
-    <string name="open_snapshot">Open verified snapshot</string>
-    <string name="open_snapshot_description">Select an Assay console snapshot JSON file</string>
     <string name="snapshot_open_failed">The selected snapshot could not be opened.</string>
     <string name="snapshot_invalid">The snapshot is invalid.</string>
     <string name="snapshot_too_large">The snapshot exceeds the 8 MB console limit.</string>
-    <string name="status_not_loaded">Status: no snapshot loaded</string>
-    <string name="status_invalid">Status: invalid snapshot</string>
-    <string name="status_format">Status: %1$s</string>
-    <string name="empty_title">No evidence loaded</string>
-    <string name="empty_body">Export a console snapshot from the trusted Assay runner, then open it here. Unconfigured evidence is never shown as zero findings.</string>
-    <string name="invalid_title">Snapshot rejected</string>
     <string name="evidence_unavailable">Evidence unavailable</string>
     <string name="validating_snapshot">Validating evidence</string>
     <string name="validating_snapshot_body">Assay is checking the snapshot schema, source identity, finding links and candidate references before displaying anything.</string>
@@ -115,14 +107,6 @@
     <string name="location_format">%1$s:%2$d</string>
     <string name="human_approved">Human approved</string>
     <string name="revision_format">Revision %1$d</string>
-    <string name="scanner_value">Scanner: %1$s</string>
-    <string name="severity_value">Severity: %1$s</string>
-    <string name="fingerprint_value">Fingerprint: %1$s</string>
-    <string name="related_candidates_value">Related candidates: %1$d</string>
-    <string name="lifecycle_value">Lifecycle: %1$s</string>
-    <string name="branch_value">Fix branch: %1$s</string>
-    <string name="approved_value">Human approved: %1$s</string>
-    <string name="finding_value">Finding: %1$s</string>
     <string name="finding_detail_format">%1$s\n\nEvidence\n%2$s\n\nRule\n%3$s</string>
     <string name="console_finding_detail_format">%1$s\n\nScanner: %2$s\nSeverity: %3$s\nLocation: %4$s\nRelated candidates: %5$d\n\nFingerprint\n%6$s</string>
     <string name="candidate_detail_format">Lifecycle: %1$s\nRevision: %2$d\nFix branch: %3$s\nHuman approved: %4$s\n\nFinding\n%5$s</string>
@@ -130,7 +114,6 @@
     <string name="copy_rejection_command">Copy rejection command</string>
     <string name="assay_decision">Assay decision command</string>
     <string name="command_copied">Decision command copied</string>
-    <string name="display_limit_format">Showing %1$d of %2$d %3$s.</string>
 
     <string name="gigabytes_value">%1$.1f GB</string>
     <string name="megabytes_value">%1$.1f MB</string>
