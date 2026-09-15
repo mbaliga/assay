@@ -359,7 +359,14 @@ Each integration page states allowed and forbidden capabilities.
 
 Operations is primarily for the runner operator. Maintainers see summarized failure reasons and escalation paths.
 
-## Mobile v2 IA
+#**Interaction-mode decision (constellation, 2026-09-15):** the Fonebrew constellation now
+offers a Regular/asoc interaction choice (`dev.aarso:interaction-mode`) in apps that own two
+top-level interaction styles. Assay is **Regular-only by this document's own design** — one
+conventional tap-driven surface — so it adopts nothing today: a mode toggle here would switch
+between one option. Revisit if/when the Mobile v2 IA below adds its Settings destination, and
+note the AGP lockstep cost (Shared-Libraries-asoc pins AGP 8.9.1; this app is on 9.3.0).
+
+# Mobile v2 IA
 
 Recommended navigation:
 
