@@ -74,6 +74,7 @@ tasks.named("check") {
         "gitBusPublisherAcceptanceTest",
         "mobSfExecutionAcceptanceTest",
         "integrationProjectionAcceptanceTest",
-        "runnerPreflightAcceptanceTest",\n        "fonebrewExecutionAcceptanceTest",
+        "runnerPreflightAcceptanceTest",
+        "fonebrewExecutionAcceptanceTest",
     )
 }
