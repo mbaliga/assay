@@ -1,15 +1,16 @@
 package dev.assay
 
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
+fun main() {
+    val sha = "a".repeat(64)
+    var passed = 0
 
-class FonebrewExecutionTest {
+    fun test(name: String, body: () -> Unit) {
+        body()
+        passed++
+        println("PASS $name")
+    }
 
-    private val sha = "a".repeat(64)
-
-    @Test
-    fun acceptsMatchingResultWithExpectedArtifacts() {
+    test("accepts matching result with expected artifacts") {
         val request = AssayExecutionRequest(
             requestId = "req-1",
             sourceRepo = "owner/repo",
@@ -30,11 +31,10 @@ class FonebrewExecutionTest {
             finishedAtEpochMillis = 20,
         )
 
-        assertTrue(FonebrewExecutionGate.validate(request, result).acceptedForFurtherVerification)
+        check(FonebrewExecutionGate.validate(request, result).acceptedForFurtherVerification)
     }
 
-    @Test
-    fun exitZeroWithoutRequiredArtifactIsNotAcceptedAsEvidenceInput() {
+    test("exit zero without required artifact is not accepted as evidence input") {
         val request = AssayExecutionRequest(
             requestId = "req-2",
             sourceRepo = "owner/repo",
@@ -55,6 +55,8 @@ class FonebrewExecutionTest {
             finishedAtEpochMillis = 20,
         )
 
-        assertFalse(FonebrewExecutionGate.validate(request, result).acceptedForFurtherVerification)
+        check(!FonebrewExecutionGate.validate(request, result).acceptedForFurtherVerification)
     }
+
+    println("$passed Fonebrew execution checks passed")
 }
