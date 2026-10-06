@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assay.dev/schemas/1.1.0/index.schema.json",
+  "title": "Assay Bus Index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "producer", "sourceRepo", "latestComplete", "activeRuns", "runs"],
+  "properties": {
+    "schemaVersion": { "const": "1.1.0" },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["app", "runnerContract"],
+      "properties": {
+        "app": { "const": "Assay" },
+        "runnerContract": { "const": "1.1.0" }
+      }
+    },
+    "sourceRepo": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "latestComplete": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/runId" }
+      ]
+    },
+    "activeRuns": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["runId", "sourceCommit", "createdAt", "status"],
+        "properties": {
+          "runId": { "$ref": "#/$defs/runId" },
+          "sourceCommit": { "$ref": "#/$defs/sha1" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "status": { "const": "running" }
+        }
+      }
+    },
+    "runs": {
+      "type": "array",
+      "maxItems": 50,
+      "items": { "$ref": "#/$defs/runEntry" }
+    }
+  },
+  "$defs": {
+    "runId": {
+      "type": "string",
+      "pattern": "^[0-9]{8}T[0-9]{6}Z-[0-9a-f]{7}$"
+    },
+    "sha1": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sev1", "sev2", "sev3", "sev4"],
+      "properties": {
+        "sev1": { "type": "integer", "minimum": 0 },
+        "sev2": { "type": "integer", "minimum": 0 },
+        "sev3": { "type": "integer", "minimum": 0 },
+        "sev4": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provingTestsRequired", "provingTestsPassed", "passed"],
+      "properties": {
+        "provingTestsRequired": { "type": "integer", "minimum": 0 },
+        "provingTestsPassed": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "boolean" }
+      }
+    },
+    "runEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId", "sourceCommit", "createdAt", "status", "path", "runRef", "findingsRef",
+        "statusRef", "manifestRef", "manifestDigest", "summary", "gate"
+      ],
+      "properties": {
+        "runId": { "$ref": "#/$defs/runId" },
+        "sourceCommit": { "$ref": "#/$defs/sha1" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "enum": ["complete", "failed"] },
+        "path": { "type": "string", "pattern": "^runs/[0-9]{8}T[0-9]{6}Z-[0-9a-f]{7}$" },
+        "runRef": { "type": "string", "pattern": "^runs/[0-9]{8}T[0-9]{6}Z-[0-9a-f]{7}/run\\.json$" },
+        "findingsRef": { "type": "string", "pattern": "^runs/[0-9]{8}T[0-9]{6}Z-[0-9a-f]{7}/findings\\.sarif$" },
+        "statusRef": { "type": "string", "pattern": "^runs/[0-9]{8}T[0-9]{6}Z-[0-9a-f]{7}/status\\.json$" },
+        "manifestRef": { "type": "string", "pattern": "^runs/[0-9]{8}T[0-9]{6}Z-[0-9a-f]{7}/manifest\\.sha256$" },
+        "manifestDigest": { "$ref": "#/$defs/sha256" },
+        "summary": { "$ref": "#/$defs/summary" },
+        "gate": { "$ref": "#/$defs/gate" }
+      }
+    }
+  }
+}

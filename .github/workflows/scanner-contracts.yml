@@ -1,0 +1,160 @@
+name: Scanner contracts
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'schemas/**'
+      - 'build.gradle.kts'
+      - '.github/workflows/scanner-contracts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-cli-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build Assay CLI
+        run: gradle installDist --no-daemon
+
+      - name: Install pinned scanners
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/assay-tools /tmp/assay-downloads
+
+          curl -fsSL \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            -o /tmp/assay-downloads/gitleaks.tar.gz
+          echo '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  /tmp/assay-downloads/gitleaks.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/assay-downloads/gitleaks.tar.gz -C /tmp/assay-tools gitleaks
+
+          python -m venv /tmp/assay-semgrep
+          /tmp/assay-semgrep/bin/pip install --disable-pip-version-check 'semgrep==1.164.0'
+          ln -s /tmp/assay-semgrep/bin/semgrep /tmp/assay-tools/semgrep
+
+          curl -fsSL \
+            https://github.com/google/osv-scanner/releases/download/v2.3.8/osv-scanner_linux_amd64 \
+            -o /tmp/assay-tools/osv-scanner
+          echo 'bc98e15319ed0d515e3f9235287ba53cdc5535d576d24fd573978ecfe9ab92dc  /tmp/assay-tools/osv-scanner' | sha256sum -c -
+          chmod 0755 /tmp/assay-tools/osv-scanner
+
+      - name: Create deterministic scanner fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/assay-fixtures/{gitleaks,semgrep,osv} /tmp/assay-evidence /tmp/assay-locks
+
+          cat > /tmp/assay-fixtures/gitleaks/secret.env <<'FIXTURE'
+          credential=ASSAY_TEST_SECRET_1234567890ABCDEFGHIJ
+          FIXTURE
+          cat > /tmp/assay-fixtures/gitleaks/gitleaks.toml <<'FIXTURE'
+          title = "Assay deterministic fixture"
+
+          [[rules]]
+          id = "assay-fixture-secret"
+          description = "Assay deterministic fixture secret"
+          regex = '''ASSAY_TEST_SECRET_[A-Z0-9]{20}'''
+          keywords = ["ASSAY_TEST_SECRET_"]
+          FIXTURE
+
+          cat > /tmp/assay-fixtures/semgrep/unsafe.py <<'FIXTURE'
+          eval(user_input)
+          FIXTURE
+          cat > /tmp/assay-fixtures/semgrep/rules.yml <<'FIXTURE'
+          rules:
+            - id: assay.fixture.eval
+              languages: [python]
+              message: unsafe eval fixture
+              severity: ERROR
+              pattern: eval(...)
+          FIXTURE
+
+          cat > /tmp/assay-fixtures/osv/package-lock.json <<'FIXTURE'
+          {
+            "name": "assay-osv-fixture",
+            "version": "1.0.0",
+            "lockfileVersion": 1,
+            "requires": true,
+            "dependencies": {
+              "lodash": { "version": "4.17.20" }
+            }
+          }
+          FIXTURE
+
+          python - <<'PY'
+          import hashlib, json, pathlib
+          tools = pathlib.Path('/tmp/assay-tools')
+          locks = pathlib.Path('/tmp/assay-locks')
+          versions = {'gitleaks':'8.30.1', 'semgrep':'1.164.0', 'osv-scanner':'2.3.8'}
+          wire = {'gitleaks':'gitleaks', 'semgrep':'semgrep', 'osv-scanner':'osv'}
+          for binary, version in versions.items():
+              digest = hashlib.sha256((tools / binary).read_bytes()).hexdigest()
+              document = {'schemaVersion':'1.0.0','tools':{wire[binary]:{'version':version,'sha256':digest}}}
+              (locks / f'{wire[binary]}.json').write_text(json.dumps(document, sort_keys=True))
+          PY
+
+      - name: Execute and normalize real scanner reports
+        shell: bash
+        run: |
+          set -euo pipefail
+          ASSAY="$PWD/build/install/assay/bin/assay"
+
+          "$ASSAY" run-scanner \
+            --scanner gitleaks \
+            --tool /tmp/assay-tools/gitleaks \
+            --tool-lock /tmp/assay-locks/gitleaks.json \
+            --target /tmp/assay-fixtures/gitleaks \
+            --config /tmp/assay-fixtures/gitleaks/gitleaks.toml \
+            --raw-output /tmp/assay-evidence/gitleaks.raw.sarif \
+            --canonical-output /tmp/assay-evidence/gitleaks.sarif
+
+          "$ASSAY" run-scanner \
+            --scanner semgrep \
+            --tool /tmp/assay-tools/semgrep \
+            --tool-lock /tmp/assay-locks/semgrep.json \
+            --target /tmp/assay-fixtures/semgrep \
+            --config /tmp/assay-fixtures/semgrep/rules.yml \
+            --raw-output /tmp/assay-evidence/semgrep.raw.sarif \
+            --canonical-output /tmp/assay-evidence/semgrep.sarif
+
+          "$ASSAY" run-scanner \
+            --scanner osv \
+            --tool /tmp/assay-tools/osv-scanner \
+            --tool-lock /tmp/assay-locks/osv.json \
+            --target /tmp/assay-fixtures/osv \
+            --raw-output /tmp/assay-evidence/osv.raw.sarif \
+            --canonical-output /tmp/assay-evidence/osv.sarif \
+            --online
+
+          python - <<'PY'
+          import json, pathlib
+          root = pathlib.Path('/tmp/assay-evidence')
+          expected = {'gitleaks':'gitleaks', 'semgrep':'semgrep', 'osv':'osv'}
+          for name, scanner in expected.items():
+              report = json.loads((root / f'{name}.sarif').read_text())
+              results = report['runs'][0]['results']
+              assert results, f'{name} produced no canonical findings'
+              assert all(r['properties']['originatingScanner'] == scanner for r in results)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scanner-contract-evidence
+          path: /tmp/assay-evidence/*.sarif
+          retention-days: 14
