@@ -213,3 +213,45 @@ In PR #1 at fb150ab: `README.md`; `build.gradle.kts`, `settings.gradle.kts`, `.g
 `Personal-Tracker/PORTING_PROGRAM.md` (§0-§3, §4 platform sections, the Assay row of §5, §6-§8) and `Personal-Tracker/{CONSTELLATION,NAMES,DECISIONS,STATE}.md` (Assay, Orrery, D-C,
 D-W).
 
+
+## Owner rulings and the proposed line (added 2026-10-07)
+
+Status: PLAN. Nothing here is built, run on a device, signed or submitted. The program-level plan is Personal-Tracker `PORTING_PROGRAM.md` ([PR #10](https://github.com/mbaliga/Personal-Tracker/pull/10)), which holds the owner's rulings and section 5A, the proposed port / no-port line. The cells, estimates and open questions above are this repo's original plan and are unedited. Where the owner has since answered a question, the answer is below. Section 5A is a proposal; the owner has not yet confirmed it.
+
+### Where assay sits in the proposed line (program section 5A.3, a proposal)
+
+| Target       | Verdict | Weeks and flags |
+| ------------ | ------- | --------------- |
+| Ubuntu Touch | no-port | -               |
+| Linux        | exists  | 2w              |
+| iOS/iPadOS   | no-port | -               |
+| macOS        | no-port | -               |
+| Windows      | no-port | -               |
+
+Key: `follows` means it ports only as far as the products that depend on it; `exists` means the program reads it as already running there, unverified (finish, verify and sign); flags: `g` gated on a prerequisite, `r` re-estimate or floor, `o` its own program, `s` scope note. The program's P4, P8, P12 and P13 gate whole columns or repos and are not flagged per cell. A port verdict counts the deliverable in the line; where this repo's plan calls a deliverable a reframe (program rule R12) it keeps that label. Tests cited in the reason: (a) the owner said it is needed there; (b) its job is really done on that OS by real users; (c) that OS is where it is sold or its audience is; it has no reason to exist if (x) its surface is absent or untouchable, (y) the capability is forbidden or impossible, or (z) the only form is a thin wrapper or a different product nobody asked for. P-numbers and OQ-numbers refer to the program plan (Personal-Tracker `PORTING_PROGRAM.md`, sections 5A.5 and 8).
+
+Reason: The pipeline is a Linux CI role by contract (rootless podman, POSIX permissions); a snapshot viewer elsewhere has no value before V2 Epic B.
+
+### Owner rulings that apply here
+
+- **Ubuntu Touch scope (2026-10-06):** "Native only, no substitutes" for Android-only products (the program marks this repo's Ubuntu Touch cell as a substitute). This plan's own Ubuntu Touch cell above (the Waydroid option and a thin read-only snapshot-viewer click) is a substitute the ruling excludes, which is why the proposed verdict is no-port. **OQ-21:** "No, native ports only" (Waydroid is not accepted).
+- **OQ-17 toolchain (2026-10-06):** "B: staged pin (Recommended)": the engine is already on Kotlin 2.1.20; the 2-week Linux cell adds console-core (kotlin("multiplatform"), jvm() only, no Compose), which takes the Kotlin part of the pin, 2.4.x deferred. The Compose Multiplatform 1.8.2 part matters only if the deferred viewer is built; L3 (the Android console adopting console-core) still needs F5 and a Kotlin-plugin answer.
+- **OQ-20 CI (2026-10-06):** "Linux-only CI when private (Recommended)": this repo is public, so the ruling does not limit its macOS and Windows lanes; going private would stop them. Actions artifact storage is still exhausted (program rule R6).
+- **OQ-5 hardware (2026-10-06):** the owner's answer changes which of their other machines can serve as device gates, so a gate this plan names on specific hardware may be moved or dropped. Which machine carries which device gate is not decided (OQ-33). The plan's statement that the Dell is the only Windows machine and is slated for Linux is superseded; whether the Dell is Assay's runner host (plan Q4) stays open under OQ-33, which names Assay.
+- **Directives (2026-10-06):** "Draft amendments for approval": program directives I-1 to I-12 and rules R1 to R12 are unchanged; PROPOSED-1 to PROPOSED-4 in Personal-Tracker `DECISIONS.md` are drafts awaiting the owner.
+
+### Prerequisites and open questions that touch this repo (program sections 5A.5 and 8)
+
+No program-level prerequisite is named for this repo.
+
+Owner questions in the program register that concern this repo (status as of 2026-10-07):
+
+- OQ-5 (ruled): Hardware stance
+- OQ-17 (ruled): Toolchain pins: the pin is ruled; the "Also" approvals (converting shared modules to kotlin("multiplatform"), asom's no-KMP rule staying asom-local) are unanswered
+- OQ-20 (ruled): CI minutes, storage and repo visibility
+- OQ-21 (ruled): Waydroid as the Ubuntu Touch answer (the program reads Assay as Android-only for this)
+- OQ-29 (open): Hyle-consumer status
+- OQ-30 (open): Assay: canonical PR and what Orrery reads
+- OQ-33 (open): Hardware details still open
+
+When the owner confirms or changes the line, this repo's original cells above stay as the engineering detail; only the verdicts and re-costs in program section 5A change.
