@@ -223,11 +223,7 @@ object LocalApkAuditor {
 
     @Suppress("DEPRECATION")
     private fun readPackageInfo(packageManager: PackageManager, path: String): PackageInfo? {
-        val signingFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            PackageManager.GET_SIGNING_CERTIFICATES
-        } else {
-            PackageManager.GET_SIGNATURES
-        }
+        val signingFlag = PackageManager.GET_SIGNING_CERTIFICATES
         val flags = PackageManager.GET_PERMISSIONS or
             PackageManager.GET_ACTIVITIES or
             PackageManager.GET_SERVICES or
@@ -242,18 +238,11 @@ object LocalApkAuditor {
     }
 
     @Suppress("DEPRECATION")
-    private fun signerCount(packageInfo: PackageInfo): Int = if (Build.VERSION.SDK_INT >= 28) {
+    private fun signerCount(packageInfo: PackageInfo): Int =
         packageInfo.signingInfo?.apkContentsSigners?.size ?: 0
-    } else {
-        packageInfo.signatures?.size ?: 0
-    }
 
     @Suppress("DEPRECATION")
-    private fun packageVersionCode(packageInfo: PackageInfo): Long = if (Build.VERSION.SDK_INT >= 28) {
-        packageInfo.longVersionCode
-    } else {
-        packageInfo.versionCode.toLong()
-    }
+    private fun packageVersionCode(packageInfo: PackageInfo): Long = packageInfo.longVersionCode
 
     @Suppress("DEPRECATION")
     private fun isDangerousPermission(packageManager: PackageManager, permission: String): Boolean = runCatching {

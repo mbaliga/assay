@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -8,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "dev.assay"
-        minSdk = 26
+        minSdk = 31
         targetSdk = 36
         versionCode = 2
         versionName = "1.1.0"

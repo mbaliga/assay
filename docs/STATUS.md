@@ -4,7 +4,8 @@ Ladder: `code-complete` (compiles, tests green) < `verified` (ran end-to-end on 
 
 | Date | WP | Ladder | Evidence |
 |---|---|---|---|
-| 2026-11-03 | WP0 One trunk | in progress | see below |
+| 2026-11-03 | WP0 One trunk | code-complete | `gradle check --no-daemon` exit 0 (all acceptance harnesses); console `assembleDebug lintDebug` exit 0 on AGP 8.9.1/Kotlin 2.1.20/minSdk 31 |
+| 2026-11-03 | WP1-WP7 | NOT STARTED | deferred |
 
 ## Superseded branches (safe to delete, owner)
 `apk-testbuild`, `agent/*`, `claude/github-storage-cleanup-*`, `claude/repo-status-overview-2c0rgm` (only `58ede9d` cherry-picked).
