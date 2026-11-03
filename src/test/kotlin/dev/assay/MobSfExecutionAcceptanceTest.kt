@@ -86,7 +86,7 @@ fun main() {
         }.isFailure)
         println("PASS insecure remote MobSF endpoint rejected")
 
-        val runtime = Path.of("/bin/echo")
+        val runtime = Path.of("/bin/echo").let { if (Files.exists(it)) it.toRealPath() else it }
         if (Files.isExecutable(runtime)) {
             val command = MobSfContainerCommand.build(runtime, pin, workspace.resolve("state"), 18000)
             check("--pull" in command && "never" in command)
