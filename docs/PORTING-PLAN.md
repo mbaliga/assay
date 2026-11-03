@@ -4,7 +4,7 @@
 > a target platform is labelled with its evidence class (§0). A platform track updates only its own §4 row and records evidence in `docs/VERIFICATION.md` (no PROGRESS/STATE file
 > here).
 >
-> **What was read.** `main` (ab170e2) holds only LICENSE and `.github/workflows/cleanup-artifacts.yml`: no README, no `docs/`. Code, docs and workflows below were read from PR #1
+> **What was read.** `main` (ab170e2) holds only LICENSE and `.github/workflows/cleanup-artifacts.yml`: no README, no `docs/`. Code, docs and workflows below were read from the repo (this plan now lives on trunk)
 > (`agent/assay-v1-foundation`, draft, head fb150ab, read-only worktree). PR #3 (bdd894b, "supersedes #1"), PR #5 (fd9d638, stacked on #1) and PR #2 (58ede9d, Hyle wiring, never
 > green) were listed through the GitHub REST API on 2026-10-06; their contents come from the profile reader's notes and were not re-read here. Which PR is canonical is OQ-30 (§8);
 > if it is not #1, re-check §2. **README pointer:** none is added here. It belongs in the canonical PR's README "Documentation" list ("Trust, implementation and operations").

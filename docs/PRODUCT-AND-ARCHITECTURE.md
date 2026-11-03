@@ -8,7 +8,7 @@ read-only projections to the Fonebrew constellation.
 **AI is optional and downstream. It cannot originate findings, record proof, approve candidates,
 apply fixes or publish audit evidence.**
 
-> **This document is the orientation map.** Assay's normative detail lives in thirteen sibling
+> **This document is the orientation map.** Assay's normative detail lives in sixteen sibling
 > documents, and this one deliberately does not restate them — it explains the shape of the system
 > and points at the document that governs each part. Where a sibling doc is normative and this one
 > is descriptive, **the sibling wins**.

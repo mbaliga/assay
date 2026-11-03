@@ -139,3 +139,7 @@ Typed reader states are `NotConfigured`, `Unavailable`, `Invalid`, and `Ready`. 
 A passing proof requires the exact source commit, distinct before/after tree refs, non-empty patch and test digests, scanner configuration and toolchain digests, at least two identical before attempts and two identical after attempts, evidence that the named test ran, assertion failure before, pass after, scanner reproduction before, and scanner clearance after. Proving-ID equality alone is never sufficient.
 
 Machine-readable schemas live in `schemas/`.
+
+## Execution is not proof
+
+Fonebrew-side execution of a candidate (see [FONEBREW-EXECUTION.md](FONEBREW-EXECUTION.md)) never substitutes for `ProofGate`. Only `candidate-proof` consuming an isolated attempts file may set `proof_passed`.
