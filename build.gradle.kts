@@ -71,6 +71,12 @@ tasks.register<JavaExec>("assayOutputPublisherAcceptanceTest") {
     mainClass.set("dev.assay.AssayOutputPublisherAcceptanceTestKt")
 }
 
+tasks.register<JavaExec>("fonebrewExecutionAcceptanceTest") {
+    group = "verification"
+    classpath = sourceSets["test"].runtimeClasspath
+    mainClass.set("dev.assay.FonebrewExecutionTestKt")
+}
+
 tasks.named("check") {
     dependsOn(
         "acceptanceTest",
@@ -83,5 +89,6 @@ tasks.named("check") {
         "runnerPreflightAcceptanceTest",
         "assayContractV1AcceptanceTest",
         "assayOutputPublisherAcceptanceTest",
+        "fonebrewExecutionAcceptanceTest",
     )
 }
