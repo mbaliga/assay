@@ -89,6 +89,25 @@ The JVM check runs the core, candidate, persistence, Git-worktree, remote-audit,
 
 See `docs/VERIFICATION.md` for the mechanical evidence and the remaining environment-certification boundary.
 
+## Quick start: one command
+
+`assay audit` runs the pinned scanners, builds the fail-closed bundle, and writes **both** trees:
+the ratified `.assay/` output Fonebrew Core reads, and Assay's internal trust-engine bus.
+
+```bash
+assay audit \
+  --repo /path/to/scanned-repo --commit "$(git -C /path/to/scanned-repo rev-parse HEAD)" \
+  --remote https://github.com/OWNER/REPO.git --output-branch assay/output \
+  --tool-lock tool-lock.json --tools /opt/assay/tools \
+  --semgrep-config rules.yml \
+  [--scanners gitleaks,semgrep,osv,mobsf] [--apk app.apk --mobsf-image IMAGE@sha256:DIGEST --mobsf-base-uri http://127.0.0.1:8000/api/v1 --mobsf-api-key-file KEYFILE] \
+  [--online] [--push]
+```
+
+Exit codes: `0` complete, `2` partial (a scanner failed; `completeness=PARTIAL` with an explanation,
+internal bus not written), `3` failed. `--push` is off by default. `--ai` accepts only `off` until the
+AI layer ships. Output is JSON-Schema-validated against the ratified schemas before it is staged.
+
 ## Common CLI flows
 
 ### Run a pinned local scanner

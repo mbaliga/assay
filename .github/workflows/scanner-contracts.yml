@@ -153,6 +153,65 @@ jobs:
               assert all(r['properties']['originatingScanner'] == scanner for r in results)
           PY
 
+      - name: End-to-end assay audit against real scanners
+        shell: bash
+        run: |
+          set -euo pipefail
+          ASSAY="$PWD/build/install/assay/bin/assay"
+          TARGET=/tmp/assay-audit-target
+          rm -rf "$TARGET" /tmp/assay-audit-work
+          mkdir -p "$TARGET"
+          cp /tmp/assay-fixtures/gitleaks/secret.env "$TARGET/"
+          cp /tmp/assay-fixtures/semgrep/unsafe.py "$TARGET/"
+          cp /tmp/assay-fixtures/osv/package-lock.json "$TARGET/"
+          git -C "$TARGET" init -q -b main
+          git -C "$TARGET" -c user.name=ci -c user.email=ci@example.invalid add -A
+          git -C "$TARGET" -c user.name=ci -c user.email=ci@example.invalid commit -q -m fixture
+          COMMIT="$(git -C "$TARGET" rev-parse HEAD)"
+
+          python - <<'PY'
+          import json, pathlib
+          locks = pathlib.Path('/tmp/assay-locks')
+          merged = {'schemaVersion': '1.0.0', 'tools': {}}
+          for name in ('gitleaks', 'semgrep', 'osv'):
+              merged['tools'].update(json.loads((locks / f'{name}.json').read_text())['tools'])
+          (locks / 'all.json').write_text(json.dumps(merged, sort_keys=True))
+          PY
+
+          set +e
+          "$ASSAY" audit \
+            --repo "$TARGET" --commit "$COMMIT" \
+            --remote https://github.com/mbaliga/assay-fixture.git \
+            --output-branch assay/output \
+            --tool-lock /tmp/assay-locks/all.json --tools /tmp/assay-tools \
+            --gitleaks-config /tmp/assay-fixtures/gitleaks/gitleaks.toml \
+            --semgrep-config /tmp/assay-fixtures/semgrep/rules.yml \
+            --scanners gitleaks,semgrep,osv --online \
+            --work-dir /tmp/assay-audit-work
+          CODE=$?
+          set -e
+          test "$CODE" -eq 0
+
+          python - <<'PY'
+          import json, pathlib
+          out = pathlib.Path('/tmp/assay-audit-work/output/.assay')
+          index = json.loads((out / 'assay-index.v1.json').read_text())
+          assert index['completeness'] == 'COMPLETE', index['completeness']
+          run = out / 'runs' / index['runId'] / 'findings.sarif'
+          results = json.loads(run.read_text())['runs'][0]['results']
+          names = {r['properties']['scannerName'] for r in results}
+          assert names == {'Gitleaks', 'Semgrep', 'OSV-Scanner'}, names
+          assert all(r['properties']['ruleId'] for r in results)
+          PY
+          test -f /tmp/assay-audit-work/bus/index.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: assay-audit-output
+          path: /tmp/assay-audit-work/output/.assay
+          include-hidden-files: true
+          retention-days: 14
+
       - uses: actions/upload-artifact@v4
         with:
           name: scanner-contract-evidence

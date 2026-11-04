@@ -30,8 +30,13 @@ fun main(args: Array<String>) {
         RunnerPreflightCli.run(args)
         return
     }
+    if (AuditCli.handles(args.firstOrNull())) {
+        val code = AuditCli.run(args)
+        if (code != 0) kotlin.system.exitProcess(code)
+        return
+    }
     when (args.firstOrNull()) {
-        "scan", "scan-fixture" -> scanFixture(args)
+        "fixture-scan" -> scanFixture(args)
         "normalize" -> normalize(args)
         "merge" -> merge(args)
         "verify-bus" -> verifyBus(args)
@@ -175,7 +180,8 @@ private fun createFixture(args: Array<String>) {
 private fun usage() {
     println("Assay v1.1.0")
     println("commands:")
-    println("  scan-fixture --repo PATH --bus PATH --source-repo SLUG --source-commit SHA")
+    println("  audit --repo PATH --commit SHA --output-branch NAME --remote URL --tool-lock FILE --tools DIR [--scanners gitleaks,semgrep,osv,mobsf] [--semgrep-config FILE] [--apk FILE] [--online] [--ai off] [--push]   (exit 0 complete, 2 partial, 3 failed)")
+    println("  fixture-scan --repo PATH --bus PATH --source-repo SLUG --source-commit SHA")
     println("  normalize --scanner NAME --input FILE --root PATH --output FILE")
     println("  merge --root PATH --input scanner=FILE [--input scanner=FILE...] --output FILE")
     println("  verify-bus --bus PATH [--expected-source-commit SHA]")

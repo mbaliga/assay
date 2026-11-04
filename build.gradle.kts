@@ -7,6 +7,16 @@ version = "1.1.0"
 
 repositories { mavenCentral() }
 
+dependencies {
+    // Apache-2.0. Validates published documents against the ratified JSON Schemas at write time.
+    implementation("com.networknt:json-schema-validator:1.5.6")
+}
+
+// Bundle the byte-identical schema mirror so the installed CLI can validate without a checkout.
+tasks.processResources {
+    from("schemas/integrations") { into("schemas/integrations") }
+}
+
 kotlin { jvmToolchain(17) }
 
 application { mainClass.set("dev.assay.MainKt") }
@@ -77,6 +87,12 @@ tasks.register<JavaExec>("fonebrewExecutionAcceptanceTest") {
     mainClass.set("dev.assay.FonebrewExecutionTestKt")
 }
 
+tasks.register<JavaExec>("auditAcceptanceTest") {
+    group = "verification"
+    classpath = sourceSets["test"].runtimeClasspath
+    mainClass.set("dev.assay.AuditAcceptanceTestKt")
+}
+
 tasks.named("check") {
     dependsOn(
         "acceptanceTest",
@@ -90,5 +106,6 @@ tasks.named("check") {
         "assayContractV1AcceptanceTest",
         "assayOutputPublisherAcceptanceTest",
         "fonebrewExecutionAcceptanceTest",
+        "auditAcceptanceTest",
     )
 }

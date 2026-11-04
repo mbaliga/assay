@@ -58,7 +58,9 @@ class AssayOutputWriterV1(private val root: Path) {
             generatedAt = finishedAt,
             tests = provingTests,
         )
-        writeArtifact(runDir.resolve("proving-tests.v1.json"), ProvingTestsV1Codec.encode(provingContainer))
+        val provingJson = ProvingTestsV1Codec.encode(provingContainer)
+        IntegrationSchemas.validate(IntegrationSchemas.PROVING_TESTS, provingJson)
+        writeArtifact(runDir.resolve("proving-tests.v1.json"), provingJson)
 
         writeArtifact(
             assayDir.resolve("README.md"),
@@ -89,7 +91,9 @@ class AssayOutputWriterV1(private val root: Path) {
             completeness = completeness,
             explanation = explanation,
         )
-        writeArtifact(assayDir.resolve("assay-index.v1.json"), AssayIndexV1Codec.encode(index))
+        val indexJson = AssayIndexV1Codec.encode(index)
+        IntegrationSchemas.validate(IntegrationSchemas.ASSAY_INDEX, indexJson)
+        writeArtifact(assayDir.resolve("assay-index.v1.json"), indexJson)
         return index
     }
 

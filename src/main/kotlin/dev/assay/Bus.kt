@@ -46,7 +46,7 @@ class BusWriter(
     fun publish(bundle: ScanBundle, now: Instant = Instant.now()): RunRecord {
         Files.createDirectories(root)
         rejectSymlink(root)
-        val runId = RUN_ID_FORMAT.format(now) + "-" + bundle.sourceCommit.take(7)
+        val runId = runIdFor(now, bundle.sourceCommit)
         val runDir = safeResolve("runs/$runId")
         require(!runDir.exists()) { "run already exists" }
         val stage = safeResolve(".stage-$runId-${UUID.randomUUID()}")
@@ -283,6 +283,10 @@ class BusWriter(
     companion object {
         private val RUN_ID_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
             .withZone(ZoneOffset.UTC)
+
+        /** The run id both the internal bus and the ratified `.assay/` tree use for one audit. */
+        fun runIdFor(now: Instant, sourceCommit: String): String =
+            RUN_ID_FORMAT.format(now) + "-" + sourceCommit.take(7)
     }
 }
 

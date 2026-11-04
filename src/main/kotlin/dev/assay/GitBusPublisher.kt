@@ -262,6 +262,12 @@ class GitBusPublisher(
         return correctedCommit
     }
 
+    /** Current tip of [branch] on [remote], or null when the branch does not exist yet. */
+    fun observedRemoteHead(remote: String): String? {
+        require(remote.matches(Regex("[A-Za-z0-9._-]{1,64}"))) { "remote must be a configured Git remote name" }
+        return remoteHead(remote, "refs/heads/$branch")
+    }
+
     private fun remoteHead(remote: String, remoteRef: String): String? {
         val result = git(listOf("ls-remote", "--heads", remote, remoteRef))
         val lines = result.text().lineSequence().filter { it.isNotBlank() }.toList()
