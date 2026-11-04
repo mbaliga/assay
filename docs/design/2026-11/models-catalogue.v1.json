@@ -1,0 +1,509 @@
+{
+  "schema": "models-catalogue.v1",
+  "product": "assay",
+  "generatedOn": "2026-11-04",
+  "signature": "PIN-AT-BUILD (Ed25519 over the canonical JSON; public key in the APK)",
+  "allowedHosts": [
+    "huggingface.co",
+    "hf.co",
+    "cdn-lfs.hf.co",
+    "cdn-lfs-us-1.hf.co",
+    "cas-bridge.xethub.hf.co"
+  ],
+  "tshirt": {
+    "XS": {
+      "maxBytes": 800000000,
+      "workingRamMb": 1536
+    },
+    "S": {
+      "maxBytes": 1600000000,
+      "workingRamMb": 2560
+    },
+    "M": {
+      "maxBytes": 3000000000,
+      "workingRamMb": 4096
+    },
+    "L": {
+      "maxBytes": 5000000000,
+      "workingRamMb": 6656
+    },
+    "XL": {
+      "maxBytes": 6000000000,
+      "workingRamMb": 9216
+    }
+  },
+  "defaults": {
+    "S": "qwen2.5-coder-1.5b",
+    "M": "qwen3.5-4b",
+    "L": "qwen3.5-4b",
+    "XL": "qwen3.5-9b"
+  },
+  "excluded": [
+    {
+      "id": "qwen2.5-coder-3b",
+      "reason": "Qwen Research licence (not permissive)"
+    },
+    {
+      "id": "lfm2.5-1.2b",
+      "reason": "LFM Open License is free only under US$10M revenue"
+    },
+    {
+      "id": "gemma-3n",
+      "reason": "Gemma Terms; gated"
+    },
+    {
+      "id": "llama-3.2",
+      "reason": "Llama Community licence; gated"
+    },
+    {
+      "id": "deepseek-r1-distill-1.5b",
+      "reason": "reasoning loops; poor instruction following"
+    }
+  ],
+  "systemProviders": [
+    {
+      "id": "gemini-nano",
+      "runtime": "aicore",
+      "note": "Shown only when AICore reports availability; no download; ML Kit GenAI terms; on-device-only path (never the Firebase hybrid fallback)."
+    }
+  ],
+  "models": [
+    {
+      "id": "qwen3.5-0.8b",
+      "name": "Qwen3.5 0.8B",
+      "family": "qwen3.5",
+      "params": "0.8B",
+      "quant": "Q4_K_M",
+      "approxBytes": 500000000,
+      "repo": "Qwen/Qwen3.5-0.8B",
+      "licence": "Apache-2.0",
+      "permissive": true,
+      "gated": false,
+      "runtime": "gguf",
+      "contextLength": 32768,
+      "chatTemplate": "qwen3",
+      "languages": [
+        "en",
+        "zh",
+        "hi",
+        "te",
+        "ta",
+        "es",
+        "fr",
+        "de",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "minRamMb": 4096,
+      "tshirt": "XS",
+      "notes": "Tagging-class only; prone to thinking loops — ship with thinking off.",
+      "tasks": [
+        "digest"
+      ],
+      "revision": "PIN-AT-BUILD (HF commit sha)",
+      "file": "PIN-AT-BUILD (exact GGUF filename at that revision)",
+      "url": "https://huggingface.co/Qwen/Qwen3.5-0.8B/resolve/<revision>/<file>",
+      "sha256": "PIN-AT-BUILD from GET /api/models/<repo>?blobs=true siblings[].lfs.sha256",
+      "bytes": "PIN-AT-BUILD from siblings[].lfs.size"
+    },
+    {
+      "id": "qwen3.5-2b",
+      "name": "Qwen3.5 2B",
+      "family": "qwen3.5",
+      "params": "2B",
+      "quant": "Q4_K_M",
+      "approxBytes": 1200000000,
+      "repo": "Qwen/Qwen3.5-2B",
+      "licence": "Apache-2.0",
+      "permissive": true,
+      "gated": false,
+      "runtime": "gguf",
+      "contextLength": 32768,
+      "chatTemplate": "qwen3",
+      "languages": [
+        "en",
+        "zh",
+        "hi",
+        "te",
+        "ta",
+        "es",
+        "fr",
+        "de",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "minRamMb": 6144,
+      "tshirt": "S",
+      "notes": "",
+      "tasks": [
+        "explain",
+        "digest",
+        "translate"
+      ],
+      "revision": "PIN-AT-BUILD (HF commit sha)",
+      "file": "PIN-AT-BUILD (exact GGUF filename at that revision)",
+      "url": "https://huggingface.co/Qwen/Qwen3.5-2B/resolve/<revision>/<file>",
+      "sha256": "PIN-AT-BUILD from GET /api/models/<repo>?blobs=true siblings[].lfs.sha256",
+      "bytes": "PIN-AT-BUILD from siblings[].lfs.size"
+    },
+    {
+      "id": "qwen3.5-4b",
+      "name": "Qwen3.5 4B",
+      "family": "qwen3.5",
+      "params": "4B",
+      "quant": "Q4_K_M",
+      "approxBytes": 2780000000,
+      "repo": "Qwen/Qwen3.5-4B",
+      "licence": "Apache-2.0",
+      "permissive": true,
+      "gated": false,
+      "runtime": "gguf",
+      "contextLength": 32768,
+      "chatTemplate": "qwen3",
+      "languages": [
+        "en",
+        "zh",
+        "hi",
+        "te",
+        "ta",
+        "es",
+        "fr",
+        "de",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "minRamMb": 8192,
+      "tshirt": "M",
+      "notes": "Hybrid Gated-DeltaNet architecture: requires a llama.cpp build newer than Mar 2026.",
+      "tasks": [
+        "explain",
+        "triage",
+        "digest",
+        "translate",
+        "propose",
+        "prove"
+      ],
+      "revision": "PIN-AT-BUILD (HF commit sha)",
+      "file": "PIN-AT-BUILD (exact GGUF filename at that revision)",
+      "url": "https://huggingface.co/Qwen/Qwen3.5-4B/resolve/<revision>/<file>",
+      "sha256": "PIN-AT-BUILD from GET /api/models/<repo>?blobs=true siblings[].lfs.sha256",
+      "bytes": "PIN-AT-BUILD from siblings[].lfs.size"
+    },
+    {
+      "id": "qwen3.5-9b",
+      "name": "Qwen3.5 9B",
+      "family": "qwen3.5",
+      "params": "9B",
+      "quant": "Q4_K_M",
+      "approxBytes": 5500000000,
+      "repo": "Qwen/Qwen3.5-9B",
+      "licence": "Apache-2.0",
+      "permissive": true,
+      "gated": false,
+      "runtime": "gguf",
+      "contextLength": 32768,
+      "chatTemplate": "qwen3",
+      "languages": [
+        "en",
+        "zh",
+        "hi",
+        "te",
+        "ta",
+        "es",
+        "fr",
+        "de",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "minRamMb": 12288,
+      "tshirt": "XL",
+      "notes": "",
+      "tasks": [
+        "explain",
+        "triage",
+        "digest",
+        "translate",
+        "propose",
+        "prove"
+      ],
+      "revision": "PIN-AT-BUILD (HF commit sha)",
+      "file": "PIN-AT-BUILD (exact GGUF filename at that revision)",
+      "url": "https://huggingface.co/Qwen/Qwen3.5-9B/resolve/<revision>/<file>",
+      "sha256": "PIN-AT-BUILD from GET /api/models/<repo>?blobs=true siblings[].lfs.sha256",
+      "bytes": "PIN-AT-BUILD from siblings[].lfs.size"
+    },
+    {
+      "id": "gemma4-e2b",
+      "name": "Gemma 4 E2B",
+      "family": "gemma4",
+      "params": "2.3B effective / 5.1B",
+      "quant": "QAT-Q4",
+      "approxBytes": 2620000000,
+      "repo": "google/gemma-4-E2B-it",
+      "licence": "Apache-2.0",
+      "permissive": true,
+      "gated": false,
+      "runtime": "gguf",
+      "contextLength": 32768,
+      "chatTemplate": "gemma",
+      "languages": [
+        "en",
+        "hi",
+        "te",
+        "ta",
+        "kn",
+        "ml",
+        "mr",
+        "bn",
+        "zh",
+        "es",
+        "fr",
+        "de",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "minRamMb": 6144,
+      "tshirt": "M",
+      "notes": "Also available as a LiteRT-LM file (litert-community/gemma-4-E2B-it-litert-lm, 2.59 GB) for the GPU/NPU speed path; that path reports no token confidence.",
+      "altRuntime": {
+        "runtime": "litert-lm",
+        "repo": "litert-community/gemma-4-E2B-it-litert-lm",
+        "approxBytes": 2590000000
+      },
+      "tasks": [
+        "explain",
+        "digest",
+        "translate"
+      ],
+      "revision": "PIN-AT-BUILD (HF commit sha)",
+      "file": "PIN-AT-BUILD (exact GGUF filename at that revision)",
+      "url": "https://huggingface.co/google/gemma-4-E2B-it/resolve/<revision>/<file>",
+      "sha256": "PIN-AT-BUILD from GET /api/models/<repo>?blobs=true siblings[].lfs.sha256",
+      "bytes": "PIN-AT-BUILD from siblings[].lfs.size"
+    },
+    {
+      "id": "gemma4-e4b",
+      "name": "Gemma 4 E4B",
+      "family": "gemma4",
+      "params": "4.5B effective / ~8B",
+      "quant": "QAT-Q4",
+      "approxBytes": 4220000000,
+      "repo": "google/gemma-4-E4B-it",
+      "licence": "Apache-2.0",
+      "permissive": true,
+      "gated": false,
+      "runtime": "gguf",
+      "contextLength": 32768,
+      "chatTemplate": "gemma",
+      "languages": [
+        "en",
+        "hi",
+        "te",
+        "ta",
+        "kn",
+        "ml",
+        "mr",
+        "bn",
+        "zh",
+        "es",
+        "fr",
+        "de",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "minRamMb": 8192,
+      "tshirt": "L",
+      "notes": "LiteRT-LM file: 3.65 GB.",
+      "altRuntime": {
+        "runtime": "litert-lm",
+        "repo": "litert-community/gemma-4-E4B-it-litert-lm",
+        "approxBytes": 3650000000
+      },
+      "tasks": [
+        "explain",
+        "triage",
+        "digest",
+        "translate",
+        "propose"
+      ],
+      "revision": "PIN-AT-BUILD (HF commit sha)",
+      "file": "PIN-AT-BUILD (exact GGUF filename at that revision)",
+      "url": "https://huggingface.co/google/gemma-4-E4B-it/resolve/<revision>/<file>",
+      "sha256": "PIN-AT-BUILD from GET /api/models/<repo>?blobs=true siblings[].lfs.sha256",
+      "bytes": "PIN-AT-BUILD from siblings[].lfs.size"
+    },
+    {
+      "id": "granite-4.0-micro",
+      "name": "Granite 4.0 Micro",
+      "family": "granite4",
+      "params": "3B",
+      "quant": "Q4_K_M",
+      "approxBytes": 2100000000,
+      "repo": "ibm-granite/granite-4.0-micro",
+      "licence": "Apache-2.0",
+      "permissive": true,
+      "gated": false,
+      "runtime": "gguf",
+      "contextLength": 131072,
+      "chatTemplate": "granite",
+      "languages": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "ja",
+        "ko",
+        "pt",
+        "ar",
+        "zh",
+        "it",
+        "nl",
+        "cs"
+      ],
+      "minRamMb": 6144,
+      "tshirt": "M",
+      "notes": "OpenAI-schema tool calling; no Indic.",
+      "tasks": [
+        "triage",
+        "explain"
+      ],
+      "revision": "PIN-AT-BUILD (HF commit sha)",
+      "file": "PIN-AT-BUILD (exact GGUF filename at that revision)",
+      "url": "https://huggingface.co/ibm-granite/granite-4.0-micro/resolve/<revision>/<file>",
+      "sha256": "PIN-AT-BUILD from GET /api/models/<repo>?blobs=true siblings[].lfs.sha256",
+      "bytes": "PIN-AT-BUILD from siblings[].lfs.size"
+    },
+    {
+      "id": "phi-4-mini",
+      "name": "Phi-4 mini",
+      "family": "phi4",
+      "params": "3.8B",
+      "quant": "Q4_K_M",
+      "approxBytes": 2500000000,
+      "repo": "microsoft/Phi-4-mini-instruct",
+      "licence": "MIT",
+      "permissive": true,
+      "gated": false,
+      "runtime": "gguf",
+      "contextLength": 131072,
+      "chatTemplate": "phi4",
+      "languages": [
+        "en"
+      ],
+      "minRamMb": 8192,
+      "tshirt": "M",
+      "notes": "LiteRT-LM file also exists (3.9 GB).",
+      "tasks": [
+        "explain",
+        "propose"
+      ],
+      "revision": "PIN-AT-BUILD (HF commit sha)",
+      "file": "PIN-AT-BUILD (exact GGUF filename at that revision)",
+      "url": "https://huggingface.co/microsoft/Phi-4-mini-instruct/resolve/<revision>/<file>",
+      "sha256": "PIN-AT-BUILD from GET /api/models/<repo>?blobs=true siblings[].lfs.sha256",
+      "bytes": "PIN-AT-BUILD from siblings[].lfs.size"
+    },
+    {
+      "id": "smollm3-3b",
+      "name": "SmolLM3 3B",
+      "family": "smollm3",
+      "params": "3B",
+      "quant": "Q4_K_M",
+      "approxBytes": 1900000000,
+      "repo": "HuggingFaceTB/SmolLM3-3B",
+      "licence": "Apache-2.0",
+      "permissive": true,
+      "gated": false,
+      "runtime": "gguf",
+      "contextLength": 65536,
+      "chatTemplate": "smollm3",
+      "languages": [
+        "en",
+        "fr",
+        "es",
+        "de",
+        "it",
+        "pt"
+      ],
+      "minRamMb": 6144,
+      "tshirt": "M",
+      "notes": "General fallback.",
+      "tasks": [
+        "explain",
+        "digest"
+      ],
+      "revision": "PIN-AT-BUILD (HF commit sha)",
+      "file": "PIN-AT-BUILD (exact GGUF filename at that revision)",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolLM3-3B/resolve/<revision>/<file>",
+      "sha256": "PIN-AT-BUILD from GET /api/models/<repo>?blobs=true siblings[].lfs.sha256",
+      "bytes": "PIN-AT-BUILD from siblings[].lfs.size"
+    },
+    {
+      "id": "qwen2.5-coder-1.5b",
+      "name": "Qwen2.5 Coder 1.5B",
+      "family": "qwen2.5-coder",
+      "params": "1.5B",
+      "quant": "Q4_K_M",
+      "approxBytes": 1000000000,
+      "repo": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+      "licence": "Apache-2.0",
+      "permissive": true,
+      "gated": false,
+      "runtime": "gguf",
+      "contextLength": 32768,
+      "chatTemplate": "qwen2",
+      "languages": [
+        "en",
+        "zh"
+      ],
+      "minRamMb": 4096,
+      "tshirt": "S",
+      "notes": "Explain-only at this size.",
+      "tasks": [
+        "explain"
+      ],
+      "revision": "PIN-AT-BUILD (HF commit sha)",
+      "file": "PIN-AT-BUILD (exact GGUF filename at that revision)",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-1.5B-Instruct/resolve/<revision>/<file>",
+      "sha256": "PIN-AT-BUILD from GET /api/models/<repo>?blobs=true siblings[].lfs.sha256",
+      "bytes": "PIN-AT-BUILD from siblings[].lfs.size"
+    },
+    {
+      "id": "qwen2.5-coder-7b",
+      "name": "Qwen2.5 Coder 7B",
+      "family": "qwen2.5-coder",
+      "params": "7B",
+      "quant": "Q4_K_M",
+      "approxBytes": 4700000000,
+      "repo": "Qwen/Qwen2.5-Coder-7B-Instruct",
+      "licence": "Apache-2.0",
+      "permissive": true,
+      "gated": false,
+      "runtime": "gguf",
+      "contextLength": 32768,
+      "chatTemplate": "qwen2",
+      "languages": [
+        "en",
+        "zh"
+      ],
+      "minRamMb": 12288,
+      "tshirt": "L",
+      "notes": "Best diff writer of the pre-2026 set; runner-side propose.",
+      "tasks": [
+        "propose",
+        "prove"
+      ],
+      "revision": "PIN-AT-BUILD (HF commit sha)",
+      "file": "PIN-AT-BUILD (exact GGUF filename at that revision)",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/<revision>/<file>",
+      "sha256": "PIN-AT-BUILD from GET /api/models/<repo>?blobs=true siblings[].lfs.sha256",
+      "bytes": "PIN-AT-BUILD from siblings[].lfs.size"
+    }
+  ]
+}

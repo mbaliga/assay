@@ -101,15 +101,54 @@ Prompts are versioned resources under `src/main/resources/prompts/<task>/v<n>.md
 
 ## 8. Model catalogue (Nov 2026)
 
-*Filled from the research pass in `01-COMPETITIVE-LANDSCAPE.md`'s sibling research; see the table below. Defaults per size are the ones Assay ships selected.*
+Defaults per size are the ones Assay ships pre-selected; the user can change them per task in the Models room.
 
-<!-- CATALOGUE -->
+Two releases in 2026 decide most of this table: **Gemma 4** (2 Apr 2026; E2B/E4B are Apache-2.0, with official LiteRT-LM builds, and are the basis of Gemini Nano 4) and **Qwen3.5 Small** (2 Mar 2026; 0.8B/2B/4B/9B, Apache-2.0, 201 languages, strong tool calling). Gemma 3n, Qwen3, Qwen2.5-Coder and Phi-4-mini are now fallbacks. Sizes are GGUF Q4_K_M unless marked LRT (Google's prebuilt LiteRT-LM file). Speeds are decode tokens/s on a Snapdragon 8 Elite-class phone; "est." is scaled from generic llama.cpp benchmarks, not measured — **benchmark on the RedMagic before shipping defaults**. `sha256` values are pinned at build time from `GET /api/models/{repo}?blobs=true` (`siblings[].lfs.sha256`), never typed by hand.
+
+| Catalogue id | Model (HF repo) | Params | Disk | Licence | Runtime | Min RAM | Speed | Assay tasks | Indic | Size | Default? |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `qwen3.5-0.8b` | `Qwen/Qwen3.5-0.8B` | 0.8B | ~0.5 GB | Apache-2.0 | gguf | 4 GB | ~45 est. | `digest` (weak) | weak | XS | — (no XS default for Assay) |
+| `qwen2.5-coder-1.5b` | `Qwen/Qwen2.5-Coder-1.5B-Instruct` | 1.5B | ~1.0 GB | Apache-2.0 | gguf | 4–6 GB | — | `explain` | poor | S | **S default** (explain only) |
+| `qwen3.5-2b` | `Qwen/Qwen3.5-2B` | 2B | ~1.2 GB | Apache-2.0 | gguf | 4–6 GB | ~35 est. | `explain`, `digest`, `translate` | fair | S | — |
+| `qwen3.5-4b` | `Qwen/Qwen3.5-4B` | 4B | 2.78 GB | Apache-2.0 | gguf (needs a recent llama.cpp: hybrid Gated-DeltaNet) | 6–8 GB | ~18–25 est. | all phone tasks; `propose`/`prove` on a runner | fair–good | M | **M default**; **L default with thinking on** |
+| `gemma4-e2b` | `google/gemma-4-E2B-it` · LRT `litert-community/gemma-4-E2B-it-litert-lm` | 2.3B eff. / 5.1B | LRT 2.59 GB · GGUF 3.1 GB · QAT 2.62 GB | Apache-2.0 | litert-lm, gguf, aicore (Nano 4 "Fast") | 6 GB | 47 CPU / 52 GPU (LiteRT, S26 Ultra) | `explain`, `digest`, `translate` | good (140+ langs) | M | alternate M (LiteRT speed path) |
+| `gemma4-e4b` | `google/gemma-4-E4B-it` | 4.5B eff. / ~8B | LRT 3.65 GB · QAT GGUF 4.22 GB | Apache-2.0 | litert-lm, gguf, aicore (Nano 4 "Full") | 8 GB | 18 CPU / 22 GPU | all phone tasks | good | L | alternate L |
+| `qwen3.5-9b` | `Qwen/Qwen3.5-9B` | 9B | ~5.5 GB | Apache-2.0 | gguf | 12 GB | ~8–12 est. | best quality for `propose`/`prove` (HumanEval ~72 % in one blog test) | good | XL | **XL default** |
+| `granite-4.0-micro` | `ibm-granite/granite-4.0-micro` | 3B | 2.1 GB | Apache-2.0 | gguf | 6 GB | ~20 est. | `triage`, `explain` (strong instruction following; OpenAI-schema tools) | none | M | — |
+| `phi-4-mini` | `microsoft/Phi-4-mini-instruct` | 3.8B | ~2.5 GB · LRT 3.9 GB | MIT | gguf, litert-lm | 6–8 GB | 7 CPU / 10 GPU (LiteRT, S24 Ultra) | `explain`, `propose` (fallback) | weak | M | — |
+| `qwen2.5-coder-7b` | `Qwen/Qwen2.5-Coder-7B-Instruct` | 7B | ~4.7 GB | Apache-2.0 | gguf | 8–12 GB | — | `propose` (best diff writer of the older set) | poor | L | — |
+| `smollm3-3b` | `HuggingFaceTB/SmolLM3-3B` | 3B | ~1.9 GB | Apache-2.0 | gguf | 6 GB | ~20 est. | general fallback | weak | M | — |
+| `gemini-nano` | AICore (Nano 4 = Gemma 4 E2B/E4B) | — | no download | ML Kit GenAI terms | aicore | 12 GB, flagships only (~1–3 % of devices) | hardware | `explain`, `digest` | good | — | shown only when the system reports it |
+
+**Not shipped in the catalogue, and why:** Qwen2.5-Coder-3B (Qwen Research licence, not permissive); LFM2.5-1.2B (licence free only under US$10M revenue — a trap for the user, not just the owner); Gemma 3 / 3n (Gemma Terms, gated); Llama 3.2 (Llama Community licence, gated); DeepSeek-R1-Distill-1.5B (reasoning loops, poor instruction following). Users may still bring any of these themselves via §6; the inspector shows the declared licence before first use.
+
+**Official LiteRT-LM builds exist for:** Gemma 4 E2B/E4B, Gemma 3n, Gemma 3 1B, Qwen3-0.6B, Qwen2.5-0.5B/1.5B, Phi-4-mini, FunctionGemma (289 MB). Not for Qwen3 4B/8B or Qwen3.5 — those are llama.cpp only.
+
+**Runtime facts that shaped §2:** llama.cpp (MIT) is the only runtime exposing per-token probabilities (`llama_get_logits`; n-best in its server), and the only one running every model above; it has CPU (i8mm), Vulkan GPU and an experimental Hexagon NPU backend. LiteRT-LM has GPU/NPU prefill 2–7× faster (Gemma 4 E2B ~3,800 tok/s prefill on GPU), constrained decoding and a Kotlin API, but ~10 models and no documented logprobs — output from that path is marked "no token confidence". AICore is zero-download but device-gated, carries non-removable safety filters, and Firebase's hybrid API falls back to the cloud (which the no-backend rule forbids; use the on-device-only path).
+
+**Indic:** no small model publishes Konkani scores — treat Konkani as unverified with a low-confidence mark and a back-translation check. For translation alone, a dedicated translation model (IndicTrans2-class; Sarvam Edge's ~150 M translation model, 334 MB, if it becomes licensable) beats any 2–4B general model; a `translate`-only slot in the catalogue is reserved for one.
 
 ## 9. BYOK cloud providers
 
 Presets ship for Anthropic (Messages API), OpenAI, Gemini (OpenAI-compatible endpoint), DeepSeek, xAI, Mistral, Groq, Cerebras, OpenRouter, Together, and "custom OpenAI-compatible". Each preset carries its base host; the call path asserts `request.host == preset.host`. The Models room shows every cloud provider as a **watched object** with the alien glow and "sent only to `<host>`". A per-provider spend counter uses a user-editable price table shipped in assets — no network call for pricing. Free tiers change monthly; the catalogue notes which presets had one at the time of the research pass and the UI never promises one.
 
-<!-- BYOK -->
+As of the research pass (4 Nov 2026; items marked * are from secondary sources and must be re-checked when the preset ships):
+
+| Preset | Base host | Free tier for individuals | Prompt caching | Structured output |
+|---|---|---|---|---|
+| Anthropic | `api.anthropic.com` (Messages API; OpenAI-compat endpoint exists but drops caching/logprobs) | No | Native API only | `json_schema` strict via tools |
+| OpenAI | `api.openai.com` | Free usage tier in allowed countries | Automatic* | Yes, strict |
+| Gemini | `generativelanguage.googleapis.com/v1beta/openai/` | Yes, no billing (~10 rpm / 1,500 rpd on Flash, indicative) | Implicit + explicit* | Yes* |
+| DeepSeek | `api.deepseek.com` | None published | Automatic disk cache* | JSON mode* |
+| xAI | `api.x.ai` | No | Automatic* | Yes* |
+| Mistral | `api.mistral.ai` | Free mode (console limits) | — | JSON/schema* |
+| Groq | `api.groq.com/openai/v1` | Free plan | Automatic, gpt-oss only | Yes |
+| Cerebras | `api.cerebras.ai` | **Card required**; $5 credit, 30-day expiry | — | Yes* |
+| OpenRouter | `openrouter.ai/api/v1` | `:free` models, 20 rpm / 50 rpd (1,000 rpd after $10 credit) | Pass-through* | Per model |
+| Together | `api.together.xyz` | No ($15 minimum) | — | JSON mode* |
+| GitHub Models | — | **Retired 30 Jul 2026** — do not ship a preset | — | — |
+
+The app never promises a free tier in UI copy; the preset carries a `freeTierNotedOn: "2026-11-04"` field and the Models room shows "had a free tier when last checked" with that date.
 
 ## 10. Evaluation and honesty
 
