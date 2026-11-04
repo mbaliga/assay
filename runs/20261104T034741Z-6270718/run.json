@@ -1,11 +1,11 @@
 {
-  "createdAt": "2026-11-04T03:33:19.073715516Z",
-  "findingsRef": "runs/20261104T033319Z-238d777/findings.sarif",
-  "manifestRef": "runs/20261104T033319Z-238d777/manifest.sha256",
-  "runId": "20261104T033319Z-238d777",
+  "createdAt": "2026-11-04T03:47:41.489619792Z",
+  "findingsRef": "runs/20261104T034741Z-6270718/findings.sarif",
+  "manifestRef": "runs/20261104T034741Z-6270718/manifest.sha256",
+  "runId": "20261104T034741Z-6270718",
   "scanners": [
     {
-      "artifactRef": "runs/20261104T033319Z-238d777/scanners/gitleaks.sarif",
+      "artifactRef": "runs/20261104T034741Z-6270718/scanners/gitleaks.sarif",
       "configDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "executableDigest": "88f91962aa2f93ac6ab281d553b9e125f5197bbbce38f9f2437f7299c32e5509",
       "exitCode": 1,
@@ -14,7 +14,7 @@
       "version": "8.30.1"
     },
     {
-      "artifactRef": "runs/20261104T033319Z-238d777/scanners/mobsf.json",
+      "artifactRef": "runs/20261104T034741Z-6270718/scanners/mobsf.json",
       "configDigest": "7d65cfd1940cbfc05b9d7bcf95a0c2ad5d6768160895d6e7c6cf49cc1c13ec38",
       "executableDigest": "6ff89ee509164d2b563927141ab8be05719bfe290f2e1f4af87635f3c739ee24",
       "exitCode": 0,
@@ -23,7 +23,7 @@
       "version": "4.5.1"
     },
     {
-      "artifactRef": "runs/20261104T033319Z-238d777/scanners/osv.sarif",
+      "artifactRef": "runs/20261104T034741Z-6270718/scanners/osv.sarif",
       "configDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "executableDigest": "bc98e15319ed0d515e3f9235287ba53cdc5535d576d24fd573978ecfe9ab92dc",
       "exitCode": 1,
@@ -32,7 +32,7 @@
       "version": "2.3.8"
     },
     {
-      "artifactRef": "runs/20261104T033319Z-238d777/scanners/semgrep.sarif",
+      "artifactRef": "runs/20261104T034741Z-6270718/scanners/semgrep.sarif",
       "configDigest": "c6332b1c2b52de5e93bd675e85865fb664869464f58c9cf13781395950d8483d",
       "executableDigest": "bc44054f4f7138e0d7b19cf613cd737b6d366fba38c70662701d5bfe37f244ac",
       "exitCode": 1,
@@ -43,8 +43,8 @@
   ],
   "schemaVersion": "1.1.0",
   "severityMappingVersion": "sev-map-v1",
-  "sourceCommit": "238d7774b5515e7850ad91b58b3e78a37a8681a5",
+  "sourceCommit": "6270718395db89ee429b1f8a66da1931c065bfc4",
   "sourceRepo": "mbaliga/assay",
   "status": "complete",
-  "statusRef": "runs/20261104T033319Z-238d777/status.json"
+  "statusRef": "runs/20261104T034741Z-6270718/status.json"
 }
