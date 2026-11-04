@@ -149,6 +149,7 @@ class GitHubClientTest {
     @Test
     fun `proposing the caller workflow branches, writes the file there, and opens a pull request`() {
         server.enqueue(MockResponse().setBody("""{"default_branch":"main"}"""))
+        server.enqueue(MockResponse().setResponseCode(404).setBody("""{"message":"Not Found"}"""))
         server.enqueue(MockResponse().setBody("""{"object":{"sha":"abc123"}}"""))
         server.enqueue(MockResponse().setResponseCode(201).setBody("""{"ref":"refs/heads/assay/add-audit-workflow"}"""))
         server.enqueue(MockResponse().setResponseCode(201).setBody("""{"content":{}}"""))
@@ -157,6 +158,7 @@ class GitHubClientTest {
         assertEquals("https://github.com/octo/widget/pull/7", url)
 
         assertEquals("/repos/octo/widget", server.takeRequest().path)
+        assertTrue(server.takeRequest().path!!.startsWith("/repos/octo/widget/contents/.github/workflows/assay.yml?ref=main"))
         assertEquals("/repos/octo/widget/git/ref/heads/main", server.takeRequest().path)
         val ref = server.takeRequest()
         assertEquals("POST", ref.method)
@@ -174,6 +176,53 @@ class GitHubClientTest {
         val pullBody = JSONObject(pull.body.readUtf8())
         assertEquals("main", pullBody.getString("base"))
         assertEquals("assay/add-audit-workflow", pullBody.getString("head"))
+    }
+
+    @Test
+    fun `proposing refuses when the workflow already exists and writes nothing`() {
+        server.enqueue(MockResponse().setBody("""{"default_branch":"main"}"""))
+        server.enqueue(MockResponse().setBody("name: Assay audit\n"))
+        val error = assertThrows(GitHubException.Validation::class.java) {
+            client().proposeCallerWorkflow(repo, CallerWorkflow.PATH, "x")
+        }
+        assertTrue(error.message!!.contains("already exists"))
+        assertEquals(2, server.requestCount)
+    }
+
+    @Test
+    fun `an earlier proposal's branch does not dead-end a second proposal`() {
+        server.enqueue(MockResponse().setBody("""{"default_branch":"main"}"""))
+        server.enqueue(MockResponse().setResponseCode(404).setBody("{}"))
+        server.enqueue(MockResponse().setBody("""{"object":{"sha":"abc123"}}"""))
+        server.enqueue(MockResponse().setResponseCode(422).setBody("""{"message":"Reference already exists"}"""))
+        server.enqueue(MockResponse().setResponseCode(201).setBody("{}"))
+        server.enqueue(MockResponse().setResponseCode(201).setBody("{}"))
+        server.enqueue(MockResponse().setResponseCode(201).setBody("""{"html_url":"https://github.com/octo/widget/pull/8"}"""))
+        assertEquals("https://github.com/octo/widget/pull/8", client().proposeCallerWorkflow(repo, CallerWorkflow.PATH, "x"))
+        repeat(3) { server.takeRequest() }
+        assertEquals("refs/heads/assay/add-audit-workflow", JSONObject(server.takeRequest().body.readUtf8()).getString("ref"))
+        assertEquals("refs/heads/assay/add-audit-workflow-2", JSONObject(server.takeRequest().body.readUtf8()).getString("ref"))
+        assertEquals("assay/add-audit-workflow-2", JSONObject(server.takeRequest().body.readUtf8()).getString("branch"))
+    }
+
+    @Test
+    fun `a 200 with an unexpected shape is a typed error, not a crash`() {
+        server.enqueue(MockResponse().setBody("""{"unexpected":true}"""))
+        assertThrows(GitHubException.Unexpected::class.java) { client().currentUser() }
+        server.enqueue(MockResponse().setBody("<html>captive portal</html>"))
+        assertThrows(GitHubException.Unexpected::class.java) { client().defaultBranch(repo) }
+        server.enqueue(MockResponse().setBody("""{"workflow_runs":"nope"}"""))
+        assertThrows(GitHubException.Unexpected::class.java) { client().listWorkflowRuns(repo, "assay.yml") }
+    }
+
+    @Test
+    fun `a moved repository and an oversized response say what happened`() {
+        server.enqueue(MockResponse().setResponseCode(301).setHeader("Location", "https://api.github.com/x"))
+        val moved = assertThrows(GitHubException.Http::class.java) { client().defaultBranch(repo) }
+        assertTrue(moved.message!!.contains("renamed or moved"))
+        server.enqueue(MockResponse().setBody("x".repeat(2 * 1024 * 1024 + 10)))
+        val big = assertThrows(GitHubException.Unexpected::class.java) { client().readFile(repo, "console.json", "assay/audit") }
+        assertTrue(big.message!!.contains("2 MB"))
     }
 
     @Test

@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,6 +56,10 @@ class ConsoleViewModel(
     private val client: GitHubClient,
     private val io: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
+    // Every write to `ui` goes through [mutate], so the main thread and IO coroutines cannot
+    // overwrite each other's read-modify-write.
+    private val lock = Any()
+
     var ui by mutableStateOf(
         ConsoleUiState(
             tokenSaved = tokens.get() != null,
@@ -63,60 +68,82 @@ class ConsoleViewModel(
     )
         private set
 
+    private fun mutate(change: (ConsoleUiState) -> ConsoleUiState) {
+        synchronized(lock) { ui = change(ui) }
+    }
+
     // ---- local state only: no network ----
 
-    fun saveToken(token: String) {
+    /** Returns true when the token was accepted and stored, so the caller can clear its text field. */
+    fun saveToken(token: String): Boolean {
         val trimmed = token.trim()
         if (trimmed.length < 20 || trimmed.any { it.isWhitespace() || it.isISOControl() }) {
-            ui = ui.copy(banner = UiMessage("That does not look like a GitHub token.", isError = true))
-            return
+            mutate { it.copy(banner = UiMessage("That does not look like a GitHub token.", isError = true)) }
+            return false
         }
-        tokens.put(trimmed)
-        ui = ui.copy(tokenSaved = true, account = null, banner = UiMessage("Token saved on this device.", false))
+        return try {
+            tokens.put(trimmed)
+            mutate { it.copy(tokenSaved = true, account = null, banner = UiMessage("Token saved on this device.", false)) }
+            true
+        } catch (e: Exception) {
+            mutate {
+                it.copy(banner = UiMessage("The token could not be stored securely on this device (${e::class.java.simpleName}).", true))
+            }
+            false
+        }
     }
 
     fun clearToken() {
-        tokens.clear()
-        ui = ui.copy(tokenSaved = false, account = null, banner = UiMessage("Token removed.", false))
+        try {
+            tokens.clear()
+            mutate { it.copy(tokenSaved = false, account = null, banner = UiMessage("Token removed.", false)) }
+        } catch (e: Exception) {
+            mutate { it.copy(banner = UiMessage("The token could not be removed (${e::class.java.simpleName}).", true)) }
+        }
     }
 
     fun addTarget(ownerRepo: String, branch: String) {
         val target = runCatching { RepoTarget(RepoRef.parse(ownerRepo), branch.trim().ifBlank { RepoTarget.DEFAULT_BRANCH }) }
-            .getOrElse {
-                ui = ui.copy(banner = UiMessage(it.message ?: "Invalid repository.", isError = true))
+            .getOrElse { error ->
+                mutate { it.copy(banner = UiMessage(error.message ?: "Invalid repository.", isError = true)) }
                 return
             }
         repos.add(target)
-        ui = ui.copy(
-            targets = repos.list().map { saved -> ui.targets.firstOrNull { it.target.key == saved.key } ?: TargetState(saved) },
-            selectedKey = ui.selectedKey ?: target.key,
-            banner = null,
-        )
+        mutate { state ->
+            state.copy(
+                targets = repos.list().map { saved -> state.targets.firstOrNull { it.target.key == saved.key } ?: TargetState(saved) },
+                selectedKey = state.selectedKey ?: target.key,
+                banner = null,
+            )
+        }
     }
 
     fun removeTarget(key: String) {
-        val target = ui.targets.firstOrNull { it.target.key == key }?.target ?: return
-        repos.remove(target)
-        ui = ui.copy(
-            targets = ui.targets.filterNot { it.target.key == key },
-            selectedKey = ui.selectedKey.takeIf { it != key } ?: ui.targets.firstOrNull { it.target.key != key }?.target?.key,
-        )
+        mutate { state ->
+            val target = state.targets.firstOrNull { it.target.key == key }?.target ?: return@mutate state
+            repos.remove(target)
+            state.copy(
+                targets = state.targets.filterNot { it.target.key == key },
+                selectedKey = state.selectedKey.takeIf { it != key }
+                    ?: state.targets.firstOrNull { it.target.key != key }?.target?.key,
+            )
+        }
     }
 
     fun selectTarget(key: String) {
-        ui = ui.copy(selectedKey = key)
+        mutate { it.copy(selectedKey = key) }
     }
 
     fun showOverlay(overlay: Overlay?) {
-        ui = ui.copy(overlay = overlay)
+        mutate { it.copy(overlay = overlay) }
     }
 
     fun dismissBanner() {
-        ui = ui.copy(banner = null)
+        mutate { it.copy(banner = null) }
     }
 
     fun showError(text: String) {
-        ui = ui.copy(banner = UiMessage(text, isError = true))
+        mutate { it.copy(banner = UiMessage(text, isError = true)) }
     }
 
     // ---- network: only ever called from a user tap ----
@@ -126,9 +153,11 @@ class ConsoleViewModel(
         viewModelScope.launch(io) {
             try {
                 val user = client.currentUser()
-                ui = ui.copy(account = user.login, banner = UiMessage("Signed in as ${user.login}.", false))
+                mutate { it.copy(account = user.login, banner = UiMessage("Signed in as ${user.login}.", false)) }
             } catch (e: GitHubException) {
-                ui = ui.copy(account = null, banner = UiMessage(e.message.orEmpty(), true))
+                mutate { it.copy(account = null, banner = UiMessage(e.message.orEmpty(), true)) }
+            } catch (e: Exception) {
+                mutate { it.copy(account = null, banner = UiMessage(unexpected(e), true)) }
             }
         }
     }
@@ -152,7 +181,7 @@ class ConsoleViewModel(
     @NetworkAction
     fun proposeWorkflow(key: String) = withTarget(key) { target ->
         val url = client.proposeCallerWorkflow(target.repo, CallerWorkflow.PATH, CallerWorkflow.render(ASSAY_REF))
-        update(key) { it.copy(message = UiMessage("Pull request opened. Review and merge it in GitHub.", false, url)) }
+        update(key) { it.copy(hasWorkflow = true, message = UiMessage("Pull request opened. Review and merge it in GitHub.", false, url)) }
     }
 
     @NetworkAction
@@ -205,9 +234,17 @@ class ConsoleViewModel(
         }
     }
 
+    /**
+     * Runs [block] for the target on the IO dispatcher. A second request for a target that is
+     * already busy is ignored, so a double tap cannot start two audits.
+     */
     private fun withTarget(key: String, block: (RepoTarget) -> Unit) {
-        val target = ui.targets.firstOrNull { it.target.key == key }?.target ?: return
-        update(key) { it.copy(busy = true, message = null) }
+        val target = synchronized(lock) {
+            val state = ui.targets.firstOrNull { it.target.key == key } ?: return
+            if (state.busy) return
+            ui = ui.copy(targets = ui.targets.map { if (it.target.key == key) it.copy(busy = true, message = null) else it })
+            state.target
+        }
         viewModelScope.launch(io) {
             try {
                 block(target)
@@ -215,21 +252,31 @@ class ConsoleViewModel(
                 update(key) { it.copy(message = UiMessage(e.message.orEmpty(), true)) }
             } catch (e: IllegalArgumentException) {
                 update(key) { it.copy(message = UiMessage(e.message ?: "Invalid request.", true)) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                update(key) { it.copy(message = UiMessage(unexpected(e), true)) }
             } finally {
                 update(key) { it.copy(busy = false) }
             }
         }
     }
 
-    @Synchronized
+    private fun unexpected(e: Exception) = "Something unexpected went wrong (${e::class.java.simpleName})."
+
     private fun update(key: String, change: (TargetState) -> TargetState) {
-        ui = ui.copy(targets = ui.targets.map { if (it.target.key == key) change(it) else it })
+        mutate { state -> state.copy(targets = state.targets.map { if (it.target.key == key) change(it) else it }) }
     }
 
     companion object {
         const val INTERNAL_BUS_BRANCH = "assay/audit"
 
-        /** Ref of mbaliga/assay the proposed caller workflow is built from; callers should pin a SHA. */
-        const val ASSAY_REF = "main"
+        /**
+         * The commit of mbaliga/assay whose reusable workflow the proposed caller runs. Pinned to
+         * a commit that passed the hosted sample end-to-end run, never a branch: the caller grants
+         * that workflow a write token, so it must not change underneath a merged pull request.
+         * Update it deliberately when a newer workflow is verified.
+         */
+        const val ASSAY_REF = "17e51fde6c08bd5f4aac68e12403a0254abf83a7"
     }
 }

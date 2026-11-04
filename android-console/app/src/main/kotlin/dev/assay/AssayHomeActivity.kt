@@ -44,7 +44,7 @@ class AssayHomeActivity : ComponentActivity() {
         override fun closeOverlay() = viewModel.showOverlay(null)
         override fun openUrl(url: String) = openGitHubUrl(url)
 
-        override fun saveToken(token: String) = viewModel.saveToken(token)
+        override fun saveToken(token: String): Boolean = viewModel.saveToken(token)
         override fun clearToken() = viewModel.clearToken()
         override fun verifyToken() = viewModel.verifyToken()
         override fun dismissBanner() = viewModel.dismissBanner()

@@ -1,6 +1,7 @@
 package dev.assay
 
 import android.util.Base64
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -54,6 +55,7 @@ sealed class GitHubException(message: String, val statusCode: Int? = null) : IOE
     class Http(code: Int, detail: String) : GitHubException("GitHub returned HTTP $code: $detail", code)
     class Network(detail: String) : GitHubException("Could not reach GitHub: $detail")
     class NoToken : GitHubException("No GitHub token is saved. Add one in Settings first.")
+    class Unexpected(detail: String) : GitHubException("GitHub sent a response the console could not read ($detail).")
 }
 
 /**
@@ -77,14 +79,13 @@ class GitHubClient(
         }
     }
 
-    fun currentUser(): GitHubUser {
+    fun currentUser(): GitHubUser = parsing("account") {
         val json = JSONObject(request("GET", "/user", what = "Your GitHub account").body)
-        return GitHubUser(login = json.getString("login"), id = json.getLong("id"))
+        GitHubUser(login = json.getString("login"), id = json.getLong("id"))
     }
 
-    fun defaultBranch(repo: RepoRef): String {
-        val json = JSONObject(request("GET", "/repos/${repo.slug}", what = repo.slug).body)
-        return json.getString("default_branch")
+    fun defaultBranch(repo: RepoRef): String = parsing("repository") {
+        JSONObject(request("GET", "/repos/${repo.slug}", what = repo.slug).body).getString("default_branch")
     }
 
     /** Starts the caller workflow via `workflow_dispatch`. GitHub answers 204 with no body. */
@@ -104,7 +105,10 @@ class GitHubClient(
     }
 
     /** Latest runs of [workflowFile], newest first, following `Link: rel="next"` up to [limit]. */
-    fun listWorkflowRuns(repo: RepoRef, workflowFile: String, limit: Int = 10, perPage: Int = 5): List<WorkflowRun> {
+    fun listWorkflowRuns(repo: RepoRef, workflowFile: String, limit: Int = 10, perPage: Int = 5): List<WorkflowRun> =
+        parsing("workflow runs") { listRuns(repo, workflowFile, limit, perPage) }
+
+    private fun listRuns(repo: RepoRef, workflowFile: String, limit: Int, perPage: Int): List<WorkflowRun> {
         require(limit in 1..100 && perPage in 1..100) { "Invalid page size" }
         val runs = mutableListOf<WorkflowRun>()
         var next: String? = "/repos/${repo.slug}/actions/workflows/$workflowFile/runs?per_page=$perPage"
@@ -149,21 +153,18 @@ class GitHubClient(
 
     /**
      * Adds the caller workflow on a new branch and opens a pull request. Never pushes to the base
-     * branch and never merges.
+     * branch and never merges. Refuses when the workflow already exists on the base branch, and
+     * picks the next free branch name when an earlier proposal's branch is still there.
      */
-    fun proposeCallerWorkflow(repo: RepoRef, workflowPath: String, workflowText: String): String {
+    fun proposeCallerWorkflow(repo: RepoRef, workflowPath: String, workflowText: String): String = parsing("pull request") {
         val baseBranch = defaultBranch(repo)
+        if (readFile(repo, workflowPath, baseBranch) != null) {
+            throw GitHubException.Validation("$workflowPath already exists on $baseBranch")
+        }
         val baseSha = JSONObject(
             request("GET", "/repos/${repo.slug}/git/ref/heads/${encodeRef(baseBranch)}", what = "Branch $baseBranch").body,
         ).getJSONObject("object").getString("sha")
-        val branch = "assay/add-audit-workflow"
-        request(
-            "POST",
-            "/repos/${repo.slug}/git/refs",
-            body = JSONObject().put("ref", "refs/heads/$branch").put("sha", baseSha).toString(),
-            what = "Branch $branch",
-            expect = setOf(201),
-        )
+        val branch = createBranch(repo, baseSha)
         request(
             "PUT",
             "/repos/${repo.slug}/contents/$workflowPath",
@@ -193,7 +194,34 @@ class GitHubClient(
                 expect = setOf(201),
             ).body,
         )
-        return pull.getString("html_url")
+        pull.getString("html_url")
+    }
+
+    private fun createBranch(repo: RepoRef, baseSha: String): String {
+        for (attempt in 1..MAX_BRANCH_ATTEMPTS) {
+            val branch = if (attempt == 1) PROPOSAL_BRANCH else "$PROPOSAL_BRANCH-$attempt"
+            try {
+                request(
+                    "POST",
+                    "/repos/${repo.slug}/git/refs",
+                    body = JSONObject().put("ref", "refs/heads/$branch").put("sha", baseSha).toString(),
+                    what = "Branch $branch",
+                    expect = setOf(201),
+                )
+                return branch
+            } catch (e: GitHubException.Validation) {
+                // 422 "Reference already exists": an earlier proposal's branch is still there.
+                if (attempt == MAX_BRANCH_ATTEMPTS) throw e
+            }
+        }
+        error("unreachable")
+    }
+
+    /** JSON the server sent back that is not the shape we expect is an error, never a crash. */
+    private fun <T> parsing(what: String, block: () -> T): T = try {
+        block()
+    } catch (e: JSONException) {
+        throw GitHubException.Unexpected(what)
     }
 
     private data class Response(val code: Int, val body: String, val nextPath: String?)
@@ -247,6 +275,7 @@ class GitHubClient(
                 if (rateRemaining == "0") "rate limit reached, try again later" else detail.ifBlank { "forbidden" },
             )
             404 -> GitHubException.NotFound(what)
+            301, 302, 307, 308 -> GitHubException.Http(code, "the repository may have been renamed or moved; update it in Repos")
             422 -> GitHubException.Validation(detail.ifBlank { "invalid request" })
             else -> GitHubException.Http(code, detail.ifBlank { "request failed" })
         }
@@ -260,7 +289,7 @@ class GitHubClient(
             val read = input.read(buffer)
             if (read < 0) break
             total += read
-            if (total > MAX_RESPONSE_BYTES) throw IOException("response too large")
+            if (total > MAX_RESPONSE_BYTES) throw GitHubException.Unexpected("it was larger than 2 MB")
             output.write(buffer, 0, read)
         }
         return output.toString(Charsets.UTF_8.name())
@@ -281,5 +310,7 @@ class GitHubClient(
     companion object {
         const val DEFAULT_BASE_URL = "https://api.github.com"
         private const val MAX_RESPONSE_BYTES = 2 * 1024 * 1024
+        private const val PROPOSAL_BRANCH = "assay/add-audit-workflow"
+        private const val MAX_BRANCH_ATTEMPTS = 5
     }
 }

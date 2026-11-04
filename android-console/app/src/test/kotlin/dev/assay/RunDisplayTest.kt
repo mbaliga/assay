@@ -37,6 +37,14 @@ class RunDisplayTest {
     }
 
     @Test
+    fun `success without a matching index is never shown as complete`() {
+        assertEquals(RunDisplay.UNVERIFIED, RunDisplayMapper.map(run("completed", "success"), null))
+        assertEquals(RunDisplay.UNVERIFIED, RunDisplayMapper.map(run("completed", "success"), index("COMPLETE", commit = "b".repeat(40))))
+        assertEquals(RunDisplay.FAILED, RunDisplayMapper.map(run("completed", "success"), index("FAILED")))
+        assertEquals(RunDisplay.PARTIAL, RunDisplayMapper.map(run("completed", "success"), index("PARTIAL")))
+    }
+
+    @Test
     fun `a stale index from another commit is ignored`() {
         val stale = index("PARTIAL", commit = "b".repeat(40))
         assertEquals(RunDisplay.FAILED, RunDisplayMapper.map(run("completed", "failure"), stale))

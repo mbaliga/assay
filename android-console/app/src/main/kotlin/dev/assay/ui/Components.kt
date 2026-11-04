@@ -166,7 +166,7 @@ fun StatusChip(display: RunDisplay, modifier: Modifier = Modifier) {
         RunDisplay.COMPLETE -> Glyph.CHECK_CIRCLE
         RunDisplay.PARTIAL -> Glyph.HALF_CIRCLE
         RunDisplay.FAILED -> Glyph.CROSS
-        RunDisplay.UNKNOWN -> Glyph.QUESTION
+        RunDisplay.UNVERIFIED, RunDisplay.UNKNOWN -> Glyph.QUESTION
     }
     StateChip(
         glyph = glyph,

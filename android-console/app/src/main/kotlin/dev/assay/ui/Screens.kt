@@ -29,6 +29,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,7 +61,8 @@ interface ConsoleActions {
     fun closeOverlay()
     fun openUrl(url: String)
 
-    fun saveToken(token: String)
+    /** Returns true when the token was stored, so the field can be cleared. */
+    fun saveToken(token: String): Boolean
     fun clearToken()
     fun verifyToken()
     fun dismissBanner()
@@ -410,7 +412,9 @@ private fun SettingsScreen(ui: ConsoleUiState, actions: ConsoleActions) {
             else -> "No token saved. Without one the console works offline: quick check and snapshots only."
         },
     )
-    var token by rememberSaveable { mutableStateOf("") }
+    // Deliberately `remember`, not `rememberSaveable`: a token must never be written into the
+    // saved-instance-state bundle, only into the Keystore-backed store.
+    var token by remember { mutableStateOf("") }
     VerticalGap(10)
     OutlinedTextField(
         value = token,
@@ -423,7 +427,7 @@ private fun SettingsScreen(ui: ConsoleUiState, actions: ConsoleActions) {
     )
     VerticalGap(10)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Button(onClick = { actions.saveToken(token); token = "" }, enabled = token.isNotBlank()) { Text("Save token") }
+        Button(onClick = { if (actions.saveToken(token)) token = "" }, enabled = token.isNotBlank()) { Text("Save token") }
         OutlinedButton(onClick = actions::verifyToken, enabled = ui.tokenSaved) { Text("Check token") }
         TextButton(onClick = actions::clearToken, enabled = ui.tokenSaved) { Text("Remove") }
     }

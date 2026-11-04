@@ -54,7 +54,7 @@ object TestFixtures {
         override fun openSample() = Unit
         override fun closeOverlay() = Unit
         override fun openUrl(url: String) = Unit
-        override fun saveToken(token: String) = Unit
+        override fun saveToken(token: String): Boolean = true
         override fun clearToken() = Unit
         override fun verifyToken() = Unit
         override fun dismissBanner() = Unit

@@ -44,7 +44,11 @@ class KeystoreTokenStore(context: Context) : TokenStore {
             val cipher = Cipher.getInstance(TRANSFORMATION)
             cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(TAG_BITS, iv))
             String(cipher.doFinal(raw, IV_BYTES, raw.size - IV_BYTES), Charsets.UTF_8)
-        }.getOrNull()
+        }.getOrElse {
+            // The key was invalidated or the data is corrupt: forget it so "saved" never lies.
+            prefs.edit().remove(KEY_VALUE).apply()
+            null
+        }
     }
 
     override fun put(token: String) {

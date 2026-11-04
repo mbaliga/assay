@@ -9,6 +9,9 @@ enum class RunDisplay(val label: String) {
     COMPLETE("Complete"),
     PARTIAL("Partial"),
     FAILED("Failed"),
+
+    /** The run finished but its output could not be matched to it, so success is not claimed. */
+    UNVERIFIED("Unverified"),
     UNKNOWN("No run yet"),
 }
 
@@ -59,7 +62,13 @@ object RunDisplayMapper {
             "queued", "waiting", "requested", "pending" -> RunDisplay.QUEUED
             "in_progress" -> RunDisplay.RUNNING
             "completed" -> when (run.conclusion) {
-                "success" -> if (matching?.completeness == "PARTIAL") RunDisplay.PARTIAL else RunDisplay.COMPLETE
+                // Complete is claimed only when the output branch's index says so for this commit.
+                "success" -> when (matching?.completeness) {
+                    "COMPLETE" -> RunDisplay.COMPLETE
+                    "PARTIAL" -> RunDisplay.PARTIAL
+                    "FAILED" -> RunDisplay.FAILED
+                    else -> RunDisplay.UNVERIFIED
+                }
                 "failure" -> if (matching?.completeness == "PARTIAL") RunDisplay.PARTIAL else RunDisplay.FAILED
                 else -> RunDisplay.FAILED
             }
