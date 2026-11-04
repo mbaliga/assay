@@ -93,6 +93,9 @@ fun main() {
             check("--cap-drop" in command && "ALL" in command)
             check("127.0.0.1:18000:8000" in command)
             check(command.last() == pin.image)
+            // Docker rejects a bare `rw` field in --mount (Podman tolerates it); bind mounts are rw by default.
+            val mount = command[command.indexOf("--mount") + 1]
+            check(mount.split(',').all { it.contains('=') }) { "every --mount field must be key=value: $mount" }
             check(command.none { it.endsWith(":latest") })
             println("PASS pinned least-privilege MobSF container command")
 

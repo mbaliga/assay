@@ -240,7 +240,7 @@ object MobSfContainerCommand {
             "--memory", "8g",
             "--cpus", "4",
             "--tmpfs", "/tmp:rw,nosuid,nodev,size=2g",
-            "--mount", "type=bind,src=$state,dst=/home/mobsf/.MobSF,rw",
+            "--mount", "type=bind,src=$state,dst=/home/mobsf/.MobSF",
             "--publish", "127.0.0.1:$hostPort:8000",
             pin.image,
         )
