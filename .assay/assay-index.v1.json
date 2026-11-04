@@ -1,5 +1,5 @@
 {
-  "assayCommit": "b5593dea063ae48e874d76b575ff4bcdcda419e9",
+  "assayCommit": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
   "completeness": "COMPLETE",
   "explanation": null,
   "findingFiles": [
@@ -9,7 +9,7 @@
       "sha256": "d6446f65ad2d6abe346e134f5a2ac9af7bd4624b6e4d150f826fa6e42397d5eb"
     }
   ],
-  "finishedAt": "2026-11-04T02:48:00.354484142Z",
+  "finishedAt": "2026-11-04T03:33:48.727580783Z",
   "projectRef": {
     "fonebrewProjectHint": null,
     "gitRemote": "https://github.com/mbaliga/assay.git"
@@ -18,10 +18,10 @@
     "count": 0,
     "path": "proving-tests.v1.json"
   },
-  "runId": "20261104T024730Z-e707527",
+  "runId": "20261104T033319Z-238d777",
   "schemaVersion": "1.0.0",
-  "sourceCommit": "e7075273b59967665a3f803cd739c19848dd8625",
-  "startedAt": "2026-11-04T02:47:30.232082333Z",
+  "sourceCommit": "238d7774b5515e7850ad91b58b3e78a37a8681a5",
+  "startedAt": "2026-11-04T03:33:19.073715516Z",
   "tool": {
     "name": "assay",
     "version": "1.1.0"
