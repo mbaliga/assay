@@ -56,6 +56,15 @@ class MobSfApiClient(
         .connectTimeout(Duration.ofSeconds(20))
         .followRedirects(HttpClient.Redirect.NEVER)
         .build(),
+    /**
+     * Waits between `delete_scan` retries. MobSF's recursive delete can lose a race with its own
+     * background writers (`[Errno 39] Directory not empty`), so a failed delete is retried before
+     * the analysis is failed. A delete that never succeeds still fails the analysis: leftover
+     * uploaded application data must not be silently accepted.
+     */
+    private val cleanupBackoff: List<Duration> = listOf(
+        Duration.ofSeconds(1), Duration.ofSeconds(2), Duration.ofSeconds(4), Duration.ofSeconds(8),
+    ),
 ) {
     fun analyze(
         application: Path,
@@ -90,7 +99,7 @@ class MobSfApiClient(
         } finally {
             if (uploadedHash != null) {
                 try {
-                    postForm("delete_scan", mapOf("hash" to uploadedHash))
+                    deleteScan(uploadedHash)
                 } catch (cleanup: Throwable) {
                     if (failure == null) failure = cleanup else failure.addSuppressed(cleanup)
                 }
@@ -98,6 +107,22 @@ class MobSfApiClient(
         }
         if (failure != null) throw failure
         return requireNotNull(artifact) { "MobSF analysis produced no artifact" }
+    }
+
+    private fun deleteScan(hash: String) {
+        var last: Throwable? = null
+        for (attempt in 0..cleanupBackoff.size) {
+            try {
+                postForm("delete_scan", mapOf("hash" to hash))
+                return
+            } catch (e: Exception) {
+                last = e
+                cleanupBackoff.getOrNull(attempt)?.let { delay ->
+                    if (!delay.isZero) Thread.sleep(delay.toMillis())
+                }
+            }
+        }
+        throw requireNotNull(last)
     }
 
     private fun upload(application: Path): UploadResult {

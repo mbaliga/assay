@@ -6,13 +6,16 @@ import java.net.InetSocketAddress
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 fun main() {
     val apiKey = "a".repeat(64)
     val requests = CopyOnWriteArrayList<String>()
     val failReport = AtomicBoolean(false)
+    val deleteFailures = AtomicInteger(0)
     val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
     server.createContext("/api/v1/upload") { exchange ->
         verify(exchange, apiKey, "POST")
@@ -46,7 +49,11 @@ fun main() {
         verify(exchange, apiKey, "POST")
         check(form(exchange) == "hash=${"b".repeat(32)}")
         requests += "delete"
-        respond(exchange, 200, """{"deleted":"yes"}""")
+        if (deleteFailures.getAndUpdate { if (it > 0) it - 1 else 0 } > 0) {
+            respond(exchange, 500, """{"error":"[Errno 39] Directory not empty: '/home/mobsf/.MobSF/uploads/x'"}""")
+        } else {
+            respond(exchange, 200, """{"deleted":"yes"}""")
+        }
     }
     server.start()
 
@@ -80,6 +87,25 @@ fun main() {
         check(requests.toList() == listOf("upload", "scan", "report", "delete"))
         check(apiKey !in (failed.exceptionOrNull()?.message ?: ""))
         println("PASS MobSF cleanup runs after report failure without leaking API key")
+
+        requests.clear()
+        deleteFailures.set(2)
+        val retried = client.analyze(apk, workspace, pin)
+        check(retried.findings.size == 1)
+        check(requests.toList() == listOf("upload", "scan", "report", "delete", "delete", "delete")) { requests.toList().toString() }
+        println("PASS MobSF delete_scan is retried after a transient 'Directory not empty'")
+
+        requests.clear()
+        deleteFailures.set(100)
+        val noWait = MobSfApiClient(
+            MobSfApiConfig(URI.create("http://127.0.0.1:${server.address.port}/api/v1"), apiKey),
+            cleanupBackoff = listOf(Duration.ZERO, Duration.ZERO),
+        )
+        val stuck = runCatching { noWait.analyze(apk, workspace, pin) }
+        check(stuck.isFailure) { "a delete that never succeeds must fail the analysis" }
+        check(requests.count { it == "delete" } == 3) { requests.toList().toString() }
+        deleteFailures.set(0)
+        println("PASS MobSF analysis fails closed when delete_scan never succeeds")
 
         check(runCatching {
             MobSfApiConfig(URI.create("http://example.com/api/v1"), apiKey)
