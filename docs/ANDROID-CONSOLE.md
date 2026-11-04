@@ -1,6 +1,6 @@
 # Android app
 
-The Android app under `android-console/` is the user-facing Assay review surface. It uses package name `dev.assay`, requests no Internet permission and now has three useful first-run paths rather than opening into an empty snapshot viewer.
+The Android app under `android-console/` is the user-facing Assay review surface. It uses package name `dev.assay` and has three offline first-run paths plus a GitHub control plane. The `INTERNET` permission is used only by actions the user starts with a tap (see "Control plane").
 
 ## Start paths
 
@@ -27,6 +27,19 @@ Import the JSON produced by `assay console-snapshot`. The app validates the comp
 ### Explore a sample project
 
 Open built-in, clearly labelled sample data to understand finding details, candidate lifecycle and the approval/rejection handoff before configuring a trusted runner. Sample data is never presented as real evidence.
+
+## Control plane (WP3)
+
+Five destinations: **Home, Repos, Runs, Candidates, Settings**. The app is a control plane, not a findings dashboard: it starts a run, shows its state, and hands the result to Fonebrew.
+
+- **Settings** stores a fine-grained GitHub token (Contents: read/write, Actions: write on the audited repos) encrypted with a non-exportable Android Keystore key, kept out of backups. **Check token** calls `GET /user`.
+- **Repos**: add `owner/repo` and an output branch. **Check** reports whether `.github/workflows/assay.yml` exists; **Add workflow** opens a pull request that adds it (a new branch, never the default branch, never merged by Assay).
+- **Runs**: **Run audit now** sends `workflow_dispatch` to `assay.yml` with `output_branch`, `scanners` and `build_apk`. **Refresh** reads the latest Actions run and `.assay/assay-index.v1.json` from the output branch. State is shown as Queued, Running, Complete, Partial, Failed or No run yet, each with a shape and a label. A failed workflow whose index (for the same source commit) says `PARTIAL` is shown as Partial, because the audit exits non-zero when a scanner failed. The screen shows counts and the Fonebrew hand-off line, never findings.
+- **Candidates**: **Load candidates** reads `console.json` from the `assay/audit` branch and shows candidate states (read-only in this build). Until the engine publishes `console.json` there, the screen says so rather than showing nothing.
+
+Every network call is a blocking function marked `@NetworkAction` that a button starts. `NetworkPolicyTest` fails the build if one is reachable from a lifecycle callback, an `init` block, a Compose effect or any background scheduler (WorkManager, JobScheduler, AlarmManager, broadcast receivers, connectivity callbacks). Cleartext traffic and backup stay off. There is no analytics.
+
+Without a token the app still works offline: quick check, snapshot import and sample data.
 
 ## Trust labels
 
@@ -56,8 +69,10 @@ Transfer that file through an authenticated channel and select **Open verified a
 The app is an independent Gradle project so Android dependencies cannot affect the JVM scanner engine.
 
 ```bash
-gradle -p android-console :app:lintDebug :app:assembleDebug --no-daemon
+gradle -p android-console :app:lintDebug :app:assembleDebug :app:testDebugUnitTest :app:verifyRoborazziDebug --no-daemon
 ```
+
+The project needs `git submodule update --init` first: `dev.aarso:crash-recovery` is consumed from the pinned `android-console/shared-libraries` submodule (Shared-Libraries-asoc) through a composite build, as elsewhere in the constellation. Re-record screenshots after an intentional UI change with `:app:recordRoborazziDebug`. On a host where Maven Central rate-limits, pre-download Robolectric's `android-all-instrumented` jar and pass `-ProbolectricDependencyDir=<dir>`.
 
 The debug APK is written under:
 

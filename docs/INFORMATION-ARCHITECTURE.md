@@ -484,3 +484,14 @@ Any new feature must answer:
 7. Can it be represented without weakening fail-closed states?
 
 If those questions do not have clear answers, the feature is not ready to enter the IA.
+
+### Governance answers: console control plane (WP3)
+
+| Surface | 1 Owner | 2 Kind | 3 Assurance | 4 Mutable by | 5 Source binding | 6 Authority matrix | 7 Fail-closed |
+|---|---|---|---|---|---|---|---|
+| GitHub token (Settings) | The device | User configuration | None: a credential, not evidence | The user | No | None | Absent or rejected token disables network actions; the app stays usable offline |
+| Repository targets (Repos) | The user's saved list | User annotation | None | The user | No (a repo and a branch name) | None | An invalid name is rejected, never guessed |
+| Workflow check / add (Repos) | The target repository | Operational state | None | The user, through a pull request someone else merges | No | None: Assay never merges | An error is shown as an error, never as "present" |
+| Run state (Runs) | The Actions run plus the output branch's `assay-index.v1.json` | Projection of runner evidence | Counts only; the evidence tier belongs to the output branch | Nobody on the phone | Yes: an index is used only when its `sourceCommit` equals the run's head commit | None | A missing run is "No run yet"; a stale index is ignored; no run is ever shown as zero findings |
+| Run audit now (Runs) | The caller workflow | Operational request | None | The user | Runs on the repo's default branch head | None: starts a runner job, creates no finding | A rejected dispatch shows GitHub's message |
+| Candidates (read-only) | `console.json` on `assay/audit` | Projection of the internal bus | Validated by the existing strict snapshot parser | Nobody on the phone | Yes, via the parser | None in this build: approve and reject are not offered | A missing or invalid file is said so, never an empty "no candidates" |

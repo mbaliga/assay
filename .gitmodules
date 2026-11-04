@@ -1,0 +1,3 @@
+[submodule "android-console/shared-libraries"]
+	path = android-console/shared-libraries
+	url = https://github.com/mbaliga/Shared-Libraries-asoc.git
