@@ -42,7 +42,7 @@ Inputs: `output_branch`, `scanners` (subset of `gitleaks,semgrep,osv,mobsf`), `b
 |---|---|
 | Checkout, tool downloads, `pip install semgrep`, `docker pull` | Open (these are the only places pinned artifacts enter). |
 | Target `./gradlew assembleDebug` (optional) | Open for dependency resolution. Runs **before** any push credential exists. |
-| MobSF analysis | Container on a dedicated Docker network. A `DOCKER-USER` rule drops everything leaving that subnet; the job then tries to open a connection from inside the container and fails the job if it succeeds. The API is reached on `127.0.0.1` only. |
+| MobSF analysis | Container on a dedicated Docker network. A `DOCKER-USER` rule rejects everything leaving that subnet; the job then tries to open a connection from inside the container and fails the job if it succeeds. The API is reached on `127.0.0.1` only. |
 | Gitleaks, Semgrep | Local only (Semgrep uses a pinned local rules file, metrics and version checks off). |
 | OSV-Scanner | `--online` is explicit in the workflow because a hosted runner has no preloaded advisory database. This is the one scanner step with outbound access; it sends dependency coordinates to osv.dev. |
 | `git push` of `.assay/` | Open to the caller's remote only. |
@@ -64,6 +64,7 @@ because the JVM starts them with a cleared environment. The token has `contents:
   not trust, or build the APK in your own workflow and scan it.
 - **MobSF image trust rests on the digest pin.** The pinned digest was read from Docker Hub for tag
   `v4.5.1`; its contents were not independently audited. MobSF is treated as untrusted code.
+- **JADX is provisioned by the runner.** MobSF 4.5.1 downloads JADX 1.5.0 at first start; with its network denied the job instead downloads the release zip, checks it against a SHA-256 recorded when it was first fetched (trust on first use, not an independently published digest), and places it where MobSF looks.
 - **Semgrep binary integrity.** It is installed by pinned version from PyPI, not by SHA-256 of a
   release artifact, so the lock records the digest of what was installed rather than verifying it
   against an independent value.

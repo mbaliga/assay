@@ -62,6 +62,10 @@ env:
   # Observed from the Docker Hub registry for tag v4.5.1 (multi-arch index digest).
   MOBSF_VERSION: '4.5.1'
   MOBSF_IMAGE: 'opensecurity/mobile-security-framework-mobsf@sha256:6ff89ee509164d2b563927141ab8be05719bfe290f2e1f4af87635f3c739ee24'
+  # MobSF 4.5.1 downloads JADX 1.5.0 on first start. The container has no network, so the runner
+  # provisions it. Hash recorded on first download of the skylot/jadx release asset.
+  JADX_VERSION: '1.5.0'
+  JADX_SHA256: 'c5a713fa4800cbb9e6df85ced1bef95ba329040c95cb87d54465f108483e4ef9'
 
 jobs:
   audit:
@@ -174,22 +178,34 @@ jobs:
           set -euo pipefail
           STATE="$RUNNER_TEMP/assay-mobsf-state"; SECRETS="$RUNNER_TEMP/assay-mobsf-secrets"
           mkdir -p "$STATE" "$SECRETS"; chmod 0777 "$STATE"; chmod 0700 "$SECRETS"
+
+          # Provision JADX (MobSF skips its own download when this directory exists).
+          curl -fsSL "https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-${JADX_VERSION}.zip" -o "$RUNNER_TEMP/jadx.zip"
+          echo "$JADX_SHA256  $RUNNER_TEMP/jadx.zip" | sha256sum -c -
+          mkdir -p "$STATE/tools/jadx/jadx-${JADX_VERSION}"
+          unzip -q "$RUNNER_TEMP/jadx.zip" -d "$STATE/tools/jadx/jadx-${JADX_VERSION}"
+          chmod -R a+rX,u+x "$STATE/tools"; chmod 0755 "$STATE/tools/jadx/jadx-${JADX_VERSION}/bin/"*
           KEY="$(openssl rand -hex 32)"
           echo "::add-mask::$KEY"
           ( umask 077; printf '%s' "$KEY" > "$SECRETS/api-key"; printf 'MOBSF_API_KEY=%s\n' "$KEY" > "$SECRETS/mobsf.env" )
 
           docker pull "$MOBSF_IMAGE"
           docker network create --subnet 172.30.88.0/24 assay-mobsf-net
-          # Egress denial: nothing leaving the MobSF subnet is forwarded; the published loopback
-          # port is reached from inside the subnet (docker-proxy / bridge gateway) and still works.
-          sudo iptables -I DOCKER-USER 1 -s 172.30.88.0/24 ! -d 172.30.88.0/24 -j DROP
+          # Egress denial: nothing leaving the MobSF subnet is forwarded (REJECT, so clients fail
+          # fast instead of hanging); the published loopback port is reached from inside the subnet
+          # (docker-proxy / bridge gateway) and still works.
+          sudo iptables -I DOCKER-USER 1 -s 172.30.88.0/24 ! -d 172.30.88.0/24 -j REJECT
 
           CMD="$(assay-engine/build/install/assay/bin/assay print-mobsf-container-command \
             --runtime "$(command -v docker)" --state "$STATE" --version "$MOBSF_VERSION" \
             --image "$MOBSF_IMAGE" --network assay-mobsf-net --env-file "$SECRETS/mobsf.env" | tail -n 1)"
           eval "$CMD"
 
+          code=""
           for i in $(seq 1 90); do
+            if [[ "$(docker inspect -f '{{.State.Running}}' assay-mobsf 2>/dev/null || echo false)" != "true" ]]; then
+              echo "MobSF container exited during startup"; break
+            fi
             code="$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/ || true)"
             [[ "$code" =~ ^(200|301|302|401|403)$ ]] && break
             sleep 2
@@ -249,9 +265,10 @@ jobs:
         shell: bash
         run: |
           docker rm -f assay-mobsf >/dev/null 2>&1 || true
-          sudo iptables -D DOCKER-USER -s 172.30.88.0/24 ! -d 172.30.88.0/24 -j DROP >/dev/null 2>&1 || true
+          sudo iptables -D DOCKER-USER -s 172.30.88.0/24 ! -d 172.30.88.0/24 -j REJECT >/dev/null 2>&1 || true
           docker network rm assay-mobsf-net >/dev/null 2>&1 || true
-          rm -rf "$RUNNER_TEMP/assay-mobsf-secrets" "$RUNNER_TEMP/assay-mobsf-state"
+          # The container wrote files as its own uid, so removal needs sudo.
+          sudo rm -rf "$RUNNER_TEMP/assay-mobsf-secrets" "$RUNNER_TEMP/assay-mobsf-state" "$RUNNER_TEMP/jadx.zip"
 
       - name: Upload the .assay/ tree
         if: always()

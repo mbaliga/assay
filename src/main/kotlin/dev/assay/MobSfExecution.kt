@@ -195,6 +195,8 @@ class MobSfApiClient(
 }
 
 object MobSfContainerCommand {
+    internal const val MIGRATIONS_DIR = "/home/mobsf/Mobile-Security-Framework-MobSF/mobsf/StaticAnalyzer/migrations"
+
     fun build(
         runtime: Path,
         pin: MobSfContainerPin,
@@ -240,6 +242,9 @@ object MobSfContainerCommand {
             "--memory", "8g",
             "--cpus", "4",
             "--tmpfs", "/tmp:rw,nosuid,nodev,size=2g",
+            // MobSF's entrypoint runs `makemigrations`, which writes into its own source tree;
+            // give that one directory a throwaway tmpfs so the root filesystem can stay read-only.
+            "--tmpfs", "$MIGRATIONS_DIR:rw,nosuid,nodev,size=16m",
             "--mount", "type=bind,src=$state,dst=/home/mobsf/.MobSF",
             "--publish", "127.0.0.1:$hostPort:8000",
             pin.image,

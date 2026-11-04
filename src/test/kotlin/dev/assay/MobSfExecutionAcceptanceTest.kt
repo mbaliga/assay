@@ -96,6 +96,10 @@ fun main() {
             // Docker rejects a bare `rw` field in --mount (Podman tolerates it); bind mounts are rw by default.
             val mount = command[command.indexOf("--mount") + 1]
             check(mount.split(',').all { it.contains('=') }) { "every --mount field must be key=value: $mount" }
+            check("--read-only" in command)
+            check(command.any { it.startsWith(MobSfContainerCommand.MIGRATIONS_DIR + ":") }) {
+                "the migrations directory must be a tmpfs so the root filesystem can stay read-only"
+            }
             check(command.none { it.endsWith(":latest") })
             println("PASS pinned least-privilege MobSF container command")
 
