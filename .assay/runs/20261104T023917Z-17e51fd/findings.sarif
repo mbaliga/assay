@@ -42,6 +42,114 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
+                  "uri": "mobsf/manifest_analysis.json"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "This flag allows anyone to backup your application data via adb. It allows users who have enabled USB debugging to copy application data off of the device."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "This flag allows anyone to backup your application data via adb. It allows users who have enabled USB debugging to copy application data off of the device."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "e2f210e2bcaab5b579d37c839930ed7c4606cf8fb2df61f9375fd0057b07a6b5"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "mobsf.section": "manifest_analysis",
+            "mobsf.severity": "warning",
+            "originatingScanner": "mobsf",
+            "ruleId": "app_allowbackup",
+            "scannerName": "MobSF",
+            "security-severity": "5.0"
+          },
+          "ruleId": "app_allowbackup"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mobsf/manifest_analysis.json"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Debugging was enabled on the app which makes it easier for reverse engineers to hook a debugger to it. This allows dumping a stack trace and accessing debugging helper classes."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Debugging was enabled on the app which makes it easier for reverse engineers to hook a debugger to it. This allows dumping a stack trace and accessing debugging helper classes."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "22d8ec5b75f8bcc73aeb58e070963bc70a89860ac04661af81352a917a3320f7"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "mobsf.section": "manifest_analysis",
+            "mobsf.severity": "high",
+            "originatingScanner": "mobsf",
+            "ruleId": "app_is_debuggable",
+            "scannerName": "MobSF",
+            "security-severity": "8.0"
+          },
+          "ruleId": "app_is_debuggable"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mobsf/manifest_analysis.json"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "The app intends to use cleartext network traffic, such as cleartext HTTP, FTP stacks, DownloadManager, and MediaPlayer. The default value for apps that target API level 27 or lower is \"true\". Apps that target API level 28 or higher default to \"false\". The key reason for avoiding cleartext traffic is the lack of confidentiality, authenticity, and protections against tampering; a network attacker can eavesdrop on transmitted data and also modify it without being detected."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "The app intends to use cleartext network traffic, such as cleartext HTTP, FTP stacks, DownloadManager, and MediaPlayer. The default value for apps that target API level 27 or lower is \"true\". Apps that target API level 28 or higher default to \"false\". The key reason for avoiding cleartext traffic is the lack of confidentiality, authenticity, and protections against tampering; a network attacker can eavesdrop on transmitted data and also modify it without being detected."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "542b37cad0060597622d93a7e4db7691c5de86491bde1ec4d7a5dd9959cd9570"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "mobsf.section": "manifest_analysis",
+            "mobsf.severity": "high",
+            "originatingScanner": "mobsf",
+            "ruleId": "clear_text_traffic",
+            "scannerName": "MobSF",
+            "security-severity": "8.0"
+          },
+          "ruleId": "clear_text_traffic"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
                   "uri": "app/gradle.lockfile"
                 },
                 "region": {
@@ -2988,6 +3096,30 @@
               }
             },
             {
+              "id": "app_allowbackup",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "mobsf.section": "manifest_analysis",
+                "mobsf.severity": "warning",
+                "security-severity": "5.0"
+              },
+              "shortDescription": {
+                "text": "This flag allows anyone to backup your application data via adb. It allows users who have enabled USB debugging to copy application data off of the device."
+              }
+            },
+            {
+              "id": "app_is_debuggable",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "mobsf.section": "manifest_analysis",
+                "mobsf.severity": "high",
+                "security-severity": "8.0"
+              },
+              "shortDescription": {
+                "text": "Debugging was enabled on the app which makes it easier for reverse engineers to hook a debugger to it. This allows dumping a stack trace and accessing debugging helper classes."
+              }
+            },
+            {
               "id": "assay.android.webview-javascript-enabled",
               "properties": {
                 "assay.severityMappingVersion": "sev-map-v1",
@@ -3007,6 +3139,18 @@
               },
               "shortDescription": {
                 "text": "addJavascriptInterface exposes native methods to web content."
+              }
+            },
+            {
+              "id": "clear_text_traffic",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "mobsf.section": "manifest_analysis",
+                "mobsf.severity": "high",
+                "security-severity": "8.0"
+              },
+              "shortDescription": {
+                "text": "The app intends to use cleartext network traffic, such as cleartext HTTP, FTP stacks, DownloadManager, and MediaPlayer. The default value for apps that target API level 27 or lower is \"true\". Apps that target API level 28 or higher default to \"false\". The key reason for avoiding cleartext traffic is the lack of confidentiality, authenticity, and protections against tampering; a network attacker can eavesdrop on transmitted data and also modify it without being detected."
               }
             },
             {

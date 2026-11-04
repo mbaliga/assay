@@ -1,15 +1,15 @@
 {
-  "assayCommit": "cb286b1a18d826a0f8bedcade65a8d433b6fe64d",
-  "completeness": "PARTIAL",
-  "explanation": "mobsf failed: MobSF delete_scan failed with HTTP 500: {\"error\": \"[Errno 39] Directory not empty: '/home/mobsf/.MobSF/uploads/84641bcb43350bf3ff28a928b7cea3b9/smali_source/com/fasterxml/jackson/databind'\"}",
+  "assayCommit": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+  "completeness": "COMPLETE",
+  "explanation": null,
   "findingFiles": [
     {
-      "count": 67,
+      "count": 70,
       "path": "findings.sarif",
-      "sha256": "e138cb2f3e1d0f0c68d15184e95570f0d358645e764e3df88f95bf254d7e15e9"
+      "sha256": "d6446f65ad2d6abe346e134f5a2ac9af7bd4624b6e4d150f826fa6e42397d5eb"
     }
   ],
-  "finishedAt": "2026-11-04T02:32:31.204378267Z",
+  "finishedAt": "2026-11-04T02:39:48.577120879Z",
   "projectRef": {
     "fonebrewProjectHint": null,
     "gitRemote": "https://github.com/mbaliga/assay.git"
@@ -18,10 +18,10 @@
     "count": 0,
     "path": "proving-tests.v1.json"
   },
-  "runId": "20261104T023202Z-e96a718",
+  "runId": "20261104T023917Z-17e51fd",
   "schemaVersion": "1.0.0",
-  "sourceCommit": "e96a718f9a78ebc5dd1c7f2a3c96f0468c33d1a8",
-  "startedAt": "2026-11-04T02:32:02.193722927Z",
+  "sourceCommit": "17e51fde6c08bd5f4aac68e12403a0254abf83a7",
+  "startedAt": "2026-11-04T02:39:17.127793521Z",
   "tool": {
     "name": "assay",
     "version": "1.1.0"
