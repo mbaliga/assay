@@ -1,0 +1,3173 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/src/main/java/dev/assaysample/MainActivity.java"
+                },
+                "region": {
+                  "endLine": 14,
+                  "snippet": {
+                    "text": "REDACTED"
+                  },
+                  "startLine": 14
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "generic-api-key has detected secret for file /home/runner/work/assay/assay/target/fixtures/sample-repo/app/src/main/java/dev/assaysample/MainActivity.java."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "c8e2e04c1e46ee7de4443576c84b9056ce4e27c3e3c977f7bbf6340465d69a5f"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "gitleaks",
+            "ruleId": "generic-api-key",
+            "scannerName": "Gitleaks"
+          },
+          "ruleId": "generic-api-key"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mobsf/manifest_analysis.json"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "This flag allows anyone to backup your application data via adb. It allows users who have enabled USB debugging to copy application data off of the device."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "This flag allows anyone to backup your application data via adb. It allows users who have enabled USB debugging to copy application data off of the device."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "e2f210e2bcaab5b579d37c839930ed7c4606cf8fb2df61f9375fd0057b07a6b5"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "mobsf.section": "manifest_analysis",
+            "mobsf.severity": "warning",
+            "originatingScanner": "mobsf",
+            "ruleId": "app_allowbackup",
+            "scannerName": "MobSF",
+            "security-severity": "5.0"
+          },
+          "ruleId": "app_allowbackup"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mobsf/manifest_analysis.json"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Debugging was enabled on the app which makes it easier for reverse engineers to hook a debugger to it. This allows dumping a stack trace and accessing debugging helper classes."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Debugging was enabled on the app which makes it easier for reverse engineers to hook a debugger to it. This allows dumping a stack trace and accessing debugging helper classes."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "22d8ec5b75f8bcc73aeb58e070963bc70a89860ac04661af81352a917a3320f7"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "mobsf.section": "manifest_analysis",
+            "mobsf.severity": "high",
+            "originatingScanner": "mobsf",
+            "ruleId": "app_is_debuggable",
+            "scannerName": "MobSF",
+            "security-severity": "8.0"
+          },
+          "ruleId": "app_is_debuggable"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mobsf/manifest_analysis.json"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "The app intends to use cleartext network traffic, such as cleartext HTTP, FTP stacks, DownloadManager, and MediaPlayer. The default value for apps that target API level 27 or lower is \"true\". Apps that target API level 28 or higher default to \"false\". The key reason for avoiding cleartext traffic is the lack of confidentiality, authenticity, and protections against tampering; a network attacker can eavesdrop on transmitted data and also modify it without being detected."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "The app intends to use cleartext network traffic, such as cleartext HTTP, FTP stacks, DownloadManager, and MediaPlayer. The default value for apps that target API level 27 or lower is \"true\". Apps that target API level 28 or higher default to \"false\". The key reason for avoiding cleartext traffic is the lack of confidentiality, authenticity, and protections against tampering; a network attacker can eavesdrop on transmitted data and also modify it without being detected."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "542b37cad0060597622d93a7e4db7691c5de86491bde1ec4d7a5dd9959cd9570"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "mobsf.section": "manifest_analysis",
+            "mobsf.severity": "high",
+            "originatingScanner": "mobsf",
+            "ruleId": "clear_text_traffic",
+            "scannerName": "MobSF",
+            "security-severity": "8.0"
+          },
+          "ruleId": "clear_text_traffic"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-12086' (also known as 'GHSA-5ww9-j83m-q7qx')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-12086' (also known as 'GHSA-5ww9-j83m-q7qx')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "43b4ce5abdd901745b5c1484b116f53bf3fa975f8656d103ff270c253012407e"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-12086",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "7.5"
+          },
+          "ruleId": "CVE-2019-12086"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-12384' (also known as 'GHSA-mph4-vhrx-mv67')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-12384' (also known as 'GHSA-mph4-vhrx-mv67')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "58721b0026ff96bf5aa536d999282f4f1259e9a34f376b44ef3b73366d0c7787"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-12384",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "5.9"
+          },
+          "ruleId": "CVE-2019-12384"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-12814' (also known as 'GHSA-cmfg-87vq-g5g4')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-12814' (also known as 'GHSA-cmfg-87vq-g5g4')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "de08e98be108e96d6605beeb62fc9bf1645a22f15b81242c57f3c71410e0a7f0"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-12814",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "5.9"
+          },
+          "ruleId": "CVE-2019-12814"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14379' (also known as 'GHSA-6fpp-rgj9-8rwc')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14379' (also known as 'GHSA-6fpp-rgj9-8rwc')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "46221a93614a5ced0c92b29391b0079eb14c26a95825c81a8c7e0546f8a9bd94"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-14379",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2019-14379"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14439' (also known as 'GHSA-gwp4-hfv6-p7hw')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14439' (also known as 'GHSA-gwp4-hfv6-p7hw')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "215278686d778d3fb20617c75513c6044d481b6f6d83b078de68ee018d3d1262"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-14439",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "7.5"
+          },
+          "ruleId": "CVE-2019-14439"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14540' (also known as 'GHSA-h822-r4r5-v8jg')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14540' (also known as 'GHSA-h822-r4r5-v8jg')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "03410ba96b5c1ee4a026daa73bf806e45bbea47eca831f349ddeb8b2d60eca73"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-14540",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2019-14540"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14892' (also known as 'GHSA-cf6r-3wgc-h863')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14892' (also known as 'GHSA-cf6r-3wgc-h863')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "27f59dd2ceb6a926a5bee46893fbe5ca61269a87b10017484559ca7d19727b20"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-14892",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "7.5"
+          },
+          "ruleId": "CVE-2019-14892"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14893' (also known as 'GHSA-qmqc-x3r4-6v39')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14893' (also known as 'GHSA-qmqc-x3r4-6v39')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "8a44d9b3740a9da19cb645f9cd53141e8e68178ab2cc6fcdc957e8ad72e1ae6b"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-14893",
+            "scannerName": "OSV-Scanner"
+          },
+          "ruleId": "CVE-2019-14893"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-16335' (also known as 'GHSA-85cw-hj65-qqv9')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-16335' (also known as 'GHSA-85cw-hj65-qqv9')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "2c3842da26780c300c45919c87caf0577822d978ff4f11212e9d201fd80ee1d9"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-16335",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2019-16335"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-16942' (also known as 'GHSA-mx7p-6679-8g3q')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-16942' (also known as 'GHSA-mx7p-6679-8g3q')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "1c9d88ac53f44049bccd465f42e4a2a0c078bbc5c832ad73ad88cc209dc99380"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-16942",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2019-16942"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-16943' (also known as 'GHSA-fmmc-742q-jg75')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-16943' (also known as 'GHSA-fmmc-742q-jg75')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "e52f2182a4c137787466aab3119f07180bf2e26c2fc35b7d6b8d36f595ad2549"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-16943",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2019-16943"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-17267' (also known as 'GHSA-f3j5-rmmp-3fc5')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-17267' (also known as 'GHSA-f3j5-rmmp-3fc5')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "f17a624b6e0984f51d3f6ea4d66d041e278617e9a127e4887301404695a9f125"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-17267",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2019-17267"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-17531' (also known as 'GHSA-gjmw-vf9h-g25v')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-17531' (also known as 'GHSA-gjmw-vf9h-g25v')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "d91ff434e9b8eaa5136c2be0830101aabfa37cf76587389b4c097f6c52e5786c"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-17531",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2019-17531"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-20330' (also known as 'GHSA-gww7-p5w4-wrfv')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-20330' (also known as 'GHSA-gww7-p5w4-wrfv')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "72002e01569ce3f835419af989aeb8c731a4b2b09462c4592fd6457ae86e172f"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2019-20330",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2019-20330"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10650' (also known as 'GHSA-rpr3-cw39-3pxh')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10650' (also known as 'GHSA-rpr3-cw39-3pxh')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "8ead2a3541bbd46a928f97355349277dddb962e9a8852935b7997477c2c78c1c"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-10650",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-10650"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10672' (also known as 'GHSA-95cm-88f5-f2c7')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10672' (also known as 'GHSA-95cm-88f5-f2c7')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "020f1260c7cb1a6f4b46f9dc04a003ac2aa2f64d7e494b74167911e475fbc103"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-10672",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.8"
+          },
+          "ruleId": "CVE-2020-10672"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10673' (also known as 'GHSA-fqwf-pjwf-7vqv')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10673' (also known as 'GHSA-fqwf-pjwf-7vqv')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "57ed4660731adb884539c828ef8b51e91794ef0a6f79262ab09b0e08cb51f231"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-10673",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.8"
+          },
+          "ruleId": "CVE-2020-10673"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10968' (also known as 'GHSA-rf6r-2c4q-2vwg')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10968' (also known as 'GHSA-rf6r-2c4q-2vwg')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "5ed13864c79d46fedfb08fe795cdc135042ce09a090243bb4a0ff44b3f26183c"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-10968",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.8"
+          },
+          "ruleId": "CVE-2020-10968"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10969' (also known as 'GHSA-758m-v56v-grj4')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10969' (also known as 'GHSA-758m-v56v-grj4')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "1e94598726703ee4571daffbbdfb05989b77de356682b8ec035c451023058636"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-10969",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.8"
+          },
+          "ruleId": "CVE-2020-10969"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11111' (also known as 'GHSA-v3xw-c963-f5hc')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11111' (also known as 'GHSA-v3xw-c963-f5hc')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "26749aba9f945c3f7a884e4df72c7b0e866bf790ec95a5249a264711621f0bb2"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-11111",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.8"
+          },
+          "ruleId": "CVE-2020-11111"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11112' (also known as 'GHSA-58pp-9c76-5625')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11112' (also known as 'GHSA-58pp-9c76-5625')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "c06fbcd23621460e575ca02723e900fbcdc7ca22fa0d20dd33743b18a3f1b902"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-11112",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.8"
+          },
+          "ruleId": "CVE-2020-11112"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11113' (also known as 'GHSA-9vvp-fxw6-jcxr')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11113' (also known as 'GHSA-9vvp-fxw6-jcxr')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "ec4ce99b4275d7ecb6bab009c69f04bf7121126fb8928ea5799ef2997952a04b"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-11113",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.8"
+          },
+          "ruleId": "CVE-2020-11113"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11619' (also known as 'GHSA-27xj-rqx5-2255')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11619' (also known as 'GHSA-27xj-rqx5-2255')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "81829296fb683f2b31c330ec1a62d7fc65906e05ef0a7b28af02ad7245c4eb97"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-11619",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-11619"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11620' (also known as 'GHSA-h4rc-386g-6m85')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11620' (also known as 'GHSA-h4rc-386g-6m85')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "ff5b5fa5fa731db67c24f67761aaefc0a84b1adf6cd3ab943aa37decb82a9ba0"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-11620",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-11620"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14060' (also known as 'GHSA-j823-4qch-3rgm')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14060' (also known as 'GHSA-j823-4qch-3rgm')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "56a96067b380cf5de552e3f33c8f9f3150cc0d06da87179e113ea39148af0a5c"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-14060",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-14060"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14061' (also known as 'GHSA-c2q3-4qrh-fm48')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14061' (also known as 'GHSA-c2q3-4qrh-fm48')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "a94342543319f1094e7e87391bee069358b78ec34e2acd9add0e3deeb91e61fa"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-14061",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-14061"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14062' (also known as 'GHSA-c265-37vj-cwcc')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14062' (also known as 'GHSA-c265-37vj-cwcc')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "ab02424dab23a80a6ab3ce7a7f26a3405601e21ce277750dbfb58a6ce76f2449"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-14062",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-14062"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14195' (also known as 'GHSA-mc6h-4qgp-37qh')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14195' (also known as 'GHSA-mc6h-4qgp-37qh')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "aaef67337a9a3fb1cfd129757f19b505a3fc1c6257e90868488faffc4435f0de"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-14195",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-14195"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-24616' (also known as 'GHSA-h3cw-g4mq-c5x2')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-24616' (also known as 'GHSA-h3cw-g4mq-c5x2')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "32d2307345d57cd6d2c321a82d954b59df2e34fe216e8689b3f83940b44ab731"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-24616",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-24616"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-24750' (also known as 'GHSA-qjw2-hr98-qgfh')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-24750' (also known as 'GHSA-qjw2-hr98-qgfh')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "799925c80e227d259f4e16eab8f86d35abae13cd7d6d289d6153a69576c0c397"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-24750",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-24750"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-25649' (also known as 'GHSA-288c-cq4h-88gq')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-25649' (also known as 'GHSA-288c-cq4h-88gq')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "3aaa0162ecb61c13142e17e07a0bfc2d197099b9fc994523c46e12ed0d1b9c2e"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-25649",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "7.5"
+          },
+          "ruleId": "CVE-2020-25649"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-35490' (also known as 'GHSA-wh8g-3j2c-rqj5')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-35490' (also known as 'GHSA-wh8g-3j2c-rqj5')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "715626084a0cb779832063f6d90532e7e2b17e890c3cce7bc332e961d4022697"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-35490",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-35490"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-35491' (also known as 'GHSA-r3gr-cxrf-hg25')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-35491' (also known as 'GHSA-r3gr-cxrf-hg25')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "7ea6e48a282cfd78426048a96b1fb5fb10e4ccdf109737d52294cfa76eefc72d"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-35491",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-35491"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-35728' (also known as 'GHSA-5r5r-6hpj-8gg9')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-35728' (also known as 'GHSA-5r5r-6hpj-8gg9')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "4fb1c1beb1a5f23eb3f839bf51a5788fac8437579f34eb5379e4a0821927f191"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-35728",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-35728"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36179' (also known as 'GHSA-9gph-22xh-8x98')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36179' (also known as 'GHSA-9gph-22xh-8x98')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "8552715cf8711122fc84e322446a8c87968c69aa3a6d3f5df6805927925e03ab"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36179",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-36179"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36180' (also known as 'GHSA-8c4j-34r4-xr8g')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36180' (also known as 'GHSA-8c4j-34r4-xr8g')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "81b6288c7b7c5b1be04fa968e5274e0380f8da50fde1d8ea33ba07522b8e391c"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36180",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-36180"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36181' (also known as 'GHSA-cvm9-fjm9-3572')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36181' (also known as 'GHSA-cvm9-fjm9-3572')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "5a0225717243ce31aca029600321d9d22ad2b3277439889c4db85a202a0492d8"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36181",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-36181"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36182' (also known as 'GHSA-89qr-369f-5m5x')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36182' (also known as 'GHSA-89qr-369f-5m5x')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "261609fd141b2a77f462154e615fd261a164faed76a78c9acb6010ee1f226a18"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36182",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-36182"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36183' (also known as 'GHSA-9m6f-7xcq-8vf8')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36183' (also known as 'GHSA-9m6f-7xcq-8vf8')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "fc76e468fe3c5d000b96f651c7e045dab26c3d894f5f1aed5b1561b333b331f0"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36183",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-36183"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36184' (also known as 'GHSA-m6x4-97wx-4q27')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36184' (also known as 'GHSA-m6x4-97wx-4q27')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "025657a10370adc0b8f793ab7c1aac2fadfdb5d6a7c1ed1582c6eb7b287390e3"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36184",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-36184"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36185' (also known as 'GHSA-8w26-6f25-cm9x')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36185' (also known as 'GHSA-8w26-6f25-cm9x')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "2ec172ff75321e0d84faad7ebaa735d4b511a7cf095eba82a522212857dad873"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36185",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-36185"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36186' (also known as 'GHSA-v585-23hc-c647')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36186' (also known as 'GHSA-v585-23hc-c647')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "e8cf62bef24f2724f2e9b3e59be2e19ad4689ca31aeac94ec63695512d2e4bb0"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36186",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-36186"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36187' (also known as 'GHSA-r695-7vr9-jgc2')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36187' (also known as 'GHSA-r695-7vr9-jgc2')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "06381c7126bafad1684453a44bd95d3ec6a968cf3314c2ba86f483f0d93b1ea7"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36187",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-36187"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36188' (also known as 'GHSA-f9xh-2qgp-cq57')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36188' (also known as 'GHSA-f9xh-2qgp-cq57')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "39dce3331591bec5c6ff6402501c4ee652156abb04ec203173c97da6cf5f15cc"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36188",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-36188"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36189' (also known as 'GHSA-vfqx-33qm-g869')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36189' (also known as 'GHSA-vfqx-33qm-g869')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "617522aeb6d3043a62455526422040c6bc1188d1c3c37e2b229348926e44a4f3"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36189",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2020-36189"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36518' (also known as 'GHSA-57j2-w4cx-62h2')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36518' (also known as 'GHSA-57j2-w4cx-62h2')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "0efa1bb98f9461ca893c8569caf7955660e7e598d85625ef2e563f2fbc0bc3c9"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-36518",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "7.5"
+          },
+          "ruleId": "CVE-2020-36518"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-8840' (also known as 'GHSA-4w82-r329-3q67')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-8840' (also known as 'GHSA-4w82-r329-3q67')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "c76ec95891ae73fc0eb24e353daf04b4d5b47a46d261f22cfe637188f7700f66"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-8840",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2020-8840"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-9546' (also known as 'GHSA-5p34-5m6p-p58g')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-9546' (also known as 'GHSA-5p34-5m6p-p58g')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "92dca48e3d682222e7d5bda744cad44bdcb63149073b2fc36c80e69d79c30cd6"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-9546",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2020-9546"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-9547' (also known as 'GHSA-q93h-jc49-78gg')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-9547' (also known as 'GHSA-q93h-jc49-78gg')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "ecf6647792d1f41a985528c163e4610bb03698c39c6746460c0be261849d946c"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-9547",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2020-9547"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-9548' (also known as 'GHSA-p43x-xfjf-5jhr')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-9548' (also known as 'GHSA-p43x-xfjf-5jhr')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "68f4ff9572abecaf417c4a6e38f694535a7a7a7fe17c7e2d731ee1f1c827d4ec"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV1",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2020-9548",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "9.8"
+          },
+          "ruleId": "CVE-2020-9548"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2021-20190' (also known as 'BIT-nifi-2021-20190', 'GHSA-5949-rw7g-wx7w')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2021-20190' (also known as 'BIT-nifi-2021-20190', 'GHSA-5949-rw7g-wx7w')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "9e11c56fa47fd9228db9a0f4a6f7e435564506ed80b2f4ae0e01b3f73da37689"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2021-20190",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.1"
+          },
+          "ruleId": "CVE-2021-20190"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2022-42003' (also known as 'GHSA-jjjh-jjxp-wpff')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2022-42003' (also known as 'GHSA-jjjh-jjxp-wpff')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "4064a44b7b3d82263e7dfd44e9185504cdcefb4761b5b4204bb88e07933e1b1d"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2022-42003",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "7.5"
+          },
+          "ruleId": "CVE-2022-42003"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2022-42004' (also known as 'GHSA-rgv9-q543-rqg4')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2022-42004' (also known as 'GHSA-rgv9-q543-rqg4')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "e4967374ae9e2c551b6e04fac8b6d5dab6c1eb6b50c9c3cf27f29d643ad0b526"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2022-42004",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.2"
+          },
+          "ruleId": "CVE-2022-42004"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2025-49128' (also known as 'GHSA-wf8f-6423-gfxg')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2025-49128' (also known as 'GHSA-wf8f-6423-gfxg')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "f272620001701a18cfff407b6a9bcc0ad39d514d8e3abfb08b2b791c4cc181a3"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2025-49128",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "4.0"
+          },
+          "ruleId": "CVE-2025-49128"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2025-52999' (also known as 'GHSA-h46c-h94j-95f3')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2025-52999' (also known as 'GHSA-h46c-h94j-95f3')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "dbcbcfd4c3c9dd4333d3b51eafb368fcd35649daf9ceadefc9249a6ef78acde5"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2025-52999",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.7"
+          },
+          "ruleId": "CVE-2025-52999"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-19032' (also known as 'GHSA-wjgm-6hv5-3cvf')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-19032' (also known as 'GHSA-wjgm-6hv5-3cvf')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "9c741f86baa0ef54d58535e5978a19298dc13e98ba0b474122645c1e3685c3ee"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2026-19032",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "5.3"
+          },
+          "ruleId": "CVE-2026-19032"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-54514' (also known as 'GHSA-hgj6-7826-r7m5')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-54514' (also known as 'GHSA-hgj6-7826-r7m5')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "0aa9a02a12b3886ce8986aa1cbce7919856ea580e13ae4eb20b75c19d47a2d55"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2026-54514",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "5.3"
+          },
+          "ruleId": "CVE-2026-54514"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-54515' (also known as 'GHSA-5jmj-h7xm-6q6v')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-54515' (also known as 'GHSA-5jmj-h7xm-6q6v')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "fb056b30df49991dde636b31c2503beefc9f57cbc5d870f1c5c0bff43e7b142a"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2026-54515",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "5.3"
+          },
+          "ruleId": "CVE-2026-54515"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-59889' (also known as 'GHSA-5gvw-p9qm-jgwh')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-59889' (also known as 'GHSA-5gvw-p9qm-jgwh')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "78d3c56b5f144a850a1e11c2a18ff1d26f078617c87472c16f84f0f9bd6bf9ba"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2026-59889",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "6.5"
+          },
+          "ruleId": "CVE-2026-59889"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2026-68494' (also known as 'GHSA-r7wm-3cxj-wff9')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2026-68494' (also known as 'GHSA-r7wm-3cxj-wff9')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "070fb2a46a204c1b0608e2f58453616d11b50674e9172018fdfc3893f06a3cad"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2026-68494",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "8.7"
+          },
+          "ruleId": "CVE-2026-68494"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-77310' (also known as 'GHSA-vvgp-rfg2-7rr6')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-77310' (also known as 'GHSA-vvgp-rfg2-7rr6')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "8d214cdba48ea7d1d123886d466e3a5c419a886c0db05393d573219f198ff17a"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2026-77310",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "5.3"
+          },
+          "ruleId": "CVE-2026-77310"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2026-89425' (also known as 'GHSA-7hhh-6rmp-j9qf')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2026-89425' (also known as 'GHSA-7hhh-6rmp-j9qf')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "7a3076be6d128826dabd426bb0283184274cb473a7bad505d618ce36918b9e9f"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2026-89425",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "7.5"
+          },
+          "ruleId": "CVE-2026-89425"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-91776' (also known as 'GHSA-wv8q-qhhj-9h54')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-91776' (also known as 'GHSA-wv8q-qhhj-9h54')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "9d8dc50e13f12a9d6c61c2effdf8f674fe649c1cc3c2320509104e1193085ba8"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2026-91776",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "7.5"
+          },
+          "ruleId": "CVE-2026-91776"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/gradle.lockfile"
+                },
+                "region": {
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-91777' (also known as 'GHSA-cxp5-3px4-pw24')."
+                  },
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-91777' (also known as 'GHSA-cxp5-3px4-pw24')."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "4e21dc8c9b861a0b45e1f2a150239ac60591e9ada5da67a709130ff2ca340187"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV2",
+            "originatingScanner": "osv",
+            "ruleId": "CVE-2026-91777",
+            "scannerName": "OSV-Scanner",
+            "security-severity": "7.5"
+          },
+          "ruleId": "CVE-2026-91777"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/src/main/java/dev/assaysample/MainActivity.java"
+                },
+                "region": {
+                  "endLine": 21,
+                  "snippet": {
+                    "text": "        view.getSettings().setJavaScriptEnabled(true);"
+                  },
+                  "startLine": 21
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "WebView enables JavaScript; untrusted content can run script in the app context."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "70436d8cd53e91fb775856e3658fa1eed38b3db6b15489f791ec6b6c923b2978"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "semgrep",
+            "precision": "very-high",
+            "ruleId": "assay.android.webview-javascript-enabled",
+            "scannerName": "Semgrep"
+          },
+          "ruleId": "assay.android.webview-javascript-enabled"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/src/main/java/dev/assaysample/MainActivity.java"
+                },
+                "region": {
+                  "endLine": 22,
+                  "snippet": {
+                    "text": "        view.addJavascriptInterface(new Bridge(), \"native\");"
+                  },
+                  "startLine": 22
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "addJavascriptInterface exposes native methods to web content."
+          },
+          "partialFingerprints": {
+            "assayFingerprint/v1": "884a415726012b429a73260f15a16f0b5fe20d179dd91666800a77da51911182"
+          },
+          "properties": {
+            "assay.severityMappingVersion": "sev-map-v1",
+            "assaySeverity": "SEV3",
+            "originatingScanner": "semgrep",
+            "precision": "very-high",
+            "ruleId": "assay.android.webview-javascript-interface",
+            "scannerName": "Semgrep"
+          },
+          "ruleId": "assay.android.webview-javascript-interface"
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "Assay deterministic normalizer",
+          "rules": [
+            {
+              "id": "CVE-2019-12086",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "7.5"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-12086' (also known as 'GHSA-5ww9-j83m-q7qx')."
+              }
+            },
+            {
+              "id": "CVE-2019-12384",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "5.9"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-12384' (also known as 'GHSA-mph4-vhrx-mv67')."
+              }
+            },
+            {
+              "id": "CVE-2019-12814",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "5.9"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-12814' (also known as 'GHSA-cmfg-87vq-g5g4')."
+              }
+            },
+            {
+              "id": "CVE-2019-14379",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14379' (also known as 'GHSA-6fpp-rgj9-8rwc')."
+              }
+            },
+            {
+              "id": "CVE-2019-14439",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "7.5"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14439' (also known as 'GHSA-gwp4-hfv6-p7hw')."
+              }
+            },
+            {
+              "id": "CVE-2019-14540",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14540' (also known as 'GHSA-h822-r4r5-v8jg')."
+              }
+            },
+            {
+              "id": "CVE-2019-14892",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "7.5"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14892' (also known as 'GHSA-cf6r-3wgc-h863')."
+              }
+            },
+            {
+              "id": "CVE-2019-14893",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-14893' (also known as 'GHSA-qmqc-x3r4-6v39')."
+              }
+            },
+            {
+              "id": "CVE-2019-16335",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-16335' (also known as 'GHSA-85cw-hj65-qqv9')."
+              }
+            },
+            {
+              "id": "CVE-2019-16942",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-16942' (also known as 'GHSA-mx7p-6679-8g3q')."
+              }
+            },
+            {
+              "id": "CVE-2019-16943",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-16943' (also known as 'GHSA-fmmc-742q-jg75')."
+              }
+            },
+            {
+              "id": "CVE-2019-17267",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-17267' (also known as 'GHSA-f3j5-rmmp-3fc5')."
+              }
+            },
+            {
+              "id": "CVE-2019-17531",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-17531' (also known as 'GHSA-gjmw-vf9h-g25v')."
+              }
+            },
+            {
+              "id": "CVE-2019-20330",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2019-20330' (also known as 'GHSA-gww7-p5w4-wrfv')."
+              }
+            },
+            {
+              "id": "CVE-2020-10650",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10650' (also known as 'GHSA-rpr3-cw39-3pxh')."
+              }
+            },
+            {
+              "id": "CVE-2020-10672",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10672' (also known as 'GHSA-95cm-88f5-f2c7')."
+              }
+            },
+            {
+              "id": "CVE-2020-10673",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10673' (also known as 'GHSA-fqwf-pjwf-7vqv')."
+              }
+            },
+            {
+              "id": "CVE-2020-10968",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10968' (also known as 'GHSA-rf6r-2c4q-2vwg')."
+              }
+            },
+            {
+              "id": "CVE-2020-10969",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-10969' (also known as 'GHSA-758m-v56v-grj4')."
+              }
+            },
+            {
+              "id": "CVE-2020-11111",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11111' (also known as 'GHSA-v3xw-c963-f5hc')."
+              }
+            },
+            {
+              "id": "CVE-2020-11112",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11112' (also known as 'GHSA-58pp-9c76-5625')."
+              }
+            },
+            {
+              "id": "CVE-2020-11113",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11113' (also known as 'GHSA-9vvp-fxw6-jcxr')."
+              }
+            },
+            {
+              "id": "CVE-2020-11619",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11619' (also known as 'GHSA-27xj-rqx5-2255')."
+              }
+            },
+            {
+              "id": "CVE-2020-11620",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-11620' (also known as 'GHSA-h4rc-386g-6m85')."
+              }
+            },
+            {
+              "id": "CVE-2020-14060",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14060' (also known as 'GHSA-j823-4qch-3rgm')."
+              }
+            },
+            {
+              "id": "CVE-2020-14061",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14061' (also known as 'GHSA-c2q3-4qrh-fm48')."
+              }
+            },
+            {
+              "id": "CVE-2020-14062",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14062' (also known as 'GHSA-c265-37vj-cwcc')."
+              }
+            },
+            {
+              "id": "CVE-2020-14195",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-14195' (also known as 'GHSA-mc6h-4qgp-37qh')."
+              }
+            },
+            {
+              "id": "CVE-2020-24616",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-24616' (also known as 'GHSA-h3cw-g4mq-c5x2')."
+              }
+            },
+            {
+              "id": "CVE-2020-24750",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-24750' (also known as 'GHSA-qjw2-hr98-qgfh')."
+              }
+            },
+            {
+              "id": "CVE-2020-25649",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "7.5"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-25649' (also known as 'GHSA-288c-cq4h-88gq')."
+              }
+            },
+            {
+              "id": "CVE-2020-35490",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-35490' (also known as 'GHSA-wh8g-3j2c-rqj5')."
+              }
+            },
+            {
+              "id": "CVE-2020-35491",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-35491' (also known as 'GHSA-r3gr-cxrf-hg25')."
+              }
+            },
+            {
+              "id": "CVE-2020-35728",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-35728' (also known as 'GHSA-5r5r-6hpj-8gg9')."
+              }
+            },
+            {
+              "id": "CVE-2020-36179",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36179' (also known as 'GHSA-9gph-22xh-8x98')."
+              }
+            },
+            {
+              "id": "CVE-2020-36180",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36180' (also known as 'GHSA-8c4j-34r4-xr8g')."
+              }
+            },
+            {
+              "id": "CVE-2020-36181",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36181' (also known as 'GHSA-cvm9-fjm9-3572')."
+              }
+            },
+            {
+              "id": "CVE-2020-36182",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36182' (also known as 'GHSA-89qr-369f-5m5x')."
+              }
+            },
+            {
+              "id": "CVE-2020-36183",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36183' (also known as 'GHSA-9m6f-7xcq-8vf8')."
+              }
+            },
+            {
+              "id": "CVE-2020-36184",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36184' (also known as 'GHSA-m6x4-97wx-4q27')."
+              }
+            },
+            {
+              "id": "CVE-2020-36185",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36185' (also known as 'GHSA-8w26-6f25-cm9x')."
+              }
+            },
+            {
+              "id": "CVE-2020-36186",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36186' (also known as 'GHSA-v585-23hc-c647')."
+              }
+            },
+            {
+              "id": "CVE-2020-36187",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36187' (also known as 'GHSA-r695-7vr9-jgc2')."
+              }
+            },
+            {
+              "id": "CVE-2020-36188",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36188' (also known as 'GHSA-f9xh-2qgp-cq57')."
+              }
+            },
+            {
+              "id": "CVE-2020-36189",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36189' (also known as 'GHSA-vfqx-33qm-g869')."
+              }
+            },
+            {
+              "id": "CVE-2020-36518",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "7.5"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-36518' (also known as 'GHSA-57j2-w4cx-62h2')."
+              }
+            },
+            {
+              "id": "CVE-2020-8840",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-8840' (also known as 'GHSA-4w82-r329-3q67')."
+              }
+            },
+            {
+              "id": "CVE-2020-9546",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-9546' (also known as 'GHSA-5p34-5m6p-p58g')."
+              }
+            },
+            {
+              "id": "CVE-2020-9547",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-9547' (also known as 'GHSA-q93h-jc49-78gg')."
+              }
+            },
+            {
+              "id": "CVE-2020-9548",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "9.8"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2020-9548' (also known as 'GHSA-p43x-xfjf-5jhr')."
+              }
+            },
+            {
+              "id": "CVE-2021-20190",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.1"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2021-20190' (also known as 'BIT-nifi-2021-20190', 'GHSA-5949-rw7g-wx7w')."
+              }
+            },
+            {
+              "id": "CVE-2022-42003",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "7.5"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2022-42003' (also known as 'GHSA-jjjh-jjxp-wpff')."
+              }
+            },
+            {
+              "id": "CVE-2022-42004",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.2"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2022-42004' (also known as 'GHSA-rgv9-q543-rqg4')."
+              }
+            },
+            {
+              "id": "CVE-2025-49128",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "4.0"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2025-49128' (also known as 'GHSA-wf8f-6423-gfxg')."
+              }
+            },
+            {
+              "id": "CVE-2025-52999",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.7"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2025-52999' (also known as 'GHSA-h46c-h94j-95f3')."
+              }
+            },
+            {
+              "id": "CVE-2026-19032",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "5.3"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-19032' (also known as 'GHSA-wjgm-6hv5-3cvf')."
+              }
+            },
+            {
+              "id": "CVE-2026-54514",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "5.3"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-54514' (also known as 'GHSA-hgj6-7826-r7m5')."
+              }
+            },
+            {
+              "id": "CVE-2026-54515",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "5.3"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-54515' (also known as 'GHSA-5jmj-h7xm-6q6v')."
+              }
+            },
+            {
+              "id": "CVE-2026-59889",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "6.5"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-59889' (also known as 'GHSA-5gvw-p9qm-jgwh')."
+              }
+            },
+            {
+              "id": "CVE-2026-68494",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "8.7"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2026-68494' (also known as 'GHSA-r7wm-3cxj-wff9')."
+              }
+            },
+            {
+              "id": "CVE-2026-77310",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "5.3"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-77310' (also known as 'GHSA-vvgp-rfg2-7rr6')."
+              }
+            },
+            {
+              "id": "CVE-2026-89425",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "7.5"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-core@2.9.8' is vulnerable to 'CVE-2026-89425' (also known as 'GHSA-7hhh-6rmp-j9qf')."
+              }
+            },
+            {
+              "id": "CVE-2026-91776",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "7.5"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-91776' (also known as 'GHSA-wv8q-qhhj-9h54')."
+              }
+            },
+            {
+              "id": "CVE-2026-91777",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "osv",
+                "security-severity": "7.5"
+              },
+              "shortDescription": {
+                "text": "Package 'com.fasterxml.jackson.core:jackson-databind@2.9.8' is vulnerable to 'CVE-2026-91777' (also known as 'GHSA-cxp5-3px4-pw24')."
+              }
+            },
+            {
+              "id": "app_allowbackup",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "mobsf.section": "manifest_analysis",
+                "mobsf.severity": "warning",
+                "security-severity": "5.0"
+              },
+              "shortDescription": {
+                "text": "This flag allows anyone to backup your application data via adb. It allows users who have enabled USB debugging to copy application data off of the device."
+              }
+            },
+            {
+              "id": "app_is_debuggable",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "mobsf.section": "manifest_analysis",
+                "mobsf.severity": "high",
+                "security-severity": "8.0"
+              },
+              "shortDescription": {
+                "text": "Debugging was enabled on the app which makes it easier for reverse engineers to hook a debugger to it. This allows dumping a stack trace and accessing debugging helper classes."
+              }
+            },
+            {
+              "id": "assay.android.webview-javascript-enabled",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "semgrep",
+                "precision": "very-high"
+              },
+              "shortDescription": {
+                "text": "WebView enables JavaScript; untrusted content can run script in the app context."
+              }
+            },
+            {
+              "id": "assay.android.webview-javascript-interface",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "semgrep",
+                "precision": "very-high"
+              },
+              "shortDescription": {
+                "text": "addJavascriptInterface exposes native methods to web content."
+              }
+            },
+            {
+              "id": "clear_text_traffic",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "mobsf.section": "manifest_analysis",
+                "mobsf.severity": "high",
+                "security-severity": "8.0"
+              },
+              "shortDescription": {
+                "text": "The app intends to use cleartext network traffic, such as cleartext HTTP, FTP stacks, DownloadManager, and MediaPlayer. The default value for apps that target API level 27 or lower is \"true\". Apps that target API level 28 or higher default to \"false\". The key reason for avoiding cleartext traffic is the lack of confidentiality, authenticity, and protections against tampering; a network attacker can eavesdrop on transmitted data and also modify it without being detected."
+              }
+            },
+            {
+              "id": "generic-api-key",
+              "properties": {
+                "assay.severityMappingVersion": "sev-map-v1",
+                "originatingScanner": "gitleaks"
+              },
+              "shortDescription": {
+                "text": "generic-api-key has detected secret for file /home/runner/work/assay/assay/target/fixtures/sample-repo/app/src/main/java/dev/assaysample/MainActivity.java."
+              }
+            }
+          ],
+          "version": "1.1.0"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}

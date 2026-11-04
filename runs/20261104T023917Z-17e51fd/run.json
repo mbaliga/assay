@@ -1,0 +1,50 @@
+{
+  "createdAt": "2026-11-04T02:39:17.127793521Z",
+  "findingsRef": "runs/20261104T023917Z-17e51fd/findings.sarif",
+  "manifestRef": "runs/20261104T023917Z-17e51fd/manifest.sha256",
+  "runId": "20261104T023917Z-17e51fd",
+  "scanners": [
+    {
+      "artifactRef": "runs/20261104T023917Z-17e51fd/scanners/gitleaks.sarif",
+      "configDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executableDigest": "88f91962aa2f93ac6ab281d553b9e125f5197bbbce38f9f2437f7299c32e5509",
+      "exitCode": 1,
+      "format": "sarif",
+      "name": "gitleaks",
+      "version": "8.30.1"
+    },
+    {
+      "artifactRef": "runs/20261104T023917Z-17e51fd/scanners/mobsf.json",
+      "configDigest": "7d65cfd1940cbfc05b9d7bcf95a0c2ad5d6768160895d6e7c6cf49cc1c13ec38",
+      "executableDigest": "6ff89ee509164d2b563927141ab8be05719bfe290f2e1f4af87635f3c739ee24",
+      "exitCode": 0,
+      "format": "json",
+      "name": "mobsf",
+      "version": "4.5.1"
+    },
+    {
+      "artifactRef": "runs/20261104T023917Z-17e51fd/scanners/osv.sarif",
+      "configDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executableDigest": "bc98e15319ed0d515e3f9235287ba53cdc5535d576d24fd573978ecfe9ab92dc",
+      "exitCode": 1,
+      "format": "sarif",
+      "name": "osv",
+      "version": "2.3.8"
+    },
+    {
+      "artifactRef": "runs/20261104T023917Z-17e51fd/scanners/semgrep.sarif",
+      "configDigest": "c6332b1c2b52de5e93bd675e85865fb664869464f58c9cf13781395950d8483d",
+      "executableDigest": "bc44054f4f7138e0d7b19cf613cd737b6d366fba38c70662701d5bfe37f244ac",
+      "exitCode": 1,
+      "format": "sarif",
+      "name": "semgrep",
+      "version": "1.164.0"
+    }
+  ],
+  "schemaVersion": "1.1.0",
+  "severityMappingVersion": "sev-map-v1",
+  "sourceCommit": "17e51fde6c08bd5f4aac68e12403a0254abf83a7",
+  "sourceRepo": "mbaliga/assay",
+  "status": "complete",
+  "statusRef": "runs/20261104T023917Z-17e51fd/status.json"
+}
