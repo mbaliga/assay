@@ -1,6 +1,6 @@
 # Hosted runner: GitHub Actions (runner v1)
 
-Status: `code-complete` until the sample end-to-end run is recorded in [STATUS.md](STATUS.md).
+Status: `verified` on a GitHub-hosted runner by the sample end-to-end run recorded in [STATUS.md](STATUS.md). The self-hosted path is not verified.
 
 [RUNNER-DECISION.md](RUNNER-DECISION.md) requires a one-shot Kotlin/JVM process on an isolated
 Linux host. A GitHub-hosted `ubuntu-latest` job is that process: a fresh VM per job, destroyed at

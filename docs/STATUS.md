@@ -6,7 +6,7 @@ Ladder: `code-complete` (compiles, tests green) < `verified` (ran end-to-end on 
 |---|---|---|---|
 | 2026-11-03 | WP0 One trunk | code-complete | `gradle check --no-daemon` exit 0 (all acceptance harnesses); console `assembleDebug lintDebug` exit 0 on AGP 8.9.1/Kotlin 2.1.20/minSdk 31 |
 | 2026-11-04 | WP1 `assay audit` | verified | `gradle check --no-daemon` exit 0 incl. `auditAcceptanceTest` (8 assertions); `live-cli-contracts` green on 3fc6b6b: https://github.com/mbaliga/assay/actions/runs/41757377387 (real gitleaks/semgrep/osv via `assay audit`, `.assay/` uploaded as `assay-audit-output`) |
-| 2026-11-04 | WP2 hosted runner | in progress | reusable workflow + sample target written; CI evidence pending |
+| 2026-11-04 | WP2 hosted runner | verified | `sample-e2e` green on 17e51fd: https://github.com/mbaliga/assay/actions/runs/41761612706 (reusable audit on fixtures/sample-repo with gitleaks+semgrep+osv+mobsf; pushed `assay/sample-output`; `verify` asserted COMPLETE, real assayCommit, 70 findings from Gitleaks/MobSF/OSV-Scanner/Semgrep, exact Semgrep rule id, internal bus `latestComplete` == run id). Needed three CI fixes: Docker `--mount` syntax, MobSF read-only/JADX provisioning, delete_scan retry |
 | 2026-11-03 | WP3-WP7 | NOT STARTED | deferred |
 
 ## Superseded branches (safe to delete, owner)
