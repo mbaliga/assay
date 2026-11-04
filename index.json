@@ -1,27 +1,27 @@
 {
   "activeRuns": [],
-  "latestComplete": "20261104T024730Z-e707527",
+  "latestComplete": "20261104T033319Z-238d777",
   "producer": {
     "app": "Assay",
     "runnerContract": "1.1.0"
   },
   "runs": [
     {
-      "createdAt": "2026-11-04T02:47:30.232082333Z",
-      "findingsRef": "runs/20261104T024730Z-e707527/findings.sarif",
+      "createdAt": "2026-11-04T03:33:19.073715516Z",
+      "findingsRef": "runs/20261104T033319Z-238d777/findings.sarif",
       "gate": {
         "passed": false,
         "provingTestsPassed": 0,
         "provingTestsRequired": 70
       },
-      "manifestDigest": "930b19af212a009aa5898cf184ad15ea1e8485fe002fcf7c1822dcbdbc9eef2b",
-      "manifestRef": "runs/20261104T024730Z-e707527/manifest.sha256",
-      "path": "runs/20261104T024730Z-e707527",
-      "runId": "20261104T024730Z-e707527",
-      "runRef": "runs/20261104T024730Z-e707527/run.json",
-      "sourceCommit": "e7075273b59967665a3f803cd739c19848dd8625",
+      "manifestDigest": "1c4225720e6f910efe9ac1e4d7c0f3da13b5d44b29bdae71a95289e04c52b3b6",
+      "manifestRef": "runs/20261104T033319Z-238d777/manifest.sha256",
+      "path": "runs/20261104T033319Z-238d777",
+      "runId": "20261104T033319Z-238d777",
+      "runRef": "runs/20261104T033319Z-238d777/run.json",
+      "sourceCommit": "238d7774b5515e7850ad91b58b3e78a37a8681a5",
       "status": "complete",
-      "statusRef": "runs/20261104T024730Z-e707527/status.json",
+      "statusRef": "runs/20261104T033319Z-238d777/status.json",
       "summary": {
         "sev1": 12,
         "sev2": 45,
