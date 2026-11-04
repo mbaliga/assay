@@ -1,0 +1,17 @@
+# Assay baseline Semgrep rules for Android. Pinned local file: Semgrep runs with metrics and
+# version checks off and never fetches rules (docs/TOOLCHAIN.md). Extend deliberately, not by URL.
+rules:
+  - id: assay.android.webview-javascript-enabled
+    languages: [java]
+    severity: WARNING
+    message: WebView enables JavaScript; untrusted content can run script in the app context.
+    pattern: $S.setJavaScriptEnabled(true)
+    metadata:
+      cwe: "CWE-749"
+  - id: assay.android.webview-javascript-interface
+    languages: [java]
+    severity: ERROR
+    message: addJavascriptInterface exposes native methods to web content.
+    pattern: $W.addJavascriptInterface(...)
+    metadata:
+      cwe: "CWE-749"

@@ -1,0 +1,56 @@
+name: Android console
+on:
+  push:
+    branches: [main, trunk, 'agent/**', 'ccr-*']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # dev.aarso:crash-recovery comes from the pinned shared-libraries submodule (public repo).
+          submodules: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          # v3 AND v4 default to installing the legacy 'tools' package, which
+          # Google's repo no longer serves (sdkmanager exit 1 at SDK setup,
+          # 2026-09-15 - see core CLAUDE.md's CI caveat, third infra class).
+          packages: platform-tools
+      - name: Install pinned Android SDK
+        run: yes | sdkmanager --licenses >/dev/null && sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          # Lockstep with Shared-Libraries-asoc and Core: AGP 8.9.1 needs Gradle 8.x.
+          gradle-version: '8.14.3'
+      - name: Build debug APK
+        run: gradle -p android-console :app:assembleDebug --no-daemon
+      - name: Lint debug APK
+        run: gradle -p android-console :app:lintDebug --no-daemon
+      - name: Unit tests (GitHub client, run mapping, network policy, state-not-colour-only)
+        run: gradle -p android-console :app:testDebugUnitTest --no-daemon
+      - name: Verify screenshots (five screens, light/dark, 100% and 200% font)
+        run: gradle -p android-console :app:verifyRoborazziDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: assay-android-console-debug
+          if-no-files-found: error
+          path: |
+            android-console/app/build/outputs/apk/debug/*.apk
+            android-console/app/build/reports/lint-results-debug.*
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: assay-android-console-screenshot-diffs
+          if-no-files-found: ignore
+          path: |
+            android-console/app/build/outputs/roborazzi
+            android-console/app/build/reports/tests/testDebugUnitTest
