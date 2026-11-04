@@ -1,5 +1,5 @@
 {
-  "assayCommit": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+  "assayCommit": "cb286b1a18d826a0f8bedcade65a8d433b6fe64d",
   "completeness": "PARTIAL",
   "explanation": "mobsf failed: MobSF delete_scan failed with HTTP 500: {\"error\": \"[Errno 39] Directory not empty: '/home/mobsf/.MobSF/uploads/84641bcb43350bf3ff28a928b7cea3b9/smali_source/com/fasterxml/jackson/databind'\"}",
   "findingFiles": [
