@@ -5,7 +5,7 @@ Ladder: `code-complete` (compiles, tests green) < `verified` (ran end-to-end on 
 | Date | WP | Ladder | Evidence |
 |---|---|---|---|
 | 2026-11-03 | WP0 One trunk | code-complete | `gradle check --no-daemon` exit 0 (all acceptance harnesses); console `assembleDebug lintDebug` exit 0 on AGP 8.9.1/Kotlin 2.1.20/minSdk 31 |
-| 2026-11-04 | WP1 `assay audit` | code-complete (CI run pending) | `gradle check --no-daemon` exit 0 incl. `auditAcceptanceTest` (8 assertions); real-scanner CI step added to scanner-contracts.yml |
+| 2026-11-04 | WP1 `assay audit` | verified | `gradle check --no-daemon` exit 0 incl. `auditAcceptanceTest` (8 assertions); `live-cli-contracts` green on 3fc6b6b: https://github.com/mbaliga/assay/actions/runs/41757377387 (real gitleaks/semgrep/osv via `assay audit`, `.assay/` uploaded as `assay-audit-output`) |
 | 2026-11-03 | WP2-WP7 | NOT STARTED | deferred |
 
 ## Superseded branches (safe to delete, owner)
