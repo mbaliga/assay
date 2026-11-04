@@ -1,0 +1,73 @@
+name: Sample end-to-end
+
+# Runs the reusable hosted audit against the deliberately vulnerable fixtures/sample-repo/ with all
+# four scanners (MobSF on the built debug APK), pushes .assay/ to assay/sample-output, then asserts
+# the pushed result. WP2 gate evidence.
+
+on:
+  pull_request:
+    paths:
+      - 'fixtures/sample-repo/**'
+      - 'rules/**'
+      - 'src/**'
+      - '.github/workflows/assay-audit.yml'
+      - '.github/workflows/sample-e2e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    permissions:
+      contents: write
+    uses: ./.github/workflows/assay-audit.yml
+    with:
+      source_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      assay_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      target_dir: fixtures/sample-repo
+      output_branch: assay/sample-output
+      scanners: gitleaks,semgrep,osv,mobsf
+      build_apk: true
+      artifact_name: sample-assay-output
+
+  verify:
+    needs: audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: assay/sample-output
+          fetch-depth: 0
+          path: out
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: assay/audit
+          path: bus
+          persist-credentials: false
+      - name: Assert the pushed result
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, subprocess
+          out = pathlib.Path('out/.assay')
+          index = json.loads((out / 'assay-index.v1.json').read_text())
+          assert index['completeness'] == 'COMPLETE', index
+          assert index['assayCommit'] != 'deadbeef' * 5, 'placeholder leaked'
+          subprocess.run(['git', '-C', 'out', 'cat-file', '-e', index['assayCommit'] + '^{commit}'], check=True)
+          sarif = json.loads((out / 'runs' / index['runId'] / 'findings.sarif').read_text())
+          results = sarif['runs'][0]['results']
+          names = {r['properties']['scannerName'] for r in results}
+          assert len(results) >= 3, len(results)
+          assert {'Gitleaks', 'Semgrep', 'OSV-Scanner', 'MobSF'} <= names, names
+          assert all(r['properties']['ruleId'] == r['ruleId'] for r in results)
+          semgrep = {r['ruleId'] for r in results if r['properties']['scannerName'] == 'Semgrep'}
+          assert 'assay.android.webview-javascript-enabled' in semgrep, semgrep
+          bus = json.loads(pathlib.Path('bus/index.json').read_text())
+          assert bus['latestComplete'] == index['runId'], (bus['latestComplete'], index['runId'])
+          print('findings:', len(results), 'scanners:', sorted(names))
+          PY

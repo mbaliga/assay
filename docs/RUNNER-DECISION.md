@@ -7,3 +7,13 @@ The engine now provides command contracts and normalizers for Gitleaks, Semgrep,
 Claude Code may later be invoked as a bounded AI adapter with noninteractive structured output and explicit cost/turn limits. It is not the runner, cannot create findings, and cannot publish scanner evidence.
 
 The Dell homelab remains operationally unverified until the complete deliberately-vulnerable fixture succeeds there without artifact hand-editing, with network denied during scan execution and a scoped push credential introduced only after validation. No document or UI may label that path verified before this check.
+
+## Hosted CI as a conforming runner
+
+A GitHub-hosted `ubuntu-latest` job satisfies the one-shot, isolated, ephemeral requirement: a
+fresh VM per job, a single `assay audit` process, per-step network discipline, a push credential
+that exists only in the publishing step, and cleanup that runs on failure and cancellation. It
+does not replace the self-hosted path and does not control the host kernel. The argument, the
+per-step network table and the list of what it cannot guarantee are in
+[RUNNER-ACTIONS.md](RUNNER-ACTIONS.md). Neither path may be labelled verified until its own
+fixture run is recorded.

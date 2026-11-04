@@ -201,6 +201,8 @@ object MobSfContainerCommand {
         stateDirectory: Path,
         hostPort: Int = 8000,
         containerName: String = "assay-mobsf",
+        network: String? = null,
+        envFile: Path? = null,
     ): List<String> {
         val executable = runtime.toAbsolutePath().normalize()
         require(Files.exists(executable, LinkOption.NOFOLLOW_LINKS)) { "container runtime does not exist" }
@@ -215,14 +217,26 @@ object MobSfContainerCommand {
         }
         require(hostPort in 1_024..65_535) { "invalid MobSF host port" }
         require(containerName.matches(Regex("[a-zA-Z0-9][a-zA-Z0-9_.-]{0,63}"))) { "invalid container name" }
+        require(network == null || network.matches(Regex("[a-zA-Z0-9][a-zA-Z0-9_.-]{0,63}"))) {
+            "invalid container network name"
+        }
+        require(network != "host") { "MobSF must not use the host network" }
+        val env = envFile?.toAbsolutePath()?.normalize()
+        if (env != null) {
+            require(Files.isRegularFile(env, LinkOption.NOFOLLOW_LINKS) && !Files.isSymbolicLink(env)) {
+                "MobSF env file must be a regular file"
+            }
+        }
         return listOf(
             executable.toString(), "run", "--rm", "--detach",
             "--name", containerName,
+        ) + (if (network != null) listOf("--network", network) else emptyList()) +
+            (if (env != null) listOf("--env-file", env.toString()) else emptyList()) + listOf(
             "--pull", "never",
             "--read-only",
             "--cap-drop", "ALL",
             "--security-opt", "no-new-privileges",
-            "--pids-limit", "1_024",
+            "--pids-limit", "1024",
             "--memory", "8g",
             "--cpus", "4",
             "--tmpfs", "/tmp:rw,nosuid,nodev,size=2g",
@@ -268,6 +282,8 @@ object MobSfExecutionCli {
                     stateDirectory = Path.of(options.required("--state")),
                     hostPort = options.optional("--port")?.toIntOrNull() ?: 8000,
                     containerName = options.optional("--name") ?: "assay-mobsf",
+                    network = options.optional("--network"),
+                    envFile = options.optional("--env-file")?.let(Path::of),
                 )
                 println(command.joinToString(" ") { shell(it) })
             }

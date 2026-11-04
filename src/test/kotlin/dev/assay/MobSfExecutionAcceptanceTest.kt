@@ -95,6 +95,17 @@ fun main() {
             check(command.last() == pin.image)
             check(command.none { it.endsWith(":latest") })
             println("PASS pinned least-privilege MobSF container command")
+
+            val envFile = Files.writeString(workspace.resolve("mobsf.env"), "MOBSF_API_KEY=${"d".repeat(48)}\n")
+            val isolated = MobSfContainerCommand.build(
+                runtime, pin, workspace.resolve("state"), 18000,
+                network = "assay-mobsf-net", envFile = envFile,
+            )
+            check(isolated.zipWithNext().any { it == ("--network" to "assay-mobsf-net") })
+            check(isolated.zipWithNext().any { it == ("--env-file" to envFile.toAbsolutePath().normalize().toString()) })
+            check(isolated.none { it.contains("d".repeat(48)) }) { "API key must not appear on the command line" }
+            check(runCatching { MobSfContainerCommand.build(runtime, pin, workspace.resolve("state"), network = "host") }.isFailure)
+            println("PASS MobSF container command supports an isolated network and a secret env file")
         }
     } finally {
         server.stop(0)

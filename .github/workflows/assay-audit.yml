@@ -1,0 +1,264 @@
+name: Assay audit (reusable)
+
+# Hosted-runner v1 of Assay's runner decision (docs/RUNNER-ACTIONS.md). One job = one isolated,
+# ephemeral Linux VM. Callers use:
+#   uses: mbaliga/assay/.github/workflows/assay-audit.yml@<ref>
+# (`assay init-actions` writes a caller for you.) GitHub only allows reusable workflows to be
+# called from .github/workflows/, so this file lives here and not under actions/.
+
+on:
+  workflow_call:
+    inputs:
+      source_ref:
+        description: Ref of the scanned repository to audit (empty = the caller's own ref/sha).
+        type: string
+        default: ''
+      target_dir:
+        description: Subdirectory of the checkout to scan.
+        type: string
+        default: '.'
+      output_branch:
+        description: Branch that receives the ratified .assay/ tree.
+        type: string
+        required: true
+      scanners:
+        description: Comma-separated subset of gitleaks,semgrep,osv,mobsf.
+        type: string
+        default: gitleaks,semgrep,osv
+      build_apk:
+        description: Build the target's debug APK first (executes the target's Gradle build, token-less).
+        type: boolean
+        default: false
+      ai:
+        description: AI mode. Only "off" is implemented until WP4.
+        type: string
+        default: 'off'
+      assay_ref:
+        description: Ref of mbaliga/assay to build the CLI from. Pin a commit SHA in production.
+        type: string
+        required: true
+      semgrep_config:
+        description: Path of the pinned Semgrep rules, relative to the Assay checkout.
+        type: string
+        default: rules/android-baseline.yml
+      artifact_name:
+        description: Name of the uploaded .assay/ artifact.
+        type: string
+        default: assay-output
+    secrets:
+      ASSAY_MODEL_KEY:
+        description: Optional model key for the AI layer (unused until WP4).
+        required: false
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: '8.30.1'
+  GITLEAKS_SHA256: '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb'
+  OSV_VERSION: '2.3.8'
+  OSV_SHA256: 'bc98e15319ed0d515e3f9235287ba53cdc5535d576d24fd573978ecfe9ab92dc'
+  SEMGREP_VERSION: '1.164.0'
+  # Observed from the Docker Hub registry for tag v4.5.1 (multi-arch index digest).
+  MOBSF_VERSION: '4.5.1'
+  MOBSF_IMAGE: 'opensecurity/mobile-security-framework-mobsf@sha256:6ff89ee509164d2b563927141ab8be05719bfe290f2e1f4af87635f3c739ee24'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    env:
+      INPUT_SOURCE_REF: ${{ inputs.source_ref }}
+      INPUT_TARGET_DIR: ${{ inputs.target_dir }}
+      INPUT_OUTPUT_BRANCH: ${{ inputs.output_branch }}
+      INPUT_SCANNERS: ${{ inputs.scanners }}
+      INPUT_AI: ${{ inputs.ai }}
+      INPUT_SEMGREP_CONFIG: ${{ inputs.semgrep_config }}
+    steps:
+      - name: Validate inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$INPUT_SCANNERS" =~ ^(gitleaks|semgrep|osv|mobsf)(,(gitleaks|semgrep|osv|mobsf))*$ ]] || { echo "invalid scanners"; exit 1; }
+          [[ "$INPUT_OUTPUT_BRANCH" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]{0,100}$ && "$INPUT_OUTPUT_BRANCH" != *..* ]] || { echo "invalid output_branch"; exit 1; }
+          [[ "$INPUT_TARGET_DIR" =~ ^[A-Za-z0-9._/-]+$ && "$INPUT_TARGET_DIR" != *..* ]] || { echo "invalid target_dir"; exit 1; }
+          [[ "$INPUT_SEMGREP_CONFIG" =~ ^[A-Za-z0-9._/-]+$ && "$INPUT_SEMGREP_CONFIG" != *..* ]] || { echo "invalid semgrep_config"; exit 1; }
+          [[ "$INPUT_AI" == "off" ]] || { echo "ai=$INPUT_AI is not available until WP4; use off"; exit 1; }
+
+      # The scanned repository is untrusted. Its checkout carries no credentials.
+      - name: Check out the target
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref }}
+          path: target
+          persist-credentials: false
+
+      - name: Check out Assay
+        uses: actions/checkout@v4
+        with:
+          repository: mbaliga/assay
+          ref: ${{ inputs.assay_ref }}
+          path: assay-engine
+          persist-credentials: false
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - uses: actions/setup-python@v5
+        if: contains(inputs.scanners, 'semgrep')
+        with:
+          python-version: '3.12'
+
+      - name: Build the Assay CLI
+        run: gradle -p assay-engine installDist --no-daemon
+
+      - name: Install pinned scanners
+        shell: bash
+        run: |
+          set -euo pipefail
+          TOOLS="$RUNNER_TEMP/assay-tools"; DL="$RUNNER_TEMP/assay-downloads"
+          mkdir -p "$TOOLS" "$DL"
+          if [[ "$INPUT_SCANNERS" == *gitleaks* ]]; then
+            curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o "$DL/gitleaks.tar.gz"
+            echo "$GITLEAKS_SHA256  $DL/gitleaks.tar.gz" | sha256sum -c -
+            tar -xzf "$DL/gitleaks.tar.gz" -C "$TOOLS" gitleaks
+          fi
+          if [[ "$INPUT_SCANNERS" == *osv* ]]; then
+            curl -fsSL "https://github.com/google/osv-scanner/releases/download/v${OSV_VERSION}/osv-scanner_linux_amd64" -o "$TOOLS/osv-scanner"
+            echo "$OSV_SHA256  $TOOLS/osv-scanner" | sha256sum -c -
+            chmod 0755 "$TOOLS/osv-scanner"
+          fi
+          if [[ "$INPUT_SCANNERS" == *semgrep* ]]; then
+            python -m venv "$RUNNER_TEMP/assay-semgrep"
+            "$RUNNER_TEMP/assay-semgrep/bin/pip" install --disable-pip-version-check "semgrep==${SEMGREP_VERSION}"
+            ln -s "$RUNNER_TEMP/assay-semgrep/bin/semgrep" "$TOOLS/semgrep"
+          fi
+          TOOLS="$TOOLS" python3 - <<'PY'
+          import hashlib, json, os, pathlib
+          tools = pathlib.Path(os.environ['TOOLS'])
+          pins = {'gitleaks': ('gitleaks', os.environ['GITLEAKS_VERSION']),
+                  'semgrep': ('semgrep', os.environ['SEMGREP_VERSION']),
+                  'osv': ('osv-scanner', os.environ['OSV_VERSION'])}
+          out = {}
+          for wire, (binary, version) in pins.items():
+              path = tools / binary
+              if path.exists():
+                  out[wire] = {'version': version, 'sha256': hashlib.sha256(path.resolve().read_bytes()).hexdigest()}
+          (tools.parent / 'assay-tool-lock.json').write_text(json.dumps({'schemaVersion': '1.0.0', 'tools': out}, sort_keys=True))
+          PY
+
+      - name: Accept Android SDK licences
+        if: inputs.build_apk
+        shell: bash
+        run: yes | "${ANDROID_HOME:-$ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+
+      # Executes the target's own Gradle build. Mitigations: no credentials in the checkout or
+      # environment, runs before MobSF and before any push credential exists, ephemeral VM.
+      - name: Build the target debug APK
+        if: inputs.build_apk
+        working-directory: target/${{ inputs.target_dir }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Start isolated MobSF
+        if: contains(inputs.scanners, 'mobsf')
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE="$RUNNER_TEMP/assay-mobsf-state"; SECRETS="$RUNNER_TEMP/assay-mobsf-secrets"
+          mkdir -p "$STATE" "$SECRETS"; chmod 0777 "$STATE"; chmod 0700 "$SECRETS"
+          KEY="$(openssl rand -hex 32)"
+          echo "::add-mask::$KEY"
+          ( umask 077; printf '%s' "$KEY" > "$SECRETS/api-key"; printf 'MOBSF_API_KEY=%s\n' "$KEY" > "$SECRETS/mobsf.env" )
+
+          docker pull "$MOBSF_IMAGE"
+          docker network create --subnet 172.30.88.0/24 assay-mobsf-net
+          # Egress denial: nothing leaving the MobSF subnet is forwarded; the published loopback
+          # port is reached from inside the subnet (docker-proxy / bridge gateway) and still works.
+          sudo iptables -I DOCKER-USER 1 -s 172.30.88.0/24 ! -d 172.30.88.0/24 -j DROP
+
+          CMD="$(assay-engine/build/install/assay/bin/assay print-mobsf-container-command \
+            --runtime "$(command -v docker)" --state "$STATE" --version "$MOBSF_VERSION" \
+            --image "$MOBSF_IMAGE" --network assay-mobsf-net --env-file "$SECRETS/mobsf.env" | tail -n 1)"
+          eval "$CMD"
+
+          for i in $(seq 1 90); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/ || true)"
+            [[ "$code" =~ ^(200|301|302|401|403)$ ]] && break
+            sleep 2
+          done
+          [[ "$code" =~ ^(200|301|302|401|403)$ ]] || { docker logs assay-mobsf || true; echo "MobSF did not become ready"; exit 1; }
+
+          # If the container ignored MOBSF_API_KEY, recover the key it generated.
+          status="$(curl -s -o /dev/null -w '%{http_code}' -H "X-Mobsf-Api-Key: $KEY" http://127.0.0.1:8000/api/v1/scans || true)"
+          if [[ "$status" != "200" ]]; then
+            GEN="$(docker logs assay-mobsf 2>&1 | sed -n 's/.*REST API Key: *\([0-9a-f]\{16,\}\).*/\1/p' | tail -n 1)"
+            [[ -n "$GEN" ]] || { echo "no usable MobSF API key"; exit 1; }
+            echo "::add-mask::$GEN"
+            ( umask 077; printf '%s' "$GEN" > "$SECRETS/api-key" )
+          fi
+
+          # Fail closed: prove the container cannot reach the internet.
+          if docker exec assay-mobsf bash -c 'timeout 5 bash -c "exec 3<>/dev/tcp/1.1.1.1/443"' 2>/dev/null; then
+            echo "MobSF container has outbound network access"; exit 1
+          fi
+          echo "MobSF ready; outbound network denied"
+
+      - name: Run assay audit
+        shell: bash
+        env:
+          GH_PUSH_TOKEN: ${{ github.token }}
+          REMOTE_URL: ${{ github.server_url }}/${{ github.repository }}.git
+          SERVER_URL: ${{ github.server_url }}
+          SOURCE_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          SCAN_DIR="$GITHUB_WORKSPACE/target/$INPUT_TARGET_DIR"
+          COMMIT="$(git -C "$SCAN_DIR" rev-parse HEAD)"
+          WORK="$RUNNER_TEMP/assay-work"
+          ARGS=(audit --repo "$SCAN_DIR" --commit "$COMMIT" --source-repo "$SOURCE_REPO"
+            --remote "$REMOTE_URL" --output-branch "$INPUT_OUTPUT_BRANCH"
+            --tool-lock "$RUNNER_TEMP/assay-tool-lock.json" --tools "$RUNNER_TEMP/assay-tools"
+            --scanners "$INPUT_SCANNERS" --semgrep-config "$GITHUB_WORKSPACE/assay-engine/$INPUT_SEMGREP_CONFIG"
+            --work-dir "$WORK" --ai "$INPUT_AI" --online --push)
+          if [[ "$INPUT_SCANNERS" == *mobsf* ]]; then
+            APK="$(find "$SCAN_DIR" -path '*/build/outputs/apk/debug/*.apk' | sort | head -n 1)"
+            ARGS+=(--mobsf-image "$MOBSF_IMAGE" --mobsf-base-uri http://127.0.0.1:8000/api/v1
+              --mobsf-api-key-file "$RUNNER_TEMP/assay-mobsf-secrets/api-key")
+            [[ -n "$APK" ]] && ARGS+=(--apk "$APK")
+          fi
+          # The push credential is introduced only here, only for git. Scanner subprocesses are
+          # started with a cleared environment (JvmCommandRunner) and never see it.
+          B64="$(printf 'x-access-token:%s' "$GH_PUSH_TOKEN" | base64 -w0)"
+          echo "::add-mask::$B64"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $B64"
+          unset GH_PUSH_TOKEN
+          assay-engine/build/install/assay/bin/assay "${ARGS[@]}"
+
+      - name: Remove MobSF and secrets
+        if: always()
+        shell: bash
+        run: |
+          docker rm -f assay-mobsf >/dev/null 2>&1 || true
+          sudo iptables -D DOCKER-USER -s 172.30.88.0/24 ! -d 172.30.88.0/24 -j DROP >/dev/null 2>&1 || true
+          docker network rm assay-mobsf-net >/dev/null 2>&1 || true
+          rm -rf "$RUNNER_TEMP/assay-mobsf-secrets" "$RUNNER_TEMP/assay-mobsf-state"
+
+      - name: Upload the .assay/ tree
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ runner.temp }}/assay-work/output/.assay
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14

@@ -199,6 +199,31 @@ fun main() {
         IntegrationSchemas.validate(IntegrationSchemas.PROVING_TESTS, Files.readString(Path.of("fixtures/integrations/valid/proving-tests-valid.json")))
     }
 
+    test("Semgrep rule ids lose the runner-dependent config-directory prefix") {
+        val config = base.resolve("rules.yml")
+        val prefix = requireNotNull(SemgrepAdapter.rulePrefix(config))
+        val raw = sarif("$prefix.assay.android.webview-javascript-enabled", "app/src/Web.kt", 9, "warning")
+        val normalized = SemgrepAdapter.normalize(raw, repo, config).single()
+        check(normalized.ruleId == "assay.android.webview-javascript-enabled") { normalized.ruleId }
+        val elsewhere = Path.of("/somewhere/else/rules.yml")
+        val raw2 = sarif("somewhere.else.assay.android.webview-javascript-enabled", "app/src/Web.kt", 9, "warning")
+        val other = SemgrepAdapter.normalize(raw2, repo, elsewhere).single()
+        check(other.fingerprint == normalized.fingerprint) { "fingerprint depends on config location" }
+    }
+
+    test("init-actions writes a caller workflow that targets the reusable audit, and refuses to clobber") {
+        val target = Files.createDirectory(base.resolve("init-target"))
+        val written = InitActionsCli.write(target, "0123456789abcdef0123456789abcdef01234567")
+        val text = Files.readString(written)
+        check(text.contains("uses: mbaliga/assay/.github/workflows/assay-audit.yml@0123456789abcdef0123456789abcdef01234567"))
+        check(text.contains("assay_ref: 0123456789abcdef0123456789abcdef01234567"))
+        check(text.contains("output_branch: ${'$'}{{ inputs.output_branch }}")) { "template placeholder not expanded" }
+        check(!text.contains("@@") && !text.contains("§"))
+        check(runCatching { InitActionsCli.write(target, "main") }.isFailure)
+        InitActionsCli.write(target, "main", force = true)
+        check(runCatching { InitActionsCli.write(target, "bad ref; rm -rf") }.isFailure)
+    }
+
     println("$passed audit assertions passed")
 }
 

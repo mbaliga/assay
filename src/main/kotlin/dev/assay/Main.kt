@@ -30,6 +30,10 @@ fun main(args: Array<String>) {
         RunnerPreflightCli.run(args)
         return
     }
+    if (InitActionsCli.handles(args.firstOrNull())) {
+        InitActionsCli.run(args)
+        return
+    }
     if (AuditCli.handles(args.firstOrNull())) {
         val code = AuditCli.run(args)
         if (code != 0) kotlin.system.exitProcess(code)
@@ -181,6 +185,7 @@ private fun usage() {
     println("Assay v1.1.0")
     println("commands:")
     println("  audit --repo PATH --commit SHA --output-branch NAME --remote URL --tool-lock FILE --tools DIR [--scanners gitleaks,semgrep,osv,mobsf] [--semgrep-config FILE] [--apk FILE] [--online] [--ai off] [--push]   (exit 0 complete, 2 partial, 3 failed)")
+    println("  init-actions --repo PATH [--assay-ref REF] [--force]   (writes .github/workflows/assay.yml)")
     println("  fixture-scan --repo PATH --bus PATH --source-repo SLUG --source-commit SHA")
     println("  normalize --scanner NAME --input FILE --root PATH --output FILE")
     println("  merge --root PATH --input scanner=FILE [--input scanner=FILE...] --output FILE")

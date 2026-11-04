@@ -1,0 +1,10 @@
+# DELIBERATELY VULNERABLE: jackson-databind 2.9.8 carries many published advisories (OSV).
+[versions]
+agp = "8.9.1"
+jackson = "2.9.8"
+
+[libraries]
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }

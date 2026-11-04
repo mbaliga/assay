@@ -45,6 +45,9 @@ interface ExternalScannerAdapter {
 
     fun command(context: ScannerCommandContext): ScannerCommand
     fun normalize(raw: String, sourceRoot: Path): List<Finding>
+
+    /** Normalisation with knowledge of the scanner config, for scanners that decorate rule ids. */
+    fun normalize(raw: String, sourceRoot: Path, config: Path?): List<Finding> = normalize(raw, sourceRoot)
 }
 
 object GitleaksAdapter : ExternalScannerAdapter {
@@ -80,6 +83,40 @@ object SemgrepAdapter : ExternalScannerAdapter {
     override val scanner = Scanner.SEMGREP
     override val expectedVersion = ToolCatalog.SEMGREP_VERSION
     override val outputFormat = "sarif"
+
+    /**
+     * Semgrep prefixes every rule id with the dotted directory of the config file it loaded
+     * (`/tmp/rules/a.yml` -> `tmp.rules.<id>`). That prefix depends on where the runner put the
+     * file, so it would give the same finding a different fingerprint on every host. Strip it so
+     * the rule id is the one the rule file declares.
+     */
+    fun rulePrefix(config: Path): String? {
+        val parent = config.toAbsolutePath().normalize().parent ?: return null
+        return parent.joinToString(".") { it.toString() }.takeIf { it.isNotBlank() }
+    }
+
+    override fun normalize(raw: String, sourceRoot: Path, config: Path?): List<Finding> {
+        val findings = normalize(raw, sourceRoot)
+        val prefix = config?.let(::rulePrefix)?.let { "$it." } ?: return findings
+        return Sarif.merge(
+            findings.map { f ->
+                if (!f.ruleId.startsWith(prefix) || f.ruleId.length == prefix.length) {
+                    f
+                } else {
+                    Finding(
+                        scanner = f.scanner,
+                        ruleId = f.ruleId.removePrefix(prefix),
+                        message = f.message,
+                        location = f.location,
+                        context = f.context,
+                        level = f.level,
+                        securitySeverity = f.securitySeverity,
+                        properties = f.properties,
+                    )
+                }
+            },
+        )
+    }
 
     override fun command(context: ScannerCommandContext): ScannerCommand {
         val config = requireNotNull(context.config) { "Semgrep requires a pinned local rule configuration" }
@@ -268,7 +305,7 @@ class ScannerOrchestrator(
                 return ScannerOutcome.Failed(adapter.scanner, "scanner report contains an unredacted secret", result.exitCode)
             }
             replaceWithSanitizedReport(outputPath, safeRaw)
-            val findings = adapter.normalize(safeRaw, targetPath)
+            val findings = adapter.normalize(safeRaw, targetPath, configPath)
             val artifact = ScannerArtifact(
                 scanner = adapter.scanner,
                 version = pin.version,
